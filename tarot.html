@@ -167,7 +167,7 @@ function drawCard(){
   const c=deck[Math.floor(Math.random()*deck.length)];
   const rev=Math.random()>0.68;
   currentCard={c,rev};
-  document.getElementById('cardNumber').textContent=c.num+(currentSuit!=='major'?`<span class="wands-badge">🏹</span>`:'');
+  document.getElementById('cardNumber').innerHTML=currentSuit!=='major'?`<span style="font-size:0.6rem">${c.num}</span>`:c.num;
   document.getElementById('cardArt').innerHTML=c.svg;
   const dn=(rev?'逆位 · ':'')+c.name;
   const ne=document.getElementById('cardName');
