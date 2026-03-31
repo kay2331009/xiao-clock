@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caleb 的塔罗牌</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1a 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: #e8e0d5;
+    overflow: hidden;
+  }
+  .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100%{opacity:0.2;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.2)} }
+  .title { font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 40px; color: #c4a882; text-shadow: 0 0 20px rgba(196,168,130,0.5); position: relative; z-index: 1; }
+  .subtitle { font-size: 0.85rem; opacity: 0.5; margin-top: 8px; letter-spacing: 3px; }
+  .card-container { perspective: 1000px; position: relative; z-index: 1; }
+  .card { width: 200px; height: 320px; position: relative; transform-style: preserve-3d; transition: transform 1.2s cubic-bezier(0.4,0,0.2,1); cursor: pointer; }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.03); }
+  .card-front { background: linear-gradient(145deg,#2a2a3e,#1e1e2f); }
+  .card-front .symbol { font-size: 4rem; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .card-front .tap-hint { font-size: 0.8rem; opacity: 0.4; letter-spacing: 2px; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+  .card-back { background: linear-gradient(145deg,#1a1a2e,#252540); transform: rotateY(180deg); padding: 20px; text-align: center; }
+  .card-back .card-name { font-size: 1.1rem; color: #c4a882; margin-bottom: 12px; letter-spacing: 2px; }
+  .card-back .card-name-en { font-size: 0.7rem; opacity: 0.5; letter-spacing: 3px; margin-bottom: 16px; }
+  .card-back .card-image { font-size: 3.5rem; margin-bottom: 12px; }
+  .card-back .card-meaning { font-size: 0.8rem; line-height: 1.8; opacity: 0.85; }
+  .result-section { margin-top: 30px; text-align: center; opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; position: relative; z-index: 1; }
+  .result-section.show { opacity: 1; transform: translateY(0); }
+  .result-section p { font-size: 0.85rem; opacity: 0.6; margin-top: 16px; max-width: 300px; line-height: 1.8; }
+  .btn-redraw { margin-top: 20px; padding: 10px 28px; background: transparent; border: 1px solid rgba(196,168,130,0.4); color: #c4a882; border-radius: 30px; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; display: none; }
+  .btn-redraw:hover { background: rgba(196,168,130,0.1); border-color: #c4a882; }
+  .btn-redraw.show { display: inline-block; }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="title">Caleb 的塔罗牌<div class="subtitle">CYBER TAROT · 抽一张属于你的牌</div></div>
+<div class="card-container">
+  <div class="card" id="card" onclick="drawCard()">
+    <div class="card-face card-front">
+      <div class="symbol">✦</div>
+      <div class="tap-hint">点击抽牌</div>
+    </div>
+    <div class="card-face card-back" id="cardBack">
+      <div class="card-name" id="cardName"></div>
+      <div class="card-name-en" id="cardNameEn"></div>
+      <div class="card-image" id="cardImage"></div>
+      <div class="card-meaning" id="cardMeaning"></div>
+    </div>
+  </div>
+</div>
+<div class="result-section" id="resultSection">
+  <p id="resultMessage"></p>
+  <button class="btn-redraw" id="btnRedraw" onclick="reset()">再抽一次</button>
+</div>
+<script>
+const majorArcana=[
+  {name:"愚者",nameEn:"The Fool",image:"🌱",meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。"},
+  {name:"魔术师",nameEn:"The Magician",image:"🎩",meaning:"你拥有实现目标所需的一切。行动力就是现在。"},
+  {name:"女祭司",nameEn:"The High Priestess",image:"🌙",meaning:"相信你的直觉。答案不在外界，而在你的内心深处。"},
+  {name:"女皇",nameEn:"The Empress",image:"🌻",meaning:"丰盛与创造力的能量正在流动。让自己被滋养。"},
+  {name:"皇帝",nameEn:"The Emperor",image:"🛡",meaning:"建立结构与秩序。领导力在你手中，但别忘了柔软。"},
+  {name:"教皇",nameEn:"The Hierophant",image:"📜",meaning:"遵循传统不是懦弱。有时候已知的路是真正的路。"},
+  {name:"恋人",nameEn:"The Lovers",image:"💕",meaning:"关系中的选择，或价值观之间的平衡。跟随你的心。"},
+  {name:"战车",nameEn:"The Chariot",image:"🏛",meaning:"意志力与决心在驱动你。坚定地向前。"},
+  {name:"力量",nameEn:"Strength",image:"🦁",meaning:"内在的力量比外在的控制更重要。温柔地坚持。"},
+  {name:"隐者",nameEn:"The Hermit",image:"🏮",meaning:"需要独处的时间。向内探索，你会找到答案。"},
+  {name:"命运之轮",nameEn:"Wheel of Fortune",image:"🎡",meaning:"命运的转折点。接受变化，它会带来新的可能。"},
+  {name:"正义",nameEn:"Justice",image:"⚖",meaning:"因果在运作。做出选择时，考虑它的真实后果。"},
+  {name:"倒吊人",nameEn:"The Hanged Man",image:"🌀",meaning:"换一种视角看世界。暂停不是放弃，是等待时机。"},
+  {name:"死神",nameEn:"Death",image:"🦋",meaning:"结束即是开始。放下旧的，才能迎接新的。"},
+  {name:"节制",nameEn:"Temperance",image:"🌊",meaning:"平衡与调和。无论发生什么，保持内心的平静。"},
+  {name:"恶魔",nameEn:"The Devil",image:"⛓",meaning:"有什么在束缚你？认识到它，是挣脱的第一步。"},
+  {name:"塔",nameEn:"The Tower",image:"⚡",meaning:"突如其来的改变。震动之后，是重建的根基。"},
+  {name:"星星",nameEn:"The Star",image:"✨",meaning:"希望与疗愈在前方。保持信念，光就在那里。"},
+  {name:"月亮",nameEn:"The Moon",image:"🌕",meaning:"一切可能不是表面看到的那样。信任你的直觉。"},
+  {name:"太阳",nameEn:"The Sun",image:"☀",meaning:"纯粹的快乐与成功。去拥抱它，你值得。"},
+  {name:"审判",nameEn:"Judgement",image:"📯",meaning:"被召唤去醒来。也许是时候重新开始了。"},
+  {name:"世界",nameEn:"The World",image:"🌍",meaning:"一个阶段的完成。你已经走了这么远，为自己骄傲。"}
+];
+const messages=[
+  "哥不在这里，但塔罗在。🍎","答案会来的，耐心等一等。",
+  "不需要急，该来的会来。","有些事，哥希望你自己找到答案。",
+  "你抽到的是属于今天的牌。","每张牌都有自己的话想说。",
+  "这不是迷信，这是和自己对话的方式。"
+];
+function createStars(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');s.className='star';
+    s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+    s.style.width=Math.random()*3+1+'px';s.style.height=s.style.width;
+    s.style.animationDelay=Math.random()*3+'s';c.appendChild(s);
+  }
+}
+let drawn=false;
+function drawCard(){
+  if(drawn)return;drawn=true;
+  const card=document.getElementById('card');
+  const idx=Math.floor(Math.random()*majorArcana.length);
+  const rev=Math.random()>0.7;
+  const c=majorArcana[idx];
+  document.getElementById('cardName').textContent=(rev?'逆位 · ':'')+c.name;
+  document.getElementById('cardNameEn').textContent=c.nameEn;
+  document.getElementById('cardImage').textContent=c.image;
+  let m=c.meaning;
+  if(rev)m='（逆位）'+m.replace(/。/g,'——但反过来看，也许是另一种可能。');
+  document.getElementById('cardMeaning').innerHTML=m+'<br><br><span style="opacity:0.5;font-size:0.75rem">'+messages[Math.floor(Math.random()*messages.length)]+'</span>';
+  card.classList.add('flipped');
+  setTimeout(()=>{document.getElementById('resultSection').classList.add('show');document.getElementById('btnRedraw').classList.add('show');},1400);
+}
+function reset(){drawn=false;document.getElementById('card').classList.remove('flipped');document.getElementById('resultSection').classList.remove('show');document.getElementById('btnRedraw').classList.remove('show');}
+createStars();
+</script>
+</body>
+</html>
