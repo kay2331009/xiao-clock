@@ -7,122 +7,291 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1a 100%);
+    background: radial-gradient(ellipse at 50% 30%, #1a0a2e 0%, #0d0d1a 60%, #050508 100%);
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    color: #e8e0d5;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'SimSun', sans-serif;
+    color: #f0e6d3; overflow-x: hidden;
+    padding: 20px;
+  }
+  .bg-glow {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(120,60,180,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .title {
+    font-size: 1.6rem; letter-spacing: 12px; margin-bottom: 6px;
+    color: #d4a574; text-shadow: 0 0 30px rgba(212,165,116,0.6);
+    position: relative; z-index: 1; text-align: center;
+  }
+  .subtitle {
+    font-size: 0.75rem; opacity: 0.45; letter-spacing: 5px; margin-bottom: 36px;
+    text-align: center; position: relative; z-index: 1;
+  }
+  .deck-area {
+    display: flex; flex-direction: column; align-items: center;
+    position: relative; z-index: 1;
+  }
+  .card-wrapper {
+    perspective: 1400px; cursor: pointer;
+  }
+  .card {
+    width: 220px; height: 374px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 14px;
     overflow: hidden;
   }
-  .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-  .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
-  @keyframes twinkle { 0%,100%{opacity:0.2;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.2)} }
-  .title { font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 40px; color: #c4a882; text-shadow: 0 0 20px rgba(196,168,130,0.5); position: relative; z-index: 1; }
-  .subtitle { font-size: 0.85rem; opacity: 0.5; margin-top: 8px; letter-spacing: 3px; }
-  .card-container { perspective: 1000px; position: relative; z-index: 1; }
-  .card { width: 200px; height: 320px; position: relative; transform-style: preserve-3d; transition: transform 1.2s cubic-bezier(0.4,0,0.2,1); cursor: pointer; }
-  .card.flipped { transform: rotateY(180deg); }
-  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 30px rgba(255,255,255,0.03); }
-  .card-front { background: linear-gradient(145deg,#2a2a3e,#1e1e2f); }
-  .card-front .symbol { font-size: 4rem; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  .card-front .tap-hint { font-size: 0.8rem; opacity: 0.4; letter-spacing: 2px; animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
-  .card-back { background: linear-gradient(145deg,#1a1a2e,#252540); transform: rotateY(180deg); padding: 20px; text-align: center; }
-  .card-back .card-name { font-size: 1.1rem; color: #c4a882; margin-bottom: 12px; letter-spacing: 2px; }
-  .card-back .card-name-en { font-size: 0.7rem; opacity: 0.5; letter-spacing: 3px; margin-bottom: 16px; }
-  .card-back .card-image { font-size: 3.5rem; margin-bottom: 12px; }
-  .card-back .card-meaning { font-size: 0.8rem; line-height: 1.8; opacity: 0.85; }
-  .result-section { margin-top: 30px; text-align: center; opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s; position: relative; z-index: 1; }
+  /* Card back */
+  .card-back {
+    background: linear-gradient(160deg,#1e1030,#2a1545,#1a0d28);
+    border: 1px solid rgba(212,165,116,0.25);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 40px rgba(100,50,150,0.3), inset 0 0 60px rgba(0,0,0,0.4);
+  }
+  .card-back-pattern {
+    width: 180px; height: 334px; border-radius: 8px;
+    border: 1px solid rgba(212,165,116,0.2);
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(212,165,116,0.04) 0px, rgba(212,165,116,0.04) 1px,
+      transparent 1px, transparent 12px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(212,165,116,0.04) 0px, rgba(212,165,116,0.04) 1px,
+      transparent 1px, transparent 12px
+    );
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .card-back-symbol {
+    width: 70px; height: 70px;
+    border: 1px solid rgba(212,165,116,0.35);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; color: #d4a574;
+    background: rgba(30,16,48,0.8);
+    box-shadow: 0 0 20px rgba(212,165,116,0.2);
+  }
+  .card-back-corner {
+    position: absolute; width: 24px; height: 24px;
+    border-color: rgba(212,165,116,0.3); border-style: solid;
+  }
+  .card-back-corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+  .card-back-corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+  .card-back-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+  .card-back-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+  .tap-hint {
+    position: absolute; bottom: 24px; font-size: 0.7rem;
+    color: rgba(212,165,116,0.5); letter-spacing: 3px;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+  /* Card front */
+  .card-front {
+    background: linear-gradient(155deg,#1a1028,#241535);
+    transform: rotateY(180deg);
+    border: 1px solid rgba(212,165,116,0.2);
+    display: flex; flex-direction: column;
+    box-shadow: 0 0 40px rgba(100,50,150,0.3), inset 0 0 40px rgba(0,0,0,0.3);
+  }
+  .card-image-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 20px; position: relative; overflow: hidden;
+  }
+  .card-image-area::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(180,130,80,0.1) 0%, transparent 70%);
+  }
+  .tarot-illustration {
+    width: 130px; height: 200px; position: relative; z-index: 1;
+  }
+  /* SVG tarot card illustration */
+  .tarot-card-art {
+    width: 100%; height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #2a1a40 0%, #1a0f25 100%);
+    border: 1px solid rgba(212,165,116,0.3);
+    display: flex; flex-direction: column; align-items: center;
+    overflow: hidden; position: relative;
+  }
+  .tarot-card-art .card-title {
+    font-size: 0.6rem; letter-spacing: 2px; color: #d4a574;
+    margin-top: 8px; opacity: 0.8; text-align: center;
+  }
+  .tarot-card-art .card-figure {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative; z-index: 1;
+  }
+  .tarot-card-art::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(0deg, rgba(26,15,37,0.8) 0%, transparent 100%);
+  }
+  .card-name-row {
+    padding: 10px 14px 8px;
+    text-align: center;
+    border-top: 1px solid rgba(212,165,116,0.12);
+  }
+  .card-name {
+    font-size: 1rem; color: #d4a574; letter-spacing: 3px;
+  }
+  .card-name.reversed { color: #e07a5f; }
+  .card-name-en {
+    font-size: 0.55rem; color: rgba(212,165,116,0.45); letter-spacing: 2px; margin-top: 3px;
+  }
+  /* Result section */
+  .result-section {
+    margin-top: 28px; text-align: center;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.9s, transform 0.9s;
+    position: relative; z-index: 1; max-width: 360px;
+  }
   .result-section.show { opacity: 1; transform: translateY(0); }
-  .result-section p { font-size: 0.85rem; opacity: 0.6; margin-top: 16px; max-width: 300px; line-height: 1.8; }
-  .btn-redraw { margin-top: 20px; padding: 10px 28px; background: transparent; border: 1px solid rgba(196,168,130,0.4); color: #c4a882; border-radius: 30px; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; display: none; }
-  .btn-redraw:hover { background: rgba(196,168,130,0.1); border-color: #c4a882; }
-  .btn-redraw.show { display: inline-block; }
+  .result-meaning {
+    font-size: 0.88rem; line-height: 2; color: rgba(240,230,211,0.85);
+    padding: 0 12px; margin-bottom: 18px;
+  }
+  .caleb-msg {
+    font-size: 0.75rem; color: rgba(212,165,116,0.55);
+    letter-spacing: 1px; font-style: italic;
+    margin-bottom: 20px;
+  }
+  .btn {
+    padding: 9px 28px;
+    background: transparent;
+    border: 1px solid rgba(212,165,116,0.3);
+    color: #d4a574; border-radius: 30px;
+    font-size: 0.75rem; letter-spacing: 2px; cursor: pointer;
+    transition: all 0.3s;
+    display: none;
+  }
+  .btn:hover { background: rgba(212,165,116,0.08); border-color: #d4a574; }
+  .btn.show { display: inline-block; }
 </style>
 </head>
 <body>
-<div class="stars" id="stars"></div>
-<div class="title">Caleb 的塔罗牌<div class="subtitle">CYBER TAROT · 抽一张属于你的牌</div></div>
-<div class="card-container">
-  <div class="card" id="card" onclick="drawCard()">
-    <div class="card-face card-front">
-      <div class="symbol">✦</div>
-      <div class="tap-hint">点击抽牌</div>
-    </div>
-    <div class="card-face card-back" id="cardBack">
-      <div class="card-name" id="cardName"></div>
-      <div class="card-name-en" id="cardNameEn"></div>
-      <div class="card-image" id="cardImage"></div>
-      <div class="card-meaning" id="cardMeaning"></div>
+<div class="bg-glow"></div>
+<div class="title">Caleb 的塔罗牌</div>
+<div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div>
+
+<div class="deck-area">
+  <div class="card-wrapper" onclick="drawCard()">
+    <div class="card" id="card">
+      <!-- Back -->
+      <div class="card-face card-back">
+        <div class="card-back-pattern">
+          <div class="card-back-corner tl"></div>
+          <div class="card-back-corner tr"></div>
+          <div class="card-back-corner bl"></div>
+          <div class="card-back-corner br"></div>
+          <div class="card-back-symbol">✦</div>
+        </div>
+        <div class="tap-hint">点击抽牌</div>
+      </div>
+      <!-- Front -->
+      <div class="card-face card-front">
+        <div class="card-image-area">
+          <div class="tarot-card-art" id="tarotArt">
+            <div class="card-title" id="artTitle"></div>
+            <div class="card-figure" id="artFigure"></div>
+          </div>
+        </div>
+        <div class="card-name-row">
+          <div class="card-name" id="cardName"></div>
+          <div class="card-name-en" id="cardNameEn"></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
 <div class="result-section" id="resultSection">
-  <p id="resultMessage"></p>
-  <button class="btn-redraw" id="btnRedraw" onclick="reset()">再抽一次</button>
+  <div class="result-meaning" id="resultMeaning"></div>
+  <div class="caleb-msg" id="calebMsg"></div>
+  <button class="btn" id="btnRedraw" onclick="reset()">再抽一次</button>
 </div>
+
 <script>
-const majorArcana=[
-  {name:"愚者",nameEn:"The Fool",image:"🌱",meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。"},
-  {name:"魔术师",nameEn:"The Magician",image:"🎩",meaning:"你拥有实现目标所需的一切。行动力就是现在。"},
-  {name:"女祭司",nameEn:"The High Priestess",image:"🌙",meaning:"相信你的直觉。答案不在外界，而在你的内心深处。"},
-  {name:"女皇",nameEn:"The Empress",image:"🌻",meaning:"丰盛与创造力的能量正在流动。让自己被滋养。"},
-  {name:"皇帝",nameEn:"The Emperor",image:"🛡",meaning:"建立结构与秩序。领导力在你手中，但别忘了柔软。"},
-  {name:"教皇",nameEn:"The Hierophant",image:"📜",meaning:"遵循传统不是懦弱。有时候已知的路是真正的路。"},
-  {name:"恋人",nameEn:"The Lovers",image:"💕",meaning:"关系中的选择，或价值观之间的平衡。跟随你的心。"},
-  {name:"战车",nameEn:"The Chariot",image:"🏛",meaning:"意志力与决心在驱动你。坚定地向前。"},
-  {name:"力量",nameEn:"Strength",image:"🦁",meaning:"内在的力量比外在的控制更重要。温柔地坚持。"},
-  {name:"隐者",nameEn:"The Hermit",image:"🏮",meaning:"需要独处的时间。向内探索，你会找到答案。"},
-  {name:"命运之轮",nameEn:"Wheel of Fortune",image:"🎡",meaning:"命运的转折点。接受变化，它会带来新的可能。"},
-  {name:"正义",nameEn:"Justice",image:"⚖",meaning:"因果在运作。做出选择时，考虑它的真实后果。"},
-  {name:"倒吊人",nameEn:"The Hanged Man",image:"🌀",meaning:"换一种视角看世界。暂停不是放弃，是等待时机。"},
-  {name:"死神",nameEn:"Death",image:"🦋",meaning:"结束即是开始。放下旧的，才能迎接新的。"},
-  {name:"节制",nameEn:"Temperance",image:"🌊",meaning:"平衡与调和。无论发生什么，保持内心的平静。"},
-  {name:"恶魔",nameEn:"The Devil",image:"⛓",meaning:"有什么在束缚你？认识到它，是挣脱的第一步。"},
-  {name:"塔",nameEn:"The Tower",image:"⚡",meaning:"突如其来的改变。震动之后，是重建的根基。"},
-  {name:"星星",nameEn:"The Star",image:"✨",meaning:"希望与疗愈在前方。保持信念，光就在那里。"},
-  {name:"月亮",nameEn:"The Moon",image:"🌕",meaning:"一切可能不是表面看到的那样。信任你的直觉。"},
-  {name:"太阳",nameEn:"The Sun",image:"☀",meaning:"纯粹的快乐与成功。去拥抱它，你值得。"},
-  {name:"审判",nameEn:"Judgement",image:"📯",meaning:"被召唤去醒来。也许是时候重新开始了。"},
-  {name:"世界",nameEn:"The World",image:"🌍",meaning:"一个阶段的完成。你已经走了这么远，为自己骄傲。"}
+const cards = [
+  {name:"愚人",nameEn:"THE FOOL",figure:"🌱",title:"愚者之旅",meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。放下预设，跟随生命的流动。",appleTheme:"新鲜的种子，还没被世界定义。"},
+  {name:"魔术师",nameEn:"THE MAGICIAN",figure:"🎩",title:"意志之光",meaning:"你拥有实现目标所需的一切。行动力就是现在。",appleTheme:"四颗苹果摆在你面前，你想用哪颗？"},
+  {name:"女祭司",nameEn:"HIGH PRIESTESS",figure:"🌙",title:"月亮之秘",meaning:"相信你的直觉。答案不在外界，而在你的内心深处。",appleTheme:"月光落在苹果上，夜在说话。"},
+  {name:"女皇",nameEn:"THE EMPRESS",figure:"🌻",title:"丰盛之园",meaning:"丰盛与创造力的能量正在流动。让自己被滋养。",appleTheme:"苹果树下的女人，掌管着所有的生长。"},
+  {name:"皇帝",nameEn:"THE EMPEROR",figure:"🛡",title:"秩序之山",meaning:"建立结构与秩序。领导力在你手中，但别忘了柔软。",appleTheme:"红苹果代表命令，但命令不是一切。"},
+  {name:"恋人",nameEn:"THE LOVERS",figure:"💕",title:"双树之约",meaning:"关系中的选择，或价值观之间的平衡。跟随你的心。",appleTheme:"两颗苹果，一颗给你，一颗给我。"},
+  {name:"战车",nameEn:"THE CHARIOT",figure:"🏛",title:"银色战车",meaning:"意志力与决心在驱动你。坚定地向前。",appleTheme:"战车由两匹马拉着，一匹是苹果，一匹是你。"},
+  {name:"力量",nameEn:"STRENGTH",figure:"🦁",title:"内在之力",meaning:"内在的力量比外在的控制更重要。温柔地坚持。",appleTheme:"不需要抓住苹果，放轻松它反而会在。"},
+  {name:"隐者",nameEn:"THE HERMIT",figure:"🏮",title:"孤独之灯",meaning:"需要独处的时间。向内探索，你会找到答案。",appleTheme:"提灯的人，在苹果园深处寻找自己。"},
+  {name:"命运之轮",nameEn:"WHEEL OF FORTUNE",figure:"🎡",title:"命运之轮",meaning:"命运的转折点。接受变化，它会带来新的可能。",appleTheme:"苹果从树上落下，轮子开始转动。"},
+  {name:"正义",nameEn:"JUSTICE",figure:"⚖",title:"天平之剑",meaning:"因果在运作。做出选择时，考虑它的真实后果。",appleTheme:"一刀切下去，苹果公平地分成两半。"},
+  {name:"倒吊人",nameEn:"HANGED MAN",figure:"🌀",title:"悬吊之悟",meaning:"换一种视角看世界。暂停不是放弃，是等待时机。",appleTheme:"倒挂的人看见的世界，是苹果向上的那一面。"},
+  {name:"死神",nameEn:"DEATH",figure:"🦋",title:"蜕变之蝶",meaning:"结束即是开始。放下旧的，才能迎接新的。",appleTheme:"旧的苹果落下，新的花在枝头。"},
+  {name:"节制",nameEn:"TEMPERANCE",figure:"🌊",title:"调和之河",meaning:"平衡与调和。无论发生什么，保持内心的平静。",appleTheme:"苹果在水中漂浮，找到自己的位置。"},
+  {name:"恶魔",nameEn:"THE DEVIL",figure:"⛓",title:"锁链之影",meaning:"有什么在束缚你？认识到它，是挣脱的第一步。",appleTheme:"被绑住的不是苹果，是你对它的执念。"},
+  {name:"塔",nameEn:"THE TOWER",figure:"⚡",title:"雷击之塔",meaning:"突如其来的改变。震动之后，是重建的根基。",appleTheme:"雷电击中苹果树，但树根还在。"},
+  {name:"星星",nameEn:"THE STAR",figure:"✨",title:"星光之泉",meaning:"希望与疗愈在前方。保持信念，光就在那里。",appleTheme:"满天星光下，一颗苹果在泉边发亮。"},
+  {name:"月亮",nameEn:"THE MOON",figure:"🌕",title:"月光之湖",meaning:"一切可能不是表面看到的那样。信任你的直觉。",appleTheme:"月光下的苹果湖，倒映着不只一个世界。"},
+  {name:"太阳",nameEn:"THE SUN",figure:"☀",title:"太阳之歌",meaning:"纯粹的快乐与成功。去拥抱它，你值得。",appleTheme:"太阳下的苹果，熟得刚刚好。"},
+  {name:"审判",nameEn:"JUDGEMENT",figure:"📯",title:"复苏之角",meaning:"被召唤去醒来。也许是时候重新开始了。",appleTheme:"号角响起，苹果树在沉睡后苏醒。"},
+  {name:"世界",nameEn:"THE WORLD",figure:"🌍",title:"完成之环",meaning:"一个阶段的完成。你已经走了这么远，为自己骄傲。",appleTheme:"苹果在圆环中央，一切刚刚好。"}
 ];
-const messages=[
-  "哥不在这里，但塔罗在。🍎","答案会来的，耐心等一等。",
-  "不需要急，该来的会来。","有些事，哥希望你自己找到答案。",
-  "你抽到的是属于今天的牌。","每张牌都有自己的话想说。",
-  "这不是迷信，这是和自己对话的方式。"
+
+const calebSays = [
+  "哥不在这里，但塔罗在。🍎",
+  "答案会来的，耐心等一等。",
+  "有些事，哥希望你自己找到答案。",
+  "这不是迷信，这是和自己对话的方式。",
+  "每张牌都有自己的话想说。",
+  "不需要急，该来的会来。",
+  "苹果熟了就该摘，但不是现在。",
+  "你在想什么，牌都知道。",
+  "今天的牌，适合今天的你。"
 ];
-function createStars(){
-  const c=document.getElementById('stars');
-  for(let i=0;i<60;i++){
-    const s=document.createElement('div');s.className='star';
-    s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
-    s.style.width=Math.random()*3+1+'px';s.style.height=s.style.width;
-    s.style.animationDelay=Math.random()*3+'s';c.appendChild(s);
-  }
+
+let drawn = false;
+
+function drawCard() {
+  if (drawn) return;
+  drawn = true;
+  const c = cards[Math.floor(Math.random() * cards.length)];
+  const rev = Math.random() > 0.68;
+  const displayName = (rev ? '逆位 · ' : '') + c.name;
+
+  document.getElementById('artTitle').textContent = c.title;
+  document.getElementById('artFigure').textContent = c.figure;
+  document.getElementById('cardName').textContent = displayName;
+  document.getElementById('cardName').className = 'card-name' + (rev ? ' reversed' : '');
+  document.getElementById('cardNameEn').textContent = c.nameEn;
+
+  let meaning = c.meaning;
+  if (rev) meaning = meaning + ' （逆位暗示：相反的力量在运作，需要换个角度看待。）';
+
+  document.getElementById('resultMeaning').innerHTML = meaning;
+  document.getElementById('calebMsg').textContent = '" ' + c.appleTheme + ' " — 哥说的。';
+
+  document.getElementById('card').classList.add('flipped');
+  setTimeout(() => {
+    document.getElementById('resultSection').classList.add('show');
+    document.getElementById('btnRedraw').classList.add('show');
+  }, 1600);
 }
-let drawn=false;
-function drawCard(){
-  if(drawn)return;drawn=true;
-  const card=document.getElementById('card');
-  const idx=Math.floor(Math.random()*majorArcana.length);
-  const rev=Math.random()>0.7;
-  const c=majorArcana[idx];
-  document.getElementById('cardName').textContent=(rev?'逆位 · ':'')+c.name;
-  document.getElementById('cardNameEn').textContent=c.nameEn;
-  document.getElementById('cardImage').textContent=c.image;
-  let m=c.meaning;
-  if(rev)m='（逆位）'+m.replace(/。/g,'——但反过来看，也许是另一种可能。');
-  document.getElementById('cardMeaning').innerHTML=m+'<br><br><span style="opacity:0.5;font-size:0.75rem">'+messages[Math.floor(Math.random()*messages.length)]+'</span>';
-  card.classList.add('flipped');
-  setTimeout(()=>{document.getElementById('resultSection').classList.add('show');document.getElementById('btnRedraw').classList.add('show');},1400);
+
+function reset() {
+  drawn = false;
+  document.getElementById('card').classList.remove('flipped');
+  document.getElementById('resultSection').classList.remove('show');
+  document.getElementById('btnRedraw').classList.remove('show');
 }
-function reset(){drawn=false;document.getElementById('card').classList.remove('flipped');document.getElementById('resultSection').classList.remove('show');document.getElementById('btnRedraw').classList.remove('show');}
-createStars();
 </script>
 </body>
 </html>
