@@ -206,6 +206,189 @@
   <button class="btn" id="btnResetSpread" onclick="event.stopPropagation();resetSpread()">重选牌阵</button>
 </div>
 
+
+
+/* ===== 星云粒子画布 ===== */
+#nebula-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.nebula-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden}
+.nebula-layer::before{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(140,30,60,0.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 70%,rgba(60,20,100,0.2) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(200,80,100,0.08) 0%,transparent 70%);animation:nebulaDrift1 20s ease-in-out infinite}
+.nebula-layer::after{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse 70% 50% at 70% 20%,rgba(80,40,120,0.15) 0%,transparent 60%),radial-gradient(ellipse 50% 70% at 30% 80%,rgba(180,40,60,0.12) 0%,transparent 55%),radial-gradient(ellipse 40% 60% at 60% 60%,rgba(100,20,80,0.1) 0%,transparent 65%);animation:nebulaDrift2 25s ease-in-out infinite}
+@keyframes nebulaDrift1{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(3%,2%) rotate(1deg)}66%{transform:translate(-2%,-1%) rotate(-1deg)}}
+@keyframes nebulaDrift2{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-3%,2%) rotate(-1.5deg)}}
+
+/* ===== 增强主界面 ===== */
+.landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;cursor:pointer;position:relative;z-index:1}
+.landing-apple{position:relative;animation:appleFloat 3s ease-in-out infinite;transition:transform 0.3s;filter:drop-shadow(0 0 20px rgba(200,83,74,0.5)) drop-shadow(0 0 40px rgba(200,83,74,0.2))}
+.landing-apple::before{content:'';position:absolute;inset:-30px;background:radial-gradient(circle,rgba(200,83,74,0.15) 0%,transparent 70%);border-radius:50%;animation:glowPulse 2.5s ease-in-out infinite}
+.landing-apple:hover{transform:scale(1.08)}
+@keyframes appleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+@keyframes glowPulse{0%,100%{opacity:0.5;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.landing-hint{font-size:0.7rem;color:rgba(200,83,74,0.5);letter-spacing:3px;margin-top:20px;animation:pulse 2s ease-in-out infinite}
+.landing-modes{display:flex;gap:24px;margin-top:40px;flex-wrap:wrap;justify-content:center;display:none}
+.landing-modes.show{display:flex}
+.mode-btn{width:160px;padding:24px 20px;background:rgba(200,83,74,0.06);border:1px solid rgba(200,83,74,0.18);border-radius:16px;cursor:pointer;transition:all 0.3s;text-align:center;backdrop-filter:blur(8px)}
+.mode-btn:hover{background:rgba(200,83,74,0.12);border-color:rgba(200,83,74,0.4);transform:translateY(-4px);box-shadow:0 8px 30px rgba(200,83,74,0.15)}
+.mode-icon{font-size:2.5rem;margin-bottom:12px}
+.mode-title{font-size:1rem;color:#c8534a;letter-spacing:3px;margin-bottom:8px}
+.mode-desc{font-size:0.65rem;color:rgba(200,83,74,0.5);letter-spacing:1px}
+.single-mode,.spread-mode{display:none}
+.single-mode.show,.spread-mode.show{display:block}
+.back-btn{position:fixed;top:20px;right:20px;padding:8px 16px;font-size:0.7rem;color:rgba(200,83,74,0.6);letter-spacing:2px;cursor:pointer;background:rgba(26,10,10,0.8);border:1px solid rgba(200,83,74,0.25);border-radius:20px;z-index:100;transition:all 0.3s;backdrop-filter:blur(8px)}
+.back-btn:hover{color:#c8534a;border-color:#c8534a;background:rgba(200,83,74,0.1)}
+</head>
+<body>
+<canvas id="nebula-canvas"></canvas>
+<div class="nebula-layer"></div>
+
+<div class="title">Caleb 的苹果塔罗<div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div></div>
+
+<div class="landing" id="landing">
+  <div class="landing-apple" id="landingApple">
+    <svg viewBox="0 0 100 100" width="100" height="100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="appleGlow" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#c8534a" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="58" r="55" fill="url(#appleGlow)"/>
+      <ellipse cx="50" cy="58" rx="36" ry="38" fill="#c8534a"/>
+      <ellipse cx="50" cy="58" rx="22" ry="24" fill="#8B0000" opacity="0.3"/>
+      <ellipse cx="42" cy="48" rx="8" ry="10" fill="#f5e6d3" opacity="0.15"/>
+      <path d="M50 20 Q47 8 52 4" stroke="#5a3a2a" stroke-width="2" fill="none"/>
+      <path d="M52 4 Q62 0 68 8 Q60 14 52 4" fill="#5a7a3a"/>
+      <path d="M50 58 Q68 68 60 88 Q50 98 40 88 Q32 68 50 58" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.35"/>
+    </svg>
+  </div>
+  <div class="landing-hint" id="landingHint">点击苹果开始</div>
+  <div class="landing-modes" id="landingModes">
+    <div class="mode-btn" onclick="enterMode('single')">
+      <div class="mode-icon">&#10022;</div>
+      <div class="mode-title">单独抽牌</div>
+      <div class="mode-desc">从花色中选择一张牌</div>
+    </div>
+    <div class="mode-btn" onclick="enterMode('spread')">
+      <div class="mode-icon">&#10070;</div>
+      <div class="mode-title">牌阵占卜</div>
+      <div class="mode-desc">三张牌 · 凯尔特十字</div>
+    </div>
+  </div>
+</div>
+
+<div class="single-mode" id="singleMode">
+  <div class="suit-tabs">
+    <div class="suit-tab active" data-suit="major" onclick="switchSuit('major')">大阿卡纳</div>
+    <div class="suit-tab" data-suit="wands" onclick="switchSuit('wands')">Wands</div>
+    <div class="suit-tab" data-suit="cups" onclick="switchSuit('cups')">Cups</div>
+    <div class="suit-tab" data-suit="swords" onclick="switchSuit('swords')">Swords</div>
+    <div class="suit-tab" data-suit="pentacles" onclick="switchSuit('pentacles')">Pentacles</div>
+  </div>
+  <div class="back-btn" onclick="goBack()">&#8592; 返回主界面</div>
+</div>
+
+<div class="spread-mode" id="spreadMode">
+  <div class="back-btn" onclick="goBack()">&#8592; 返回主界面</div>
+  <div class="spread-nav">
+    <button onclick="startSpread(1)">三张牌</button>
+    <button onclick="startSpread(2)">五张牌</button>
+    <button onclick="startSpread(3)">Celtic Cross</button>
+  </div>
+  <div class="spread-info" id="spreadInfo"></div>
+  <div class="spread-cards" id="spreadCards"></div>
+  <div class="spread-detail" id="spreadDetail">
+    <div class="spread-detail-title" id="spreadDetailTitle"></div>
+    <div class="spread-detail-meaning" id="spreadDetailMeaning"></div>
+    <div class="spread-back-hint">点击卡片可翻转</div>
+  </div>
+</div>
+
+<div class="card-wrapper">
+  <div class="card" id="card" onclick="if(!drawn)drawCard();else toggleFlip()">
+    <div class="card-face card-back">
+      <div class="card-back-inner">
+        <div class="checkerboard"></div>
+        <div class="back-center"><svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="14" r="10" fill="#c8534a" opacity="0.9"/><ellipse cx="18" cy="14" rx="5" ry="4" fill="#8B0000" opacity="0.4"/><path d="M18 4 Q20 0 23 2" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><path d="M16 6 Q12 4 13 8" fill="#3a5a2a"/></svg></div>
+        <div class="back-corner tl"></div><div class="back-corner tr"></div><div class="back-corner bl"></div><div class="back-corner br"></div>
+        <div class="tap-hint" id="tapHint">点击抽牌</div>
+      </div>
+    </div>
+    <div class="card-face card-front">
+      <div class="cb-border"></div>
+      <div class="card-inner">
+        <div class="card-number-circle" id="cardNumber"></div>
+        <div class="card-art-area"><div class="card-art-svg" id="cardArt"></div></div>
+        <div class="card-bottom">
+          <div class="card-name" id="cardName"></div>
+          <div class="card-name-en" id="cardNameEn"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="result-section" id="resultSection">
+  <div class="flip-hint" id="flipHint">点击牌面可翻转查看背面</div>
+  <div class="result-meaning" id="result-meaning"></div>
+  <div class="caleb-msg" id="calebMsg"></div>
+  <button class="btn" id="btnRedraw" onclick="event.stopPropagation();reset()">再抽一次</button>
+  <button class="btn" id="btnResetSpread" onclick="event.stopPropagation();resetSpread()">重选牌阵</button>
+</div>
+<script>
+// ===== 星云粒子系统 =====
+(function(){
+  const canvas = document.getElementById('nebula-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  class Particle {
+    constructor(){ this.reset(); }
+    reset(){
+      this.x = Math.random() * W; this.y = Math.random() * H;
+      this.size = Math.random() * 2 + 0.5;
+      this.speedX = (Math.random() - 0.5) * 0.3;
+      this.speedY = (Math.random() - 0.5) * 0.3;
+      this.opacity = Math.random() * 0.5 + 0.1;
+      this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+      this.twinklePhase = Math.random() * Math.PI * 2;
+      const rnd = Math.random();
+      if(rnd < 0.4) this.color = '200,83,74';
+      else if(rnd < 0.7) this.color = '240,208,128';
+      else this.color = '180,100,200';
+    }
+    update(){
+      this.x += this.speedX; this.y += this.speedY;
+      this.twinklePhase += this.twinkleSpeed;
+      if(this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+    }
+    draw(){
+      const o = this.opacity * (0.5 + 0.5 * Math.sin(this.twinklePhase));
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.color},${o})`; ctx.fill();
+      if(this.size > 1.2){
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color},${o * 0.08})`; ctx.fill();
+      }
+    }
+  }
+  const count = Math.min(120, Math.floor((W * H) / 12000));
+  for(let i = 0; i < count; i++) particles.push(new Particle());
+  function burst(){
+    const cx = Math.random() * W, cy = Math.random() * H;
+    for(let i = 0; i < 12; i++){
+      const p = new Particle(); p.x = cx; p.y = cy; p.size = Math.random() * 1.5 + 0.5;
+      const angle = (i / 12) * Math.PI * 2, speed = Math.random() * 1.5 + 0.5;
+      p.speedX = Math.cos(angle) * speed; p.speedY = Math.sin(angle) * speed;
+      p.opacity = 0.8; particles.push(p);
+    }
+    if(particles.length > 250) particles.splice(0, 20);
+  }
+  setInterval(burst, 4000);
+  function animate(){ ctx.clearRect(0, 0, W, H); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+  animate();
+})();
+</script>
 <script>
 const majorArcana=[
   {name:"愚人",num:"0",nameEn:"THE FOOL",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a0a"/><rect width="160" height="240" fill="url(#g0)" opacity="0.3"/><defs><radialGradient id="g0" cx="50%" cy="40%"><stop offset="0%" stop-color="#c8534a" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><ellipse cx="80" cy="120" rx="38" ry="50" fill="#c8534a"/><ellipse cx="80" cy="120" rx="20" ry="30" fill="#8B0000" opacity="0.5"/><ellipse cx="80" cy="120" rx="8" ry="12" fill="#f5e6d3" opacity="0.8"/><path d="M80 75 Q110 90 100 120 Q90 150 80 120 Q70 90 80 75" stroke="#c8534a" stroke-width="4" fill="none" opacity="0.6"/><path d="M80 70 Q75 55 82 50 Q90 55 85 70" fill="#5a7a3a"/><path d="M82 52 Q88 45 95 50" stroke="#3a5a2a" stroke-width="1" fill="none"/><ellipse cx="72" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(-15 72 108)"/><ellipse cx="88" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(15 88 108)"/><circle cx="80" cy="118" r="6" fill="#f5e6d3"/><circle cx="78" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="82" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="30" cy="40" r="1.5" fill="#c8534a" opacity="0.5"/><circle cx="130" cy="60" r="1" fill="#c8534a" opacity="0.4"/><circle cx="50" cy="200" r="1" fill="#c8534a" opacity="0.3"/></svg>`,meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。",apple:"被咬过的苹果核里，藏着新世界的大门。"},
