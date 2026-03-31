@@ -55,6 +55,32 @@
   .btn:hover{background:rgba(200,83,74,0.08);border-color:#c8534a}
   .btn.show{display:inline-block}
   .wands-badge{background:rgba(200,83,74,0.1);border:1px solid rgba(200,83,74,0.3);color:#c8534a;font-size:0.6rem;letter-spacing:2px;padding:2px 8px;border-radius:10px;margin-left:4px}
+
+  .spread-info{margin-bottom:16px;font-size:0.75rem;color:rgba(200,83,74,0.6);letter-spacing:2px;text-align:center;display:none}
+  .spread-info.show{display:block}
+  .spread-cards{display:none;flex-wrap:wrap;justify-content:center;gap:12px;max-width:700px;margin:0 auto}
+  .spread-cards.show{display:flex}
+  .spread-card-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .spread-card-item .mini-card{width:90px;height:153px;position:relative;transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(0.23,1,0.32,1);cursor:pointer}
+  .spread-card-item .mini-card.flipped{transform:rotateY(180deg)}
+  .spread-card-item .mini-card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:8px;overflow:hidden}
+  .spread-card-item .mini-card-back{background:linear-gradient(160deg,#1a0808,#2a1010);border:1px solid rgba(200,83,74,0.3);display:flex;align-items:center;justify-content:center}
+  .spread-card-item .mini-card-front{background:linear-gradient(155deg,#1a0a0a,#241010);transform:rotateY(180deg);border:1px solid rgba(200,83,74,0.2)}
+  .spread-card-item .mini-card-front .sfx-art{width:100%;height:115px;display:flex;align-items:center;justify-content:center}
+  .spread-card-item .mini-card-front .sfx-art svg{width:70px;height:110px}
+  .spread-card-item .mini-card-front .sfx-name{font-size:0.55rem;color:#c8534a;text-align:center;padding:0 4px 4px;letter-spacing:1px}
+  .spread-card-item .position-label{font-size:0.6rem;color:rgba(200,83,74,0.5);letter-spacing:2px;text-align:center}
+  .spread-detail{display:none;margin-top:20px;text-align:center;padding:16px;background:rgba(200,83,74,0.05);border:1px solid rgba(200,83,74,0.15);border-radius:12px;max-width:500px;margin-left:auto;margin-right:auto}
+  .spread-detail.show{display:block}
+  .spread-detail-title{font-size:0.7rem;color:#c8534a;letter-spacing:3px;margin-bottom:12px}
+  .spread-detail-meaning{font-size:0.8rem;line-height:1.9;color:rgba(240,230,211,0.8)}
+  .spread-back-hint{font-size:0.6rem;color:rgba(200,83,74,0.4);letter-spacing:2px;margin-top:8px}
+  .spread-nav{display:none;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+  .spread-nav.show{display:flex}
+  .spread-nav button{padding:8px 20px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:#c8534a;border-radius:20px;font-size:0.65rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s}
+  .spread-nav button:hover{background:rgba(200,83,74,0.1);border-color:#c8534a}
+  .spread-nav button.active{background:rgba(200,83,74,0.15);border-color:#c8534a}
+
 </style>
 </head>
 <body>
@@ -66,6 +92,7 @@
   <div class="suit-tab" data-suit="cups" onclick="switchSuit('cups')">Cups</div>
   <div class="suit-tab" data-suit="swords" onclick="switchSuit('swords')">Swords</div>
   <div class="suit-tab" data-suit="pentacles" onclick="switchSuit('pentacles')">Pentacles</div>
+  <div class="suit-tab" data-suit="spread" onclick="switchSuit('spread')">牌阵</div>
 </div>
 
 <div class="card-wrapper">
@@ -92,6 +119,19 @@
   </div>
 </div>
 
+
+<div class="spread-info" id="spreadInfo"></div>
+<div class="spread-cards" id="spreadCards"></div>
+<div class="spread-detail" id="spreadDetail">
+  <div class="spread-detail-title" id="spreadDetailTitle"></div>
+  <div class="spread-detail-meaning" id="spreadDetailMeaning"></div>
+  <div class="spread-back-hint">点击卡片可翻转</div>
+</div>
+<div class="spread-nav" id="spreadNav">
+  <button class="" onclick="startSpread(1)">三张牌</button>
+  <button class="" onclick="startSpread(2)">五张牌</button>
+  <button class="" onclick="startSpread(3)">Celtic Cross</button>
+</div>
 <div class="result-section" id="resultSection">
   <div class="flip-hint" id="flipHint">点击牌面可翻转查看背面</div>
   <div class="result-meaning" id="resultMeaning"></div>
@@ -204,11 +244,36 @@ const calebSays=[
 ];
 
 let drawn=false,currentCard=null,isFlipped=false,currentSuit='major';
+let spreadMode=false,spreadType=0,spreadCardsDrawn=[],spreadIndex=0,spreadFlipped=[];
+const allCards=majorArcana.concat(wandsSuit,cupsSuit,swordsSuit,pentaclesSuit);
+
+const spreadConfigs={
+  1:{name:"三张牌 · 过去现在未来",positions:["过去","现在","未来"],meanings:["回顾过去，这件事的起因是什么","现在的处境，你的感受如何","可能的未来，趋势走向"]},
+  2:{name:"五张牌 · 十字指引",positions:["核心","上","下","左","右"],meanings:["问题的核心","上方：灵性/希望","下方：物质/基础","左方：过去/阻力","右方：未来/支持"]},
+  3:{name:"Celtic Cross · 凯尔特十字",positions:["1 现状","2 障碍","3 基础","4 过去","5 王冠","6 未来","7 自我","8 环境","9 希望","10 结局"],meanings:["你现在的处境","面临的挑战或障碍","潜意识层面的根基","最近的过去","你的愿望或目标","即将到来的未来","你的心态或自我认知","你周围的环境","你的希望或恐惧","最终的结果或结局"]}
+};
 
 function switchSuit(suit){
   currentSuit=suit;
   document.querySelectorAll('.suit-tab').forEach(t=>t.classList.remove('active'));
   document.querySelector(`[data-suit="${suit}"]`).classList.add('active');
+  document.getElementById('spreadNav').classList.remove('show');
+  document.getElementById('spreadDetail').classList.remove('show');
+  if(suit==='spread'){
+    spreadMode=true;
+    document.getElementById('spreadInfo').textContent='选择一个牌阵';
+    document.getElementById('spreadInfo').classList.add('show');
+    document.getElementById('spreadNav').classList.add('show');
+    document.getElementById('card').style.display='none';
+    document.getElementById('spreadCards').classList.remove('show');
+    document.getElementById('resultSection').classList.remove('show');
+    document.querySelectorAll('.spread-nav button').forEach(b=>b.classList.remove('active'));
+    return;
+  }
+  spreadMode=false;
+  document.getElementById('spreadInfo').classList.remove('show');
+  document.getElementById('spreadCards').classList.remove('show');
+  document.getElementById('card').style.display='block';
   reset();
 }
 
@@ -237,6 +302,80 @@ function drawCard(){
   },1600);
 }
 
+function startSpread(type){
+  spreadType=type;
+  spreadCardsDrawn=[];
+  spreadFlipped=[];
+  const cfg=spreadConfigs[type];
+  document.getElementById('spreadInfo').textContent=cfg.name;
+  document.getElementById('spreadDetail').classList.remove('show');
+  document.querySelectorAll('.spread-nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.spread-nav button:nth-child(${type})`).classList.add('active');
+  // Shuffle and pick cards
+  const shuffled=[...allCards].sort(()=>Math.random()-0.5);
+  const needed=type===3?10:type===2?5:3;
+  spreadCardsDrawn=shuffled.slice(0,needed).map(c=>({c,rev:Math.random()>0.68}));
+  spreadFlipped=new Array(needed).fill(false);
+  // Render spread cards
+  const container=document.getElementById('spreadCards');
+  container.innerHTML='';
+  spreadCardsDrawn.forEach((item,idx)=>{
+    const posLabel=cfg.positions[idx]||`${idx+1}`;
+    const posMeaning=cfg.meanings[idx]||'';
+    const div=document.createElement('div');
+    div.className='spread-card-item';
+    div.innerHTML=`
+      <div class="position-label">${posLabel}</div>
+      <div class="mini-card" id="sc${idx}" onclick="toggleSpreadCard(${idx})">
+        <div class="mini-card-face mini-card-back">
+          <div style="width:60px;height:60px;border:1px solid rgba(200,83,74,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+              <circle cx="18" cy="14" r="10" fill="#c8534a" opacity="0.9"/>
+              <ellipse cx="18" cy="14" rx="5" ry="4" fill="#8B0000" opacity="0.4"/>
+              <path d="M18 4 Q20 0 23 2" stroke="#5a3a2a" stroke-width="1.5" fill="none"/>
+              <path d="M16 6 Q12 4 13 8" fill="#3a5a2a"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mini-card-face mini-card-front">
+          <div class="sfx-art">${item.c.svg}</div>
+          <div class="sfx-name">${item.rev?'逆位 · ':''}${item.c.name}</div>
+        </div>
+      </div>
+      <div class="position-label" style="opacity:0.5;font-size:0.55rem;max-width:80px">${posMeaning}</div>
+    `;
+    container.appendChild(div);
+  });
+  document.getElementById('spreadCards').classList.add('show');
+  drawn=true;
+}
+
+function toggleSpreadCard(idx){
+  if(!spreadFlipped[idx]){
+    spreadFlipped[idx]=true;
+    document.getElementById('sc'+idx).classList.add('flipped');
+    // Show detail for this position
+    const item=spreadCardsDrawn[idx];
+    const cfg=spreadConfigs[spreadType];
+    const posLabel=cfg.positions[idx]||`${idx+1}`;
+    const posMeaning=cfg.meanings[idx]||'';
+    let meaning=item.c.meaning;
+    if(item.rev)meaning='（逆位）'+meaning+'——也许需要换个角度看待。';
+    document.getElementById('spreadDetailTitle').textContent=`【${posLabel}】${item.rev?'逆位 · ':''}${item.c.name} · ${item.c.nameEn}`;
+    document.getElementById('spreadDetailMeaning').innerHTML=`${posMeaning}<br><br>${meaning}<br><br><span style="opacity:0.5;font-size:0.7rem">" ${item.c.apple} " — 哥说的。</span>`;
+    document.getElementById('spreadDetail').classList.add('show');
+  }
+}
+
+function resetSpread(){
+  spreadCardsDrawn=[];
+  spreadFlipped=[];
+  drawn=false;
+  document.getElementById('spreadCards').classList.remove('show');
+  document.getElementById('spreadDetail').classList.remove('show');
+  drawn=false;
+}
+
 function toggleFlip(){
   if(!drawn)return;
   isFlipped=!isFlipped;
@@ -247,6 +386,9 @@ function toggleFlip(){
 
 function reset(){
   drawn=false;currentCard=null;isFlipped=false;
+  if(spreadMode){
+    resetSpread();return;
+  }
   const card=document.getElementById('card');
   card.classList.remove('flipped');
   document.getElementById('tapHint').textContent='点击抽牌';
