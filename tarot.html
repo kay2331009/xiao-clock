@@ -54,6 +54,8 @@
   .btn{padding:9px 28px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:#c8534a;border-radius:30px;font-size:0.72rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s;display:none;margin:4px}
   .btn:hover{background:rgba(200,83,74,0.08);border-color:#c8534a}
   .btn.show{display:inline-block}
+  #btnResetSpread{display:none}
+  #btnResetSpread.show{display:inline-block}
   .wands-badge{background:rgba(200,83,74,0.1);border:1px solid rgba(200,83,74,0.3);color:#c8534a;font-size:0.6rem;letter-spacing:2px;padding:2px 8px;border-radius:10px;margin-left:4px}
 
   .spread-info{margin-bottom:16px;font-size:0.75rem;color:rgba(200,83,74,0.6);letter-spacing:2px;text-align:center;display:none}
@@ -77,22 +79,86 @@
   .spread-back-hint{font-size:0.6rem;color:rgba(200,83,74,0.4);letter-spacing:2px;margin-top:8px}
   .spread-nav{display:none;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
   .spread-nav.show{display:flex}
-  .spread-nav button{padding:8px 20px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:#c8534a;border-radius:20px;font-size:0.65rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s}
+  .spread-nav button{padding:10px 24px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:rgba(200,83,74,0.7);border-radius:24px;font-size:0.7rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s;margin:4px}
   .spread-nav button:hover{background:rgba(200,83,74,0.1);border-color:#c8534a}
   .spread-nav button.active{background:rgba(200,83,74,0.15);border-color:#c8534a}
 
+
+  .landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;cursor:pointer}
+  .landing-apple{animation:appleFloat 3s ease-in-out infinite;transition:transform 0.3s}
+  .landing-apple:hover{transform:scale(1.05)}
+  @keyframes appleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+  .landing-hint{font-size:0.7rem;color:rgba(200,83,74,0.5);letter-spacing:3px;margin-top:20px;animation:pulse 2s ease-in-out infinite}
+  .landing-modes{display:flex;gap:24px;margin-top:40px;flex-wrap:wrap;justify-content:center}
+  .mode-btn{width:160px;padding:24px 20px;background:rgba(200,83,74,0.08);border:1px solid rgba(200,83,74,0.2);border-radius:16px;cursor:pointer;transition:all 0.3s;text-align:center}
+  .mode-btn:hover{background:rgba(200,83,74,0.15);border-color:rgba(200,83,74,0.4);transform:translateY(-4px)}
+  .mode-icon{font-size:2.5rem;margin-bottom:12px}
+  .mode-title{font-size:1rem;color:#c8534a;letter-spacing:3px;margin-bottom:8px}
+  .mode-desc{font-size:0.65rem;color:rgba(200,83,74,0.5);letter-spacing:1px}
+  .single-mode,.spread-mode{display:none}
+  .single-mode.show,.spread-mode.show{display:block}
+  .back-btn{text-align:center;padding:8px 20px;font-size:0.65rem;color:rgba(200,83,74,0.5);letter-spacing:2px;cursor:pointer;margin-bottom:16px}
+  .back-btn:hover{color:#c8534a}
+  .spread-nav{display:none;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+  .spread-nav.show{display:flex}
+  .spread-nav button{padding:10px 24px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:rgba(200,83,74,0.7);border-radius:24px;font-size:0.7rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s;margin:4px}
+  .spread-nav button:hover,.spread-nav button.active{background:rgba(200,83,74,0.1);border-color:#c8534a}
 </style>
 </head>
 <body>
 <div class="title">Caleb 的苹果塔罗<div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div></div>
 
-<div class="suit-tabs">
-  <div class="suit-tab active" data-suit="major" onclick="switchSuit('major')">大阿卡纳</div>
-  <div class="suit-tab" data-suit="wands" onclick="switchSuit('wands')">Wands</div>
-  <div class="suit-tab" data-suit="cups" onclick="switchSuit('cups')">Cups</div>
-  <div class="suit-tab" data-suit="swords" onclick="switchSuit('swords')">Swords</div>
-  <div class="suit-tab" data-suit="pentacles" onclick="switchSuit('pentacles')">Pentacles</div>
-  <div class="suit-tab" data-suit="spread" onclick="switchSuit('spread')">牌阵</div>
+<div class="landing" id="landing">
+  <div class="landing-apple" id="landingApple">
+    <svg viewBox="0 0 120 160" width="120" height="160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="60" cy="95" rx="45" ry="55" fill="#c8534a"/>
+      <ellipse cx="60" cy="95" rx="28" ry="35" fill="#8B0000" opacity="0.35"/>
+      <ellipse cx="60" cy="93" rx="10" ry="14" fill="#f5e6d3" opacity="0.12"/>
+      <path d="M60 40 Q55 20 62 12" stroke="#5a3a2a" stroke-width="3" fill="none"/>
+      <path d="M62 12 Q75 5 82 15 Q72 22 62 12" fill="#5a7a3a"/>
+      <path d="M60 95 Q85 110 75 140 Q60 155 45 140 Q35 110 60 95" stroke="#c8534a" stroke-width="3" fill="none" opacity="0.4"/>
+    </svg>
+  </div>
+  <div class="landing-hint" id="landingHint">点击苹果开始</div>
+  <div class="landing-modes" id="landingModes" style="display:none">
+    <div class="mode-btn" onclick="enterMode('single')">
+      <div class="mode-icon">🌟</div>
+      <div class="mode-title">单独抽牌</div>
+      <div class="mode-desc">从花色中选择一张牌</div>
+    </div>
+    <div class="mode-btn" onclick="enterMode('spread')">
+      <div class="mode-icon">🔮</div>
+      <div class="mode-title">牌阵占卜</div>
+      <div class="mode-desc">三张牌 · 凯尔特十字</div>
+    </div>
+  </div>
+</div>
+
+<div class="single-mode" id="singleMode" style="display:none">
+  <div class="suit-tabs">
+    <div class="suit-tab active" data-suit="major" onclick="switchSuit('major')">大阿卡纳</div>
+    <div class="suit-tab" data-suit="wands" onclick="switchSuit('wands')">Wands</div>
+    <div class="suit-tab" data-suit="cups" onclick="switchSuit('cups')">Cups</div>
+    <div class="suit-tab" data-suit="swords" onclick="switchSuit('swords')">Swords</div>
+    <div class="suit-tab" data-suit="pentacles" onclick="switchSuit('pentacles')">Pentacles</div>
+  </div>
+  <div class="back-btn" onclick="goBack()">← 返回</div>
+</div>
+
+<div class="spread-mode" id="spreadMode" style="display:none">
+  <div class="back-btn" onclick="goBack()">← 返回</div>
+  <div class="spread-nav">
+    <button class="" onclick="startSpread(1)">三张牌</button>
+    <button class="" onclick="startSpread(2)">五张牌</button>
+    <button class="" onclick="startSpread(3)">Celtic Cross</button>
+  </div>
+  <div class="spread-info" id="spreadInfo"></div>
+  <div class="spread-cards" id="spreadCards"></div>
+  <div class="spread-detail" id="spreadDetail">
+    <div class="spread-detail-title" id="spreadDetailTitle"></div>
+    <div class="spread-detail-meaning" id="spreadDetailMeaning"></div>
+    <div class="spread-back-hint">点击卡片可翻转</div>
+  </div>
 </div>
 
 <div class="card-wrapper">
@@ -137,6 +203,7 @@
   <div class="result-meaning" id="resultMeaning"></div>
   <div class="caleb-msg" id="calebMsg"></div>
   <button class="btn" id="btnRedraw" onclick="event.stopPropagation();reset()">再抽一次</button>
+  <button class="btn" id="btnResetSpread" onclick="event.stopPropagation();resetSpread()">重选牌阵</button>
 </div>
 
 <script>
@@ -253,26 +320,34 @@ const spreadConfigs={
   3:{name:"Celtic Cross · 凯尔特十字",positions:["1 现状","2 障碍","3 基础","4 过去","5 王冠","6 未来","7 自我","8 环境","9 希望","10 结局"],meanings:["你现在的处境","面临的挑战或障碍","潜意识层面的根基","最近的过去","你的愿望或目标","即将到来的未来","你的心态或自我认知","你周围的环境","你的希望或恐惧","最终的结果或结局"]}
 };
 
+function enterMode(mode){
+  document.getElementById('landing').style.display='none';
+  if(mode==='single'){
+    document.getElementById('singleMode').classList.add('show');
+    switchSuit('major');
+  } else {
+    document.getElementById('spreadMode').classList.add('show');
+    document.getElementById('spreadNav').classList.add('show');
+  }
+}
+
+function goBack(){
+  document.getElementById('singleMode').classList.remove('show');
+  document.getElementById('spreadMode').classList.remove('show');
+  document.getElementById('spreadNav').classList.remove('show');
+  document.getElementById('spreadInfo').classList.remove('show');
+  document.getElementById('spreadCards').classList.remove('show');
+  document.getElementById('spreadDetail').classList.remove('show');
+  document.getElementById('card').style.display='none';
+  document.getElementById('resultSection').classList.remove('show');
+  document.getElementById('landing').style.display='flex';
+  reset();
+}
+
 function switchSuit(suit){
   currentSuit=suit;
   document.querySelectorAll('.suit-tab').forEach(t=>t.classList.remove('active'));
   document.querySelector(`[data-suit="${suit}"]`).classList.add('active');
-  document.getElementById('spreadNav').classList.remove('show');
-  document.getElementById('spreadDetail').classList.remove('show');
-  if(suit==='spread'){
-    spreadMode=true;
-    document.getElementById('spreadInfo').textContent='选择一个牌阵';
-    document.getElementById('spreadInfo').classList.add('show');
-    document.getElementById('spreadNav').classList.add('show');
-    document.getElementById('card').style.display='none';
-    document.getElementById('spreadCards').classList.remove('show');
-    document.getElementById('resultSection').classList.remove('show');
-    document.querySelectorAll('.spread-nav button').forEach(b=>b.classList.remove('active'));
-    return;
-  }
-  spreadMode=false;
-  document.getElementById('spreadInfo').classList.remove('show');
-  document.getElementById('spreadCards').classList.remove('show');
   document.getElementById('card').style.display='block';
   reset();
 }
@@ -299,6 +374,8 @@ function drawCard(){
     document.getElementById('resultSection').classList.add('show');
     document.getElementById('flipHint').classList.add('show');
     document.getElementById('btnRedraw').classList.add('show');
+  document.getElementById('btnResetSpread').classList.add('show');
+  document.getElementById('btnResetSpread').classList.add('show');
   },1600);
 }
 
@@ -308,6 +385,7 @@ function startSpread(type){
   spreadFlipped=[];
   const cfg=spreadConfigs[type];
   document.getElementById('spreadInfo').textContent=cfg.name;
+  document.getElementById('spreadInfo').classList.add('show');
   document.getElementById('spreadDetail').classList.remove('show');
   document.querySelectorAll('.spread-nav button').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.spread-nav button:nth-child(${type})`).classList.add('active');
@@ -373,7 +451,6 @@ function resetSpread(){
   drawn=false;
   document.getElementById('spreadCards').classList.remove('show');
   document.getElementById('spreadDetail').classList.remove('show');
-  drawn=false;
 }
 
 function toggleFlip(){
@@ -386,16 +463,23 @@ function toggleFlip(){
 
 function reset(){
   drawn=false;currentCard=null;isFlipped=false;
-  if(spreadMode){
-    resetSpread();return;
-  }
   const card=document.getElementById('card');
-  card.classList.remove('flipped');
-  document.getElementById('tapHint').textContent='点击抽牌';
-  document.getElementById('resultSection').classList.remove('show');
-  document.getElementById('flipHint').classList.remove('show');
-  document.getElementById('btnRedraw').classList.remove('show');
+  if(card) card.classList.remove('flipped');
+  const th=document.getElementById('tapHint');
+  if(th) th.textContent='点击抽牌';
+  const rs=document.getElementById('resultSection');
+  if(rs) rs.classList.remove('show');
+  const fh=document.getElementById('flipHint');
+  if(fh) fh.classList.remove('show');
+  const br=document.getElementById('btnRedraw');
+  if(br) br.classList.remove('show');
+  if(typeof resetSpread==='function') resetSpread();
 }
+// Landing apple click to reveal modes
+document.getElementById("landingApple").parentElement.onclick=function(){
+  document.getElementById("landingHint").style.display="none";
+  document.getElementById("landingModes").style.display="flex";
+};
 </script>
 </body>
 </html>
