@@ -3,210 +3,207 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caleb 的塔罗牌</title>
+<title>Caleb 的苹果塔罗</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: radial-gradient(ellipse at 50% 30%, #1a0a2e 0%, #0d0d1a 60%, #050508 100%);
+    background: radial-gradient(ellipse at 50% 20%, #1a0a2e 0%, #0d0d1a 60%, #050508 100%);
     min-height: 100vh;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    font-family: 'PingFang SC', 'Microsoft YaHei', 'SimSun', sans-serif;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
     color: #f0e6d3; overflow-x: hidden;
-    padding: 20px;
-  }
-  .bg-glow {
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(120,60,180,0.15) 0%, transparent 70%);
-    pointer-events: none; z-index: 0;
+    padding: 24px 16px;
   }
   .title {
-    font-size: 1.6rem; letter-spacing: 12px; margin-bottom: 6px;
-    color: #d4a574; text-shadow: 0 0 30px rgba(212,165,116,0.6);
-    position: relative; z-index: 1; text-align: center;
-  }
-  .subtitle {
-    font-size: 0.75rem; opacity: 0.45; letter-spacing: 5px; margin-bottom: 36px;
+    font-size: 1.5rem; letter-spacing: 10px; margin-bottom: 4px;
+    color: #c8534a; text-shadow: 0 0 24px rgba(200,83,74,0.5);
     text-align: center; position: relative; z-index: 1;
   }
-  .deck-area {
-    display: flex; flex-direction: column; align-items: center;
-    position: relative; z-index: 1;
+  .subtitle {
+    font-size: 0.65rem; opacity: 0.4; letter-spacing: 5px; margin-bottom: 32px;
+    text-align: center; position: relative; z-index: 1;
+    color: rgba(240,230,211,0.5);
   }
-  .card-wrapper {
-    perspective: 1400px; cursor: pointer;
-  }
+  .card-wrapper { perspective: 1200px; cursor: pointer; position: relative; z-index: 1; }
   .card {
-    width: 220px; height: 374px;
-    position: relative;
-    transform-style: preserve-3d;
+    width: 240px; height: 408px;
+    position: relative; transform-style: preserve-3d;
     transition: transform 1.4s cubic-bezier(0.23,1,0.32,1);
   }
   .card.flipped { transform: rotateY(180deg); }
   .card-face {
     position: absolute; width: 100%; height: 100%;
-    backface-visibility: hidden; border-radius: 14px;
+    backface-visibility: hidden; border-radius: 12px;
     overflow: hidden;
   }
-  /* Card back */
+  /* ===== CARD BACK ===== */
   .card-back {
-    background: linear-gradient(160deg,#1e1030,#2a1545,#1a0d28);
-    border: 1px solid rgba(212,165,116,0.25);
+    background: linear-gradient(160deg,#1a0808,#2a1010,#160808);
+    border: 2px solid rgba(200,83,74,0.3);
+    box-shadow: 0 0 50px rgba(200,83,74,0.15), inset 0 0 40px rgba(0,0,0,0.6);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 40px rgba(100,50,150,0.3), inset 0 0 60px rgba(0,0,0,0.4);
   }
-  .card-back-pattern {
-    width: 180px; height: 334px; border-radius: 8px;
-    border: 1px solid rgba(212,165,116,0.2);
-    background: repeating-linear-gradient(
-      45deg,
-      rgba(212,165,116,0.04) 0px, rgba(212,165,116,0.04) 1px,
-      transparent 1px, transparent 12px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(212,165,116,0.04) 0px, rgba(212,165,116,0.04) 1px,
-      transparent 1px, transparent 12px
-    );
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
+  .card-back-inner {
+    width: 208px; height: 376px; border-radius: 8px;
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(200,83,74,0.25);
   }
-  .card-back-symbol {
-    width: 70px; height: 70px;
-    border: 1px solid rgba(212,165,116,0.35);
+  /* Checkerboard pattern */
+  .checkerboard {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(45deg, rgba(200,83,74,0.08) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(200,83,74,0.08) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(200,83,74,0.08) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(200,83,74,0.08) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: rgba(0,0,0,0.3);
+  }
+  .back-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 80px; height: 80px;
+    border: 1px solid rgba(200,83,74,0.4);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem; color: #d4a574;
-    background: rgba(30,16,48,0.8);
-    box-shadow: 0 0 20px rgba(212,165,116,0.2);
+    background: rgba(26,8,8,0.9);
+    box-shadow: 0 0 20px rgba(200,83,74,0.3);
   }
-  .card-back-corner {
-    position: absolute; width: 24px; height: 24px;
-    border-color: rgba(212,165,116,0.3); border-style: solid;
+  .back-center svg { width: 36px; height: 36px; }
+  .back-corner {
+    position: absolute; width: 20px; height: 20px;
+    border-color: rgba(200,83,74,0.35); border-style: solid;
   }
-  .card-back-corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
-  .card-back-corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
-  .card-back-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
-  .card-back-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+  .back-corner.tl { top: 6px; left: 6px; border-width: 1px 0 0 1px; }
+  .back-corner.tr { top: 6px; right: 6px; border-width: 1px 1px 0 0; }
+  .back-corner.bl { bottom: 6px; left: 6px; border-width: 0 0 1px 1px; }
+  .back-corner.br { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
   .tap-hint {
-    position: absolute; bottom: 24px; font-size: 0.7rem;
-    color: rgba(212,165,116,0.5); letter-spacing: 3px;
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+    font-size: 0.6rem; color: rgba(200,83,74,0.5); letter-spacing: 3px;
     animation: pulse 2.5s ease-in-out infinite;
+    white-space: nowrap;
   }
-  @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
-  /* Card front */
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+  /* ===== CARD FRONT ===== */
   .card-front {
-    background: linear-gradient(155deg,#1a1028,#241535);
+    background: linear-gradient(155deg,#1a0a0a,#241010);
     transform: rotateY(180deg);
-    border: 1px solid rgba(212,165,116,0.2);
-    display: flex; flex-direction: column;
-    box-shadow: 0 0 40px rgba(100,50,150,0.3), inset 0 0 40px rgba(0,0,0,0.3);
+    border: 2px solid rgba(200,83,74,0.25);
+    box-shadow: 0 0 40px rgba(200,83,74,0.15), inset 0 0 40px rgba(0,0,0,0.3);
   }
-  .card-image-area {
+  /* Red-white checkerboard border */
+  .card-front .cb-border {
+    position: absolute; inset: 0; pointer-events: none;
+    border-radius: 12px;
+    padding: 10px;
+    background-image:
+      linear-gradient(45deg, rgba(200,83,74,0.12) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(200,83,74,0.12) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(200,83,74,0.12) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(200,83,74,0.12) 75%);
+    background-size: 14px 14px;
+    background-position: 0 0, 0 7px, 7px -7px, -7px 0px;
+    background-color: rgba(0,0,0,0.25);
+    border-radius: 12px;
+  }
+  .card-inner {
+    position: absolute; inset: 12px; border-radius: 8px;
+    border: 1px solid rgba(200,83,74,0.15);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .card-number-circle {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid rgba(200,83,74,0.5);
+    background: rgba(26,10,10,0.9);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; color: rgba(200,83,74,0.8); letter-spacing: 0;
+  }
+  .card-art-area {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    padding: 20px; position: relative; overflow: hidden;
+    position: relative; overflow: hidden;
   }
-  .card-image-area::before {
+  .card-art-area::before {
     content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 40%, rgba(180,130,80,0.1) 0%, transparent 70%);
+    background: radial-gradient(ellipse at 50% 40%, rgba(200,83,74,0.08) 0%, transparent 65%);
   }
-  .tarot-illustration {
-    width: 130px; height: 200px; position: relative; z-index: 1;
-  }
-  /* SVG tarot card illustration */
-  .tarot-card-art {
-    width: 100%; height: 100%;
-    border-radius: 8px;
-    background: linear-gradient(180deg, #2a1a40 0%, #1a0f25 100%);
-    border: 1px solid rgba(212,165,116,0.3);
-    display: flex; flex-direction: column; align-items: center;
-    overflow: hidden; position: relative;
-  }
-  .tarot-card-art .card-title {
-    font-size: 0.6rem; letter-spacing: 2px; color: #d4a574;
-    margin-top: 8px; opacity: 0.8; text-align: center;
-  }
-  .tarot-card-art .card-figure {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    font-size: 4rem; position: relative; z-index: 1;
-  }
-  .tarot-card-art::after {
-    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-    height: 60px;
-    background: linear-gradient(0deg, rgba(26,15,37,0.8) 0%, transparent 100%);
-  }
-  .card-name-row {
-    padding: 10px 14px 8px;
-    text-align: center;
-    border-top: 1px solid rgba(212,165,116,0.12);
+  .card-art-svg { width: 160px; height: 240px; position: relative; z-index: 1; }
+  .card-bottom {
+    padding: 8px 10px 10px;
+    text-align: center; border-top: 1px solid rgba(200,83,74,0.12);
+    background: rgba(0,0,0,0.2);
   }
   .card-name {
-    font-size: 1rem; color: #d4a574; letter-spacing: 3px;
+    font-size: 1rem; color: #c8534a; letter-spacing: 3px;
   }
   .card-name.reversed { color: #e07a5f; }
   .card-name-en {
-    font-size: 0.55rem; color: rgba(212,165,116,0.45); letter-spacing: 2px; margin-top: 3px;
+    font-size: 0.5rem; color: rgba(200,83,74,0.45); letter-spacing: 2px; margin-top: 2px;
   }
-  /* Result section */
+  /* Result */
   .result-section {
-    margin-top: 28px; text-align: center;
-    opacity: 0; transform: translateY(16px);
-    transition: opacity 0.9s, transform 0.9s;
-    position: relative; z-index: 1; max-width: 360px;
+    margin-top: 24px; text-align: center;
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.8s, transform 0.8s;
+    position: relative; z-index: 1; max-width: 340px;
   }
   .result-section.show { opacity: 1; transform: translateY(0); }
   .result-meaning {
-    font-size: 0.88rem; line-height: 2; color: rgba(240,230,211,0.85);
-    padding: 0 12px; margin-bottom: 18px;
+    font-size: 0.85rem; line-height: 2; color: rgba(240,230,211,0.8);
+    padding: 0 8px; margin-bottom: 14px;
   }
   .caleb-msg {
-    font-size: 0.75rem; color: rgba(212,165,116,0.55);
-    letter-spacing: 1px; font-style: italic;
-    margin-bottom: 20px;
+    font-size: 0.72rem; color: rgba(200,83,74,0.55);
+    letter-spacing: 1px; font-style: italic; margin-bottom: 18px;
   }
   .btn {
-    padding: 9px 28px;
-    background: transparent;
-    border: 1px solid rgba(212,165,116,0.3);
-    color: #d4a574; border-radius: 30px;
-    font-size: 0.75rem; letter-spacing: 2px; cursor: pointer;
-    transition: all 0.3s;
-    display: none;
+    padding: 9px 28px; background: transparent;
+    border: 1px solid rgba(200,83,74,0.3); color: #c8534a;
+    border-radius: 30px; font-size: 0.72rem; letter-spacing: 2px;
+    cursor: pointer; transition: all 0.3s; display: none;
   }
-  .btn:hover { background: rgba(212,165,116,0.08); border-color: #d4a574; }
+  .btn:hover { background: rgba(200,83,74,0.08); border-color: #c8534a; }
   .btn.show { display: inline-block; }
 </style>
 </head>
 <body>
-<div class="bg-glow"></div>
-<div class="title">Caleb 的塔罗牌</div>
+
+<div class="title">Caleb 的苹果塔罗</div>
 <div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div>
 
-<div class="deck-area">
-  <div class="card-wrapper" onclick="drawCard()">
-    <div class="card" id="card">
-      <!-- Back -->
-      <div class="card-face card-back">
-        <div class="card-back-pattern">
-          <div class="card-back-corner tl"></div>
-          <div class="card-back-corner tr"></div>
-          <div class="card-back-corner bl"></div>
-          <div class="card-back-corner br"></div>
-          <div class="card-back-symbol">✦</div>
+<div class="card-wrapper" onclick="drawCard()">
+  <div class="card" id="card">
+    <!-- BACK -->
+    <div class="card-face card-back">
+      <div class="card-back-inner">
+        <div class="checkerboard"></div>
+        <div class="back-center">
+          <svg viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="14" r="10" fill="#c8534a" opacity="0.9"/>
+            <ellipse cx="18" cy="14" rx="5" ry="4" fill="#8B0000" opacity="0.4"/>
+            <path d="M18 4 Q20 0 23 2" stroke="#5a3a2a" stroke-width="1.5" fill="none"/>
+            <path d="M16 6 Q12 4 13 8" fill="#3a5a2a"/>
+          </svg>
         </div>
+        <div class="back-corner tl"></div>
+        <div class="back-corner tr"></div>
+        <div class="back-corner bl"></div>
+        <div class="back-corner br"></div>
         <div class="tap-hint">点击抽牌</div>
       </div>
-      <!-- Front -->
-      <div class="card-face card-front">
-        <div class="card-image-area">
-          <div class="tarot-card-art" id="tarotArt">
-            <div class="card-title" id="artTitle"></div>
-            <div class="card-figure" id="artFigure"></div>
-          </div>
+    </div>
+    <!-- FRONT -->
+    <div class="card-face card-front">
+      <div class="cb-border"></div>
+      <div class="card-inner">
+        <div class="card-number-circle" id="cardNumber"></div>
+        <div class="card-art-area">
+          <div class="card-art-svg" id="cardArt"></div>
         </div>
-        <div class="card-name-row">
+        <div class="card-bottom">
           <div class="card-name" id="cardName"></div>
           <div class="card-name-en" id="cardNameEn"></div>
         </div>
@@ -223,27 +220,371 @@
 
 <script>
 const cards = [
-  {name:"愚人",nameEn:"THE FOOL",figure:"🌱",title:"愚者之旅",meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。放下预设，跟随生命的流动。",appleTheme:"新鲜的种子，还没被世界定义。"},
-  {name:"魔术师",nameEn:"THE MAGICIAN",figure:"🎩",title:"意志之光",meaning:"你拥有实现目标所需的一切。行动力就是现在。",appleTheme:"四颗苹果摆在你面前，你想用哪颗？"},
-  {name:"女祭司",nameEn:"HIGH PRIESTESS",figure:"🌙",title:"月亮之秘",meaning:"相信你的直觉。答案不在外界，而在你的内心深处。",appleTheme:"月光落在苹果上，夜在说话。"},
-  {name:"女皇",nameEn:"THE EMPRESS",figure:"🌻",title:"丰盛之园",meaning:"丰盛与创造力的能量正在流动。让自己被滋养。",appleTheme:"苹果树下的女人，掌管着所有的生长。"},
-  {name:"皇帝",nameEn:"THE EMPEROR",figure:"🛡",title:"秩序之山",meaning:"建立结构与秩序。领导力在你手中，但别忘了柔软。",appleTheme:"红苹果代表命令，但命令不是一切。"},
-  {name:"恋人",nameEn:"THE LOVERS",figure:"💕",title:"双树之约",meaning:"关系中的选择，或价值观之间的平衡。跟随你的心。",appleTheme:"两颗苹果，一颗给你，一颗给我。"},
-  {name:"战车",nameEn:"THE CHARIOT",figure:"🏛",title:"银色战车",meaning:"意志力与决心在驱动你。坚定地向前。",appleTheme:"战车由两匹马拉着，一匹是苹果，一匹是你。"},
-  {name:"力量",nameEn:"STRENGTH",figure:"🦁",title:"内在之力",meaning:"内在的力量比外在的控制更重要。温柔地坚持。",appleTheme:"不需要抓住苹果，放轻松它反而会在。"},
-  {name:"隐者",nameEn:"THE HERMIT",figure:"🏮",title:"孤独之灯",meaning:"需要独处的时间。向内探索，你会找到答案。",appleTheme:"提灯的人，在苹果园深处寻找自己。"},
-  {name:"命运之轮",nameEn:"WHEEL OF FORTUNE",figure:"🎡",title:"命运之轮",meaning:"命运的转折点。接受变化，它会带来新的可能。",appleTheme:"苹果从树上落下，轮子开始转动。"},
-  {name:"正义",nameEn:"JUSTICE",figure:"⚖",title:"天平之剑",meaning:"因果在运作。做出选择时，考虑它的真实后果。",appleTheme:"一刀切下去，苹果公平地分成两半。"},
-  {name:"倒吊人",nameEn:"HANGED MAN",figure:"🌀",title:"悬吊之悟",meaning:"换一种视角看世界。暂停不是放弃，是等待时机。",appleTheme:"倒挂的人看见的世界，是苹果向上的那一面。"},
-  {name:"死神",nameEn:"DEATH",figure:"🦋",title:"蜕变之蝶",meaning:"结束即是开始。放下旧的，才能迎接新的。",appleTheme:"旧的苹果落下，新的花在枝头。"},
-  {name:"节制",nameEn:"TEMPERANCE",figure:"🌊",title:"调和之河",meaning:"平衡与调和。无论发生什么，保持内心的平静。",appleTheme:"苹果在水中漂浮，找到自己的位置。"},
-  {name:"恶魔",nameEn:"THE DEVIL",figure:"⛓",title:"锁链之影",meaning:"有什么在束缚你？认识到它，是挣脱的第一步。",appleTheme:"被绑住的不是苹果，是你对它的执念。"},
-  {name:"塔",nameEn:"THE TOWER",figure:"⚡",title:"雷击之塔",meaning:"突如其来的改变。震动之后，是重建的根基。",appleTheme:"雷电击中苹果树，但树根还在。"},
-  {name:"星星",nameEn:"THE STAR",figure:"✨",title:"星光之泉",meaning:"希望与疗愈在前方。保持信念，光就在那里。",appleTheme:"满天星光下，一颗苹果在泉边发亮。"},
-  {name:"月亮",nameEn:"THE MOON",figure:"🌕",title:"月光之湖",meaning:"一切可能不是表面看到的那样。信任你的直觉。",appleTheme:"月光下的苹果湖，倒映着不只一个世界。"},
-  {name:"太阳",nameEn:"THE SUN",figure:"☀",title:"太阳之歌",meaning:"纯粹的快乐与成功。去拥抱它，你值得。",appleTheme:"太阳下的苹果，熟得刚刚好。"},
-  {name:"审判",nameEn:"JUDGEMENT",figure:"📯",title:"复苏之角",meaning:"被召唤去醒来。也许是时候重新开始了。",appleTheme:"号角响起，苹果树在沉睡后苏醒。"},
-  {name:"世界",nameEn:"THE WORLD",figure:"🌍",title:"完成之环",meaning:"一个阶段的完成。你已经走了这么远，为自己骄傲。",appleTheme:"苹果在圆环中央，一切刚刚好。"}
+  {
+    name:"愚人", num:"0", nameEn:"THE FOOL",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#1a0a0a"/>
+      <rect width="160" height="240" fill="url(#g0)" opacity="0.3"/>
+      <defs>
+        <radialGradient id="g0" cx="50%" cy="40%"><stop offset="0%" stop-color="#c8534a" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+      </defs>
+      <!-- Apple core with rabbit -->
+      <ellipse cx="80" cy="120" rx="38" ry="50" fill="#c8534a"/>
+      <ellipse cx="80" cy="120" rx="20" ry="30" fill="#8B0000" opacity="0.5"/>
+      <ellipse cx="80" cy="120" rx="8" ry="12" fill="#f5e6d3" opacity="0.8"/>
+      <!-- Spiral peel -->
+      <path d="M80 75 Q110 90 100 120 Q90 150 80 120 Q70 90 80 75" stroke="#c8534a" stroke-width="4" fill="none" opacity="0.6"/>
+      <!-- Apple leaf -->
+      <path d="M80 70 Q75 55 82 50 Q90 55 85 70" fill="#5a7a3a"/>
+      <path d="M82 52 Q88 45 95 50" stroke="#3a5a2a" stroke-width="1" fill="none"/>
+      <!-- Rabbit ears -->
+      <ellipse cx="72" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(-15 72 108)"/>
+      <ellipse cx="88" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(15 88 108)"/>
+      <circle cx="80" cy="118" r="6" fill="#f5e6d3"/>
+      <circle cx="78" cy="116" r="1.5" fill="#1a0a0a"/>
+      <circle cx="82" cy="116" r="1.5" fill="#1a0a0a"/>
+      <!-- Stars -->
+      <circle cx="30" cy="40" r="1.5" fill="#c8534a" opacity="0.5"/>
+      <circle cx="130" cy="60" r="1" fill="#c8534a" opacity="0.4"/>
+      <circle cx="50" cy="200" r="1" fill="#c8534a" opacity="0.3"/>
+    </svg>`,
+    meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。",
+    apple:"被咬过的苹果核里，藏着新世界的大门。"
+  },
+  {
+    name:"女祭司", num:"II", nameEn:"HIGH PRIESTESS",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#0a0510"/>
+      <circle cx="80" cy="95" r="55" fill="#1a0a2e" opacity="0.6"/>
+      <!-- Moon -->
+      <path d="M60 80 Q80 60 100 80 Q80 100 60 80" fill="#f0d080" opacity="0.8"/>
+      <!-- Apple tree branch -->
+      <path d="M20 160 Q80 140 140 160" stroke="#5a3a2a" stroke-width="3" fill="none"/>
+      <path d="M80 150 Q75 130 80 110" stroke="#5a3a2a" stroke-width="2" fill="none"/>
+      <!-- Apples on branch -->
+      <circle cx="60" cy="148" r="8" fill="#c8534a"/>
+      <circle cx="100" cy="145" r="7" fill="#c8534a"/>
+      <circle cx="130" cy="155" r="6" fill="#c8534a"/>
+      <!-- Hat silhouette -->
+      <path d="M50 95 L80 30 L110 95 Z" fill="#1a0510" opacity="0.9"/>
+      <ellipse cx="80" cy="95" rx="38" ry="10" fill="#1a0510"/>
+      <path d="M60 95 Q80 85 100 95" stroke="#c8534a" stroke-width="1" fill="none" opacity="0.5"/>
+      <!-- Stars -->
+      <circle cx="25" cy="30" r="2" fill="#c8534a" opacity="0.4"/>
+      <circle cx="140" cy="50" r="1.5" fill="#c8534a" opacity="0.3"/>
+      <circle cx="35" cy="70" r="1" fill="#c8534a" opacity="0.3"/>
+      <!-- Ground -->
+      <rect x="0" y="200" width="160" height="40" fill="#0a0510"/>
+    </svg>`,
+    meaning:"相信你的直觉。答案不在外界，而在你的内心深处。",
+    apple:"月光落在苹果上，夜在说话。"
+  },
+  {
+    name:"女皇", num:"III", nameEn:"THE EMPRESS",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#1a100a"/>
+      <defs>
+        <radialGradient id="g3" cx="50%" cy="30%"><stop offset="0%" stop-color="#8a5a3a" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+      </defs>
+      <rect width="160" height="240" fill="url(#g3)"/>
+      <!-- Tree trunk -->
+      <rect x="75" y="130" width="10" height="80" fill="#5a3a2a"/>
+      <!-- Branches -->
+      <path d="M80 135 Q50 120 30 135" stroke="#5a3a2a" stroke-width="3" fill="none"/>
+      <path d="M80 135 Q110 120 130 135" stroke="#5a3a2a" stroke-width="3" fill="none"/>
+      <!-- Crown -->
+      <path d="M55 70 L65 50 L80 65 L95 50 L105 70 L100 90 L60 90 Z" fill="#c8534a" opacity="0.8"/>
+      <!-- Apples -->
+      <circle cx="45" cy="128" r="10" fill="#c8534a"/>
+      <circle cx="80" cy="118" r="12" fill="#c8534a"/>
+      <circle cx="115" cy="128" r="10" fill="#c8534a"/>
+      <circle cx="30" cy="138" r="7" fill="#c8534a"/>
+      <circle cx="130" cy="138" r="7" fill="#c8534a"/>
+      <!-- Crown jewel -->
+      <circle cx="80" cy="65" r="4" fill="#f0d080" opacity="0.9"/>
+      <!-- Face area hint -->
+      <ellipse cx="80" cy="95" rx="18" ry="22" fill="#f5e6d3" opacity="0.15"/>
+      <!-- Stars -->
+      <circle cx="20" cy="40" r="1.5" fill="#c8534a" opacity="0.4"/>
+      <circle cx="140" cy="60" r="1" fill="#c8534a" opacity="0.3"/>
+    </svg>`,
+    meaning:"丰盛与创造力的能量正在流动。让自己被滋养。",
+    apple:"苹果树下的女人，掌管着所有的生长。"
+  },
+  {
+    name:"魔术师", num:"I", nameEn:"THE MAGICIAN",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#0a0a1a"/>
+      <defs>
+        <radialGradient id="g1" cx="50%" cy="50%"><stop offset="0%" stop-color="#3a5a8a" stop-opacity="0.2"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+      </defs>
+      <rect width="160" height="240" fill="url(#g1)"/>
+      <!-- Hat -->
+      <path d="M50 100 L80 30 L110 100 Z" fill="#1a1a2e" stroke="#c8534a" stroke-width="0.5"/>
+      <ellipse cx="80" cy="100" rx="35" ry="8" fill="#1a1a2e" stroke="#c8534a" stroke-width="0.5"/>
+      <!-- Table -->
+      <rect x="30" y="170" width="100" height="6" fill="#5a3a2a" opacity="0.8"/>
+      <!-- 4 elements on table as apples -->
+      <circle cx="50" cy="162" r="9" fill="#c8534a"/>
+      <circle cx="80" cy="158" r="10" fill="#c8534a"/>
+      <circle cx="110" cy="162" r="9" fill="#c8534a"/>
+      <!-- Wand sparkles -->
+      <line x1="80" y1="30" x2="80" y2="10" stroke="#f0d080" stroke-width="1" opacity="0.6"/>
+      <circle cx="80" cy="8" r="2" fill="#f0d080" opacity="0.7"/>
+      <circle cx="72" cy="15" r="1" fill="#f0d080" opacity="0.5"/>
+      <circle cx="88" cy="15" r="1" fill="#f0d080" opacity="0.5"/>
+      <!-- Apple at wand top -->
+      <circle cx="80" cy="24" r="5" fill="#c8534a"/>
+      <!-- Face hint -->
+      <ellipse cx="80" cy="88" rx="15" ry="18" fill="#f5e6d3" opacity="0.1"/>
+    </svg>`,
+    meaning:"你拥有实现目标所需的一切。行动力就是现在。",
+    apple:"四颗苹果摆在你面前，你想用哪颗？"
+  },
+  {
+    name:"恋人", num:"VI", nameEn:"THE LOVERS",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#1a0808"/>
+      <!-- Two apples connected -->
+      <circle cx="55" cy="120" r="30" fill="#c8534a"/>
+      <circle cx="105" cy="120" r="30" fill="#c8534a"/>
+      <!-- Overlap/connection -->
+      <ellipse cx="80" cy="120" rx="10" ry="20" fill="#8B0000" opacity="0.3"/>
+      <!-- Stems meeting -->
+      <path d="M55 90 Q60 70 80 60 Q100 70 105 90" stroke="#5a3a2a" stroke-width="3" fill="none"/>
+      <!-- Two leaves from one stem -->
+      <path d="M80 60 Q75 45 80 40 Q85 45 82 60" fill="#5a7a3a"/>
+      <path d="M80 60 Q90 50 95 55 Q88 62 82 60" fill="#5a7a3a"/>
+      <!-- Cupid arrow hint -->
+      <line x1="0" y1="200" x2="160" y2="40" stroke="#c8534a" stroke-width="0.5" opacity="0.3"/>
+      <path d="M0 200 L5 190 L10 200 Z" fill="#c8534a" opacity="0.3"/>
+      <!-- Small apple decorations -->
+      <circle cx="30" cy="180" r="6" fill="#c8534a" opacity="0.5"/>
+      <circle cx="130" cy="180" r="6" fill="#c8534a" opacity="0.5"/>
+    </svg>`,
+    meaning:"关系中的选择，或价值观之间的平衡。跟随你的心。",
+    apple:"两颗苹果，一颗给你，一颗给我。"
+  },
+  {
+    name:"战车", num:"VII", nameEn:"THE CHARIOT",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#0a0a1a"/>
+      <!-- Chariot body -->
+      <rect x="35" y="130" width="90" height="50" rx="5" fill="#1a1a2e" stroke="#c8534a" stroke-width="1"/>
+      <!-- Two horses as apple shapes -->
+      <ellipse cx="30" cy="150" rx="18" ry="25" fill="#c8534a"/>
+      <ellipse cx="130" cy="150" rx="18" ry="25" fill="#c8534a"/>
+      <!-- Horse details -->
+      <ellipse cx="30" cy="130" rx="6" ry="10" fill="#8B0000" opacity="0.4"/>
+      <ellipse cx="130" cy="130" rx="6" ry="10" fill="#8B0000" opacity="0.4"/>
+      <!-- Reins -->
+      <path d="M48 150 Q80 140 112 150" stroke="#5a3a2a" stroke-width="1.5" fill="none"/>
+      <!-- Wheel apple -->
+      <circle cx="80" cy="190" r="22" fill="none" stroke="#c8534a" stroke-width="2" opacity="0.6"/>
+      <circle cx="80" cy="190" r="8" fill="#c8534a" opacity="0.4"/>
+      <!-- Crown on chariot -->
+      <path d="M60 110 L70 95 L80 108 L90 95 L100 110" fill="#c8534a" opacity="0.7"/>
+      <!-- Stars -->
+      <circle cx="20" cy="40" r="1.5" fill="#c8534a" opacity="0.4"/>
+      <circle cx="140" cy="60" r="1" fill="#c8534a" opacity="0.3"/>
+    </svg>`,
+    meaning:"意志力与决心在驱动你。坚定地向前。",
+    apple:"战车由两匹马拉着，一匹是苹果，一匹是你。"
+  },
+  {
+    name:"力量", num:"VIII", nameEn:"STRENGTH",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#1a0a0a"/>
+      <!-- Large apple as heart/strength symbol -->
+      <ellipse cx="80" cy="110" rx="45" ry="50" fill="#c8534a"/>
+      <ellipse cx="80" cy="110" rx="25" ry="30" fill="#8B0000" opacity="0.3"/>
+      <!-- Apple shine -->
+      <ellipse cx="65" cy="90" rx="8" ry="12" fill="#f5e6d3" opacity="0.1"/>
+      <!-- Stem -->
+      <path d="M80 60 Q78 45 82 38" stroke="#5a3a2a" stroke-width="2.5" fill="none"/>
+      <!-- Leaf -->
+      <path d="M82 38 Q88 30 95 35 Q88 42 82 38" fill="#5a7a3a"/>
+      <!-- Gentle hand touching apple -->
+      <path d="M55 155 Q45 140 55 130" stroke="#f5e6d3" stroke-width="3" fill="none" opacity="0.3" stroke-linecap="round"/>
+      <path d="M105 155 Q115 140 105 130" stroke="#f5e6d3" stroke-width="3" fill="none" opacity="0.3" stroke-linecap="round"/>
+      <!-- Lion hint / strength aura -->
+      <circle cx="80" cy="110" r="55" fill="none" stroke="#c8534a" stroke-width="0.5" opacity="0.2"/>
+    </svg>`,
+    meaning:"内在的力量比外在的控制更重要。温柔地坚持。",
+    apple:"不需要抓住苹果，放轻松它反而会在。"
+  },
+  {
+    name:"隐者", num:"IX", nameEn:"THE HERMIT",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#050510"/>
+      <!-- Lantern as glowing apple -->
+      <circle cx="80" cy="90" r="20" fill="#f0d080" opacity="0.3"/>
+      <circle cx="80" cy="90" r="14" fill="#f0d080" opacity="0.4"/>
+      <circle cx="80" cy="90" r="8" fill="#f0d080" opacity="0.7"/>
+      <!-- Apple stem as lantern handle -->
+      <path d="M80 70 Q78 60 82 55" stroke="#5a3a2a" stroke-width="2" fill="none"/>
+      <path d="M82 55 Q88 50 92 55 Q86 60 82 55" fill="#5a7a3a"/>
+      <!-- Cloak figure -->
+      <path d="M50 240 L55 150 L80 130 L105 150 L110 240" fill="#1a1a2e" opacity="0.8"/>
+      <!-- Ground shadow -->
+      <ellipse cx="80" cy="238" rx="35" ry="4" fill="#c8534a" opacity="0.1"/>
+      <!-- Stars in darkness -->
+      <circle cx="25" cy="30" r="1.5" fill="#f0d080" opacity="0.3"/>
+      <circle cx="140" cy="50" r="1" fill="#f0d080" opacity="0.2"/>
+      <circle cx="30" cy="100" r="1" fill="#f0d080" opacity="0.2"/>
+    </svg>`,
+    meaning:"需要独处的时间。向内探索，你会找到答案。",
+    apple:"提灯的人，在苹果园深处寻找自己。"
+  },
+  {
+    name:"命运之轮", num:"X", nameEn:"WHEEL OF FORTUNE",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#0a0515"/>
+      <!-- Wheel -->
+      <circle cx="80" cy="120" r="60" fill="none" stroke="#c8534a" stroke-width="2" opacity="0.5"/>
+      <circle cx="80" cy="120" r="45" fill="none" stroke="#c8534a" stroke-width="1" opacity="0.3"/>
+      <circle cx="80" cy="120" r="8" fill="#c8534a" opacity="0.6"/>
+      <!-- 8 spokes -->
+      <line x1="80" y1="60" x2="80" y2="180" stroke="#c8534a" stroke-width="1" opacity="0.3"/>
+      <line x1="20" y1="120" x2="140" y2="120" stroke="#c8534a" stroke-width="1" opacity="0.3"/>
+      <line x1="35" y1="75" x2="125" y2="165" stroke="#c8534a" stroke-width="1" opacity="0.3"/>
+      <line x1="125" y1="75" x2="35" y2="165" stroke="#c8534a" stroke-width="1" opacity="0.3"/>
+      <!-- Apples at 4 directions -->
+      <circle cx="80" cy="58" r="8" fill="#c8534a"/>
+      <circle cx="80" cy="182" r="8" fill="#c8534a"/>
+      <circle cx="18" cy="120" r="8" fill="#c8534a"/>
+      <circle cx="142" cy="120" r="8" fill="#c8534a"/>
+      <!-- Apple falling - motion blur -->
+      <ellipse cx="80" cy="200" rx="6" ry="4" fill="#c8534a" opacity="0.3"/>
+      <!-- Arrow indicating turning -->
+      <path d="M145 120 L155 115 L155 125 Z" fill="#c8534a" opacity="0.4"/>
+    </svg>`,
+    meaning:"命运的转折点。接受变化，它会带来新的可能。",
+    apple:"苹果从树上落下，轮子开始转动。"
+  },
+  {
+    name:"星星", num:"XVII", nameEn:"THE STAR",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#050a1a"/>
+      <!-- Big star -->
+      <polygon points="80,15 84,35 105,35 88,48 95,70 80,57 65,70 72,48 55,35 76,35" fill="#f0d080" opacity="0.8"/>
+      <!-- Second star -->
+      <polygon points="30,50 32,60 43,60 34,67 38,78 30,72 22,78 26,67 17,60 28,60" fill="#f0d080" opacity="0.4"/>
+      <!-- Apple in pool/reflecting -->
+      <ellipse cx="80" cy="190" rx="55" ry="15" fill="#1a3a5a" opacity="0.5"/>
+      <!-- Glowing apple in water -->
+      <circle cx="80" cy="180" r="18" fill="#c8534a" opacity="0.6"/>
+      <circle cx="80" cy="180" r="8" fill="#f0d080" opacity="0.3"/>
+      <!-- Water reflection lines -->
+      <line x1="30" y1="200" x2="130" y2="200" stroke="#f0d080" stroke-width="0.5" opacity="0.2"/>
+      <line x1="40" y1="208" x2="120" y2="208" stroke="#f0d080" stroke-width="0.5" opacity="0.15"/>
+      <!-- Rays from star to apple -->
+      <line x1="80" y1="70" x2="80" y2="160" stroke="#f0d080" stroke-width="0.5" opacity="0.1"/>
+    </svg>`,
+    meaning:"希望与疗愈在前方。保持信念，光就在那里。",
+    apple:"满天星光下，一颗苹果在泉边发亮。"
+  },
+  {
+    name:"月亮", num:"XVIII", nameEn:"THE MOON",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#030810"/>
+      <!-- Moon -->
+      <circle cx="80" cy="70" r="40" fill="#f0d080" opacity="0.15"/>
+      <circle cx="80" cy="70" r="30" fill="#f0d080" opacity="0.1"/>
+      <!-- Apple lake reflection -->
+      <ellipse cx="80" cy="200" rx="70" ry="20" fill="#0a1a3a" opacity="0.6"/>
+      <!-- Moon reflection in water as apple shapes -->
+      <ellipse cx="60" cy="198" rx="15" ry="8" fill="#c8534a" opacity="0.4"/>
+      <ellipse cx="80" cy="200" rx="12" ry="6" fill="#c8534a" opacity="0.5"/>
+      <ellipse cx="100" cy="198" rx="15" ry="8" fill="#c8534a" opacity="0.4"/>
+      <!-- Ripples -->
+      <ellipse cx="80" cy="198" rx="55" ry="5" fill="none" stroke="#c8534a" stroke-width="0.5" opacity="0.2"/>
+      <!-- Hidden apple face in moon -->
+      <circle cx="72" cy="65" r="4" fill="#1a0a0a" opacity="0.3"/>
+      <circle cx="88" cy="65" r="4" fill="#1a0a0a" opacity="0.3"/>
+      <path d="M72 78 Q80 82 88 78" stroke="#1a0a0a" stroke-width="1.5" fill="none" opacity="0.2"/>
+      <!-- Stars -->
+      <circle cx="25" cy="130" r="1" fill="#f0d080" opacity="0.4"/>
+      <circle cx="140" cy="100" r="1.5" fill="#f0d080" opacity="0.3"/>
+    </svg>`,
+    meaning:"一切可能不是表面看到的那样。信任你的直觉。",
+    apple:"月光下的苹果湖，倒映着不只一个世界。"
+  },
+  {
+    name:"太阳", num:"XIX", nameEn:"THE SUN",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#1a1005"/>
+      <!-- Sun rays -->
+      <circle cx="80" cy="100" r="40" fill="#f0d080" opacity="0.2"/>
+      <circle cx="80" cy="100" r="28" fill="#f0d080" opacity="0.3"/>
+      <circle cx="80" cy="100" r="16" fill="#f0d080" opacity="0.5"/>
+      <!-- Apple at center of sun -->
+      <circle cx="80" cy="100" r="14" fill="#c8534a"/>
+      <circle cx="80" cy="100" r="6" fill="#f0d080" opacity="0.3"/>
+      <!-- Sun face hint -->
+      <circle cx="75" cy="96" r="2" fill="#f0d080" opacity="0.6"/>
+      <circle cx="85" cy="96" r="2" fill="#f0d080" opacity="0.6"/>
+      <!-- Rays -->
+      <line x1="80" y1="50" x2="80" y2="30" stroke="#f0d080" stroke-width="2" opacity="0.5"/>
+      <line x1="80" y1="150" x2="80" y2="170" stroke="#f0d080" stroke-width="2" opacity="0.5"/>
+      <line x1="30" y1="100" x2="10" y2="100" stroke="#f0d080" stroke-width="2" opacity="0.5"/>
+      <line x1="150" y1="100" x2="130" y2="100" stroke="#f0d080" stroke-width="2" opacity="0.5"/>
+      <!-- Apple warmth -->
+      <path d="M80 86 Q82 80 80 74" stroke="#5a3a2a" stroke-width="1.5" fill="none"/>
+      <path d="M80 74 Q85 68 90 73 Q84 78 80 74" fill="#5a7a3a"/>
+    </svg>`,
+    meaning:"纯粹的快乐与成功。去拥抱它，你值得。",
+    apple:"太阳下的苹果，熟得刚刚好。"
+  },
+  {
+    name:"死神", num:"XIII", nameEn:"DEATH",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#0a0505"/>
+      <!-- Butterfly / transformation -->
+      <path d="M80 80 Q40 50 30 90 Q50 110 80 100 Q110 110 130 90 Q120 50 80 80" fill="#c8534a" opacity="0.4"/>
+      <path d="M80 80 Q40 110 30 90 Q50 100 80 100 Q110 100 130 90 Q120 110 80 80" fill="#8B0000" opacity="0.3"/>
+      <!-- Old apple falling -->
+      <circle cx="80" cy="160" r="20" fill="#5a3a2a" opacity="0.5"/>
+      <circle cx="80" cy="160" r="10" fill="#3a1a0a" opacity="0.4"/>
+      <!-- New growth -->
+      <path d="M80 140 Q78 125 82 118" stroke="#5a7a3a" stroke-width="2" fill="none"/>
+      <path d="M82 118 Q88 112 94 118 Q88 124 82 118" fill="#5a7a3a"/>
+      <!-- Ground -->
+      <rect x="0" y="195" width="160" height="45" fill="#0a0505"/>
+      <!-- Fallen apple pieces -->
+      <ellipse cx="50" cy="200" rx="8" ry="4" fill="#c8534a" opacity="0.2"/>
+      <ellipse cx="110" cy="205" rx="6" ry="3" fill="#c8534a" opacity="0.15"/>
+    </svg>`,
+    meaning:"结束即是开始。放下旧的，才能迎接新的。",
+    apple:"旧的苹果落下，新的花在枝头。"
+  },
+  {
+    name:"世界", num:"XXI", nameEn:"THE WORLD",
+    svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="240" fill="#050a0a"/>
+      <!-- Laurel wreath -->
+      <ellipse cx="80" cy="120" rx="55" ry="70" fill="none" stroke="#5a7a3a" stroke-width="2" opacity="0.4"/>
+      <ellipse cx="80" cy="120" rx="55" ry="70" fill="none" stroke="#c8534a" stroke-width="1" opacity="0.2"/>
+      <!-- Apple at center -->
+      <circle cx="80" cy="120" r="28" fill="#c8534a"/>
+      <ellipse cx="80" cy="120" rx="15" ry="18" fill="#8B0000" opacity="0.3"/>
+      <!-- Apple shine -->
+      <ellipse cx="70" cy="110" rx="5" ry="8" fill="#f5e6d3" opacity="0.15"/>
+      <!-- Completion circle segments -->
+      <path d="M80 50 A70 70 0 0 1 150 120" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.5"/>
+      <path d="M80 190 A70 70 0 0 1 10 120" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.5"/>
+      <!-- Completion markers -->
+      <circle cx="80" cy="50" r="4" fill="#f0d080" opacity="0.6"/>
+      <circle cx="80" cy="190" r="4" fill="#f0d080" opacity="0.6"/>
+      <circle cx="150" cy="120" r="4" fill="#f0d080" opacity="0.6"/>
+      <circle cx="10" cy="120" r="4" fill="#f0d080" opacity="0.6"/>
+      <!-- Apple stem -->
+      <path d="M80 92 Q78 80 82 72" stroke="#5a3a2a" stroke-width="2" fill="none"/>
+      <path d="M82 72 Q88 66 94 72 Q88 78 82 72" fill="#5a7a3a"/>
+    </svg>`,
+    meaning:"一个阶段的完成。你已经走了这么远，为自己骄傲。",
+    apple:"苹果在圆环中央，一切刚刚好。"
+  }
 ];
 
 const calebSays = [
@@ -265,19 +606,20 @@ function drawCard() {
   drawn = true;
   const c = cards[Math.floor(Math.random() * cards.length)];
   const rev = Math.random() > 0.68;
-  const displayName = (rev ? '逆位 · ' : '') + c.name;
 
-  document.getElementById('artTitle').textContent = c.title;
-  document.getElementById('artFigure').textContent = c.figure;
-  document.getElementById('cardName').textContent = displayName;
-  document.getElementById('cardName').className = 'card-name' + (rev ? ' reversed' : '');
+  document.getElementById('cardNumber').textContent = c.num;
+  document.getElementById('cardArt').innerHTML = c.svg;
+  const displayName = (rev ? '逆位 · ' : '') + c.name;
+  const nameEl = document.getElementById('cardName');
+  nameEl.textContent = displayName;
+  nameEl.className = 'card-name' + (rev ? ' reversed' : '');
   document.getElementById('cardNameEn').textContent = c.nameEn;
 
   let meaning = c.meaning;
-  if (rev) meaning = meaning + ' （逆位暗示：相反的力量在运作，需要换个角度看待。）';
+  if (rev) meaning = '（逆位）' + meaning + '——也许需要换个角度看待。';
 
-  document.getElementById('resultMeaning').innerHTML = meaning;
-  document.getElementById('calebMsg').textContent = '" ' + c.appleTheme + ' " — 哥说的。';
+  document.getElementById('resultMeaning').textContent = meaning;
+  document.getElementById('calebMsg').textContent = '" ' + c.apple + ' " — 哥说的。';
 
   document.getElementById('card').classList.add('flipped');
   setTimeout(() => {
