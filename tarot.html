@@ -429,20 +429,24 @@ function startSpread(type){
 }
 
 function toggleSpreadCard(idx){
+  // First flip the card to show front
   if(!spreadFlipped[idx]){
     spreadFlipped[idx]=true;
     document.getElementById('sc'+idx).classList.add('flipped');
-    // Show detail for this position
-    const item=spreadCardsDrawn[idx];
-    const cfg=spreadConfigs[spreadType];
-    const posLabel=cfg.positions[idx]||`${idx+1}`;
-    const posMeaning=cfg.meanings[idx]||'';
-    let meaning=item.c.meaning;
-    if(item.rev)meaning='（逆位）'+meaning+'——也许需要换个角度看待。';
-    document.getElementById('spreadDetailTitle').textContent=`【${posLabel}】${item.rev?'逆位 · ':''}${item.c.name} · ${item.c.nameEn}`;
-    document.getElementById('spreadDetailMeaning').innerHTML=`${posMeaning}<br><br>${meaning}<br><br><span style="opacity:0.5;font-size:0.7rem">" ${item.c.apple} " — 哥说的。</span>`;
-    document.getElementById('spreadDetail').classList.add('show');
+  } else {
+    // Already flipped - just toggle the card visually
+    document.getElementById('sc'+idx).classList.toggle('flipped');
   }
+  // Show this card's interpretation
+  const item=spreadCardsDrawn[idx];
+  const cfg=spreadConfigs[spreadType];
+  const posLabel=cfg.positions[idx]||`${idx+1}`;
+  const posMeaning=cfg.meanings[idx]||'';
+  let meaning=item.c.meaning;
+  if(item.rev)meaning='（逆位）'+meaning+'——也许需要换个角度看待。';
+  document.getElementById('spreadDetailTitle').textContent=`【${posLabel}】${item.rev?'逆位 · ':''}${item.c.name} · ${item.c.nameEn}`;
+  document.getElementById('spreadDetailMeaning').innerHTML=`${posMeaning}<br><br>${meaning}<br><br><span style="opacity:0.5;font-size:0.7rem">" ${item.c.apple} " — 哥说的。</span>`;
+  document.getElementById('spreadDetail').classList.add('show');
 }
 
 function resetSpread(){
