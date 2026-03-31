@@ -164,8 +164,10 @@
 <div class="card-wrapper">
   <div class="card" id="card" onclick="if(!drawn)drawCard();else toggleFlip()">
     <div class="card-face card-back">
-      <div class="card-back-inner" style="background:none;display:flex;align-items:center;justify-content:center">
-        <img src="https://kay2331009.github.io/xiao-clock/tarot-back.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px" alt=" tarot back"/>
+      <div class="card-back-inner">
+        <div class="checkerboard"></div>
+        <div class="back-center"><svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="14" r="10" fill="#c8534a" opacity="0.9"/><ellipse cx="18" cy="14" rx="5" ry="4" fill="#8B0000" opacity="0.4"/><path d="M18 4 Q20 0 23 2" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><path d="M16 6 Q12 4 13 8" fill="#3a5a2a"/></svg></div>
+        <div class="back-corner tl"></div><div class="back-corner tr"></div><div class="back-corner bl"></div><div class="back-corner br"></div>
         <div class="tap-hint" id="tapHint">点击抽牌</div>
       </div>
     </div>
