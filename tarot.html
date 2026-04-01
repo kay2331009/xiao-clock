@@ -239,19 +239,6 @@
   </div>
 </div>
 
-
-<div class="spread-info" id="spreadInfo"></div>
-<div class="spread-cards" id="spreadCards"></div>
-<div class="spread-detail" id="spreadDetail">
-  <div class="spread-detail-title" id="spreadDetailTitle"></div>
-  <div class="spread-detail-meaning" id="spreadDetailMeaning"></div>
-  <div class="spread-back-hint">点击卡片可翻转</div>
-</div>
-<div class="spread-nav" id="spreadNav">
-  <button class="" onclick="startSpread(1)">三张牌</button>
-  <button class="" onclick="startSpread(2)">五张牌</button>
-  <button class="" onclick="startSpread(3)">Celtic Cross</button>
-</div>
 <div class="result-section" id="resultSection">
   <div class="flip-hint" id="flipHint">点击牌面可翻转查看背面</div>
   <div class="result-meaning" id="resultMeaning"></div>
@@ -788,25 +775,29 @@ const spreadConfigs={
 
 function enterMode(mode){
   document.getElementById('landing').style.display='none';
+  // Hide card wrapper and reset state first
+  document.getElementById('card').style.display='none';
+  document.getElementById('card').classList.remove('flipped');
+  document.getElementById('resultSection').classList.remove('show');
+  drawn=false; isFlipped=false; currentCard=null;
   if(mode==='single'){
+    document.getElementById('spreadMode').classList.remove('show');
     document.getElementById('singleMode').classList.add('show');
     switchSuit('major');
   } else {
+    document.getElementById('singleMode').classList.remove('show');
     document.getElementById('spreadMode').classList.add('show');
-    document.getElementById('spreadNav').classList.add('show');
+    resetSpread();
   }
 }
 
 function goBack(){
   document.getElementById('singleMode').classList.remove('show');
   document.getElementById('spreadMode').classList.remove('show');
-  document.getElementById('spreadNav').classList.remove('show');
-  document.getElementById('spreadInfo').classList.remove('show');
-  document.getElementById('spreadCards').classList.remove('show');
-  document.getElementById('spreadDetail').classList.remove('show');
   document.getElementById('card').style.display='none';
   document.getElementById('resultSection').classList.remove('show');
   document.getElementById('landing').style.display='flex';
+  drawn=false; isFlipped=false; currentCard=null;
   reset();
 }
 
@@ -920,8 +911,8 @@ function toggleFlip(){
   if(!drawn)return;
   isFlipped=!isFlipped;
   const card=document.getElementById('card');
-  if(isFlipped)card.classList.remove('flipped');
-  else card.classList.add('flipped');
+  if(isFlipped)card.classList.add('flipped');
+  else card.classList.remove('flipped');
 }
 
 function reset(){
