@@ -87,29 +87,15 @@
   /* ===== 星空画布 ===== */
   #star-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
   /* ===== 多层星云背景 ===== */
-  .nebula-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden}
-  /* 深空背景渐变 */
-  .nebula-layer::before{content:'';position:absolute;inset:0;
+  /* ===== 苹果星云粒子画布 ===== */
+  #nebula-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  /* 深空背景（星空白满天） */
+  body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     background:
-      radial-gradient(ellipse 120% 80% at 20% 20%,rgba(20,60,40,0.35) 0%,transparent 55%),
-      radial-gradient(ellipse 100% 70% at 80% 80%,rgba(120,30,20,0.3) 0%,transparent 50%),
-      radial-gradient(ellipse 80% 60% at 50% 50%,rgba(80,20,60,0.15) 0%,transparent 60%),
-      radial-gradient(ellipse 60% 80% at 15% 75%,rgba(30,80,60,0.2) 0%,transparent 50%),
-      radial-gradient(ellipse 70% 50% at 85% 15%,rgba(200,80,40,0.15) 0%,transparent 45%),
-      linear-gradient(180deg,#030810 0%,#050d18 40%,#040810 100%);
-    animation:nebulaDrift1 25s ease-in-out infinite}
-  /* 星云中层 — 翡翠绿+橙色流动 */
-  .nebula-layer::after{content:'';position:absolute;inset:-50%;
-    background:
-      radial-gradient(ellipse 60% 40% at 30% 30%,rgba(50,140,100,0.18) 0%,transparent 65%),
-      radial-gradient(ellipse 50% 60% at 70% 65%,rgba(180,60,30,0.2) 0%,transparent 60%),
-      radial-gradient(ellipse 45% 55% at 50% 50%,rgba(80,160,80,0.08) 0%,transparent 70%),
-      radial-gradient(ellipse 35% 45% at 80% 25%,rgba(200,100,40,0.12) 0%,transparent 55%),
-      radial-gradient(ellipse 40% 50% at 20% 80%,rgba(40,120,80,0.15) 0%,transparent 60%);
-    animation:nebulaDrift2 30s ease-in-out infinite, nebulaPulse 8s ease-in-out infinite}
-  @keyframes nebulaDrift1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(2%,1.5%) scale(1.02)}66%{transform:translate(-1.5%,-1%) scale(0.99)}}
-  @keyframes nebulaDrift2{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(3%,-2%) rotate(0.8deg)}75%{transform:translate(-2%,2%) rotate(-0.5deg)}}
-  @keyframes nebulaPulse{0%,100%{opacity:0.85}50%{opacity:1}}
+      radial-gradient(ellipse 120% 80% at 20% 20%,rgba(20,60,40,0.25) 0%,transparent 55%),
+      radial-gradient(ellipse 100% 70% at 80% 80%,rgba(120,30,20,0.2) 0%,transparent 50%),
+      radial-gradient(ellipse 80% 60% at 50% 50%,rgba(80,20,60,0.12) 0%,transparent 60%),
+      linear-gradient(180deg,#030810 0%,#050d18 40%,#040810 100%)}
   /* 苹果核心发光 */
   .apple-core{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;animation:appleCorePulse 4s ease-in-out infinite}
   .apple-core svg{filter:drop-shadow(0 0 30px rgba(200,83,74,0.5)) drop-shadow(0 0 80px rgba(200,83,74,0.2))}
@@ -142,7 +128,7 @@
 <div class="title">Caleb 的苹果塔罗<div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div></div>
 
 <canvas id="star-canvas"></canvas>
-<div class="nebula-layer"></div>
+<canvas id="nebula-canvas"></canvas>
 <div class="apple-core">
   <svg viewBox="0 0 300 300" width="300" height="300" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -367,6 +353,110 @@
   animate();
 })();
 </script>
+
+<!-- ===== 苹果星云粒子系统 ===== -->
+<script>
+(function(){
+  var canvas = document.getElementById('nebula-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H, particles = [];
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+
+  // 苹果星云调色板：红、深红、橙、翠绿、深绿、金黄
+  var nebulaColors = [
+    {r:200,g:55,b:45},   // 苹果红
+    {r:155,g:28,b:22},   // 深红
+    {r:220,g:115,b:40},  // 橙红
+    {r:48,g:165,b:88},   // 翠绿
+    {r:28,g:118,b:68},   // 深绿
+    {r:185,g:142,b:42},  // 金黄
+    {r:138,g:32,b:72},   // 紫红
+    {r:78,g:182,b:112},  // 浅绿
+  ];
+
+  // 星云团块中心（按权重分布）
+  var centers = [
+    {x:0.17,y:0.22,w:3},{x:0.78,y:0.72,w:3},
+    {x:0.5,y:0.5,w:2},{x:0.11,y:0.78,w:2},
+    {x:0.88,y:0.16,w:2},{x:0.5,y:0.1,w:1},
+  ];
+
+  function pickCenter(){
+    var total = 0;
+    for(var i=0;i<centers.length;i++) total += centers[i].w;
+    var r = Math.random() * total, sum = 0;
+    for(var i=0;i<centers.length;i++){
+      sum += centers[i].w;
+      if(r <= sum) return centers[i];
+    }
+    return centers[0];
+  }
+
+  function Particle(){
+    this.reset = function(){
+      var c = pickCenter();
+      var angle = Math.random() * Math.PI * 2;
+      var dist = Math.random() * Math.random() * Math.min(W,H) * 0.42;
+      this.x = c.x * W + Math.cos(angle) * dist;
+      this.y = c.y * H + Math.sin(angle) * dist;
+      var r = Math.random();
+      if(r < 0.22) this.size = Math.random() * 65 + 28;    // 大气团
+      else if(r < 0.6) this.size = Math.random() * 32 + 8; // 中气团
+      else this.size = Math.random() * 14 + 2;              // 小粒子
+      var col = nebulaColors[Math.floor(Math.random() * nebulaColors.length)];
+      this.r = col.r; this.g = col.g; this.b = col.b;
+      this.baseOpacity = Math.random() * 0.13 + 0.02;
+      this.phase = Math.random() * Math.PI * 2;
+      this.speed = Math.random() * 0.004 + 0.0005;
+      this.driftX = (Math.random() - 0.5) * 0.1;
+      this.driftY = (Math.random() - 0.5) * 0.07;
+      this.pulseAmp = Math.random() * 0.35 + 0.05;
+    };
+    this.update = function(){
+      this.phase += this.speed;
+      this.x += this.driftX; this.y += this.driftY;
+      if(this.x < -this.size*2) this.x = W + this.size;
+      if(this.x > W + this.size*2) this.x = -this.size;
+      if(this.y < -this.size*2) this.y = H + this.size;
+      if(this.y > H + this.size*2) this.y = -this.size;
+    };
+    this.draw = function(){
+      var o = this.baseOpacity * (1 - this.pulseAmp + this.pulseAmp * Math.sin(this.phase));
+      var c = this.r + ',' + this.g + ',' + this.b;
+      var grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+      grad.addColorStop(0, 'rgba(' + c + ',' + o + ')');
+      grad.addColorStop(0.3, 'rgba(' + c + ',' + (o * 0.55) + ')');
+      grad.addColorStop(0.65, 'rgba(' + c + ',' + (o * 0.18) + ')');
+      grad.addColorStop(1, 'rgba(' + c + ',0)');
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = grad; ctx.fill();
+      // 细小尘埃粒子
+      if(this.size > 10){
+        for(var j=0;j<5;j++){
+          var dx = (Math.random()-0.5) * this.size * 1.8;
+          var dy = (Math.random()-0.5) * this.size * 1.8;
+          var ds = this.size * (Math.random() * 0.2 + 0.04);
+          ctx.beginPath(); ctx.arc(this.x + dx, this.y + dy, ds, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(' + c + ',' + (o * 0.32) + ')'; ctx.fill();
+        }
+      }
+    };
+    this.reset();
+  }
+
+  var count = Math.max(100, Math.floor((W * H) / 15000));
+  for(var i = 0; i < count; i++) particles.push(new Particle());
+  function animate(){
+    ctx.clearRect(0, 0, W, H);
+    for(var i = 0; i < particles.length; i++){ particles[i].update(); particles[i].draw(); }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+
 <script>
 const majorArcana=[
   {name:"愚人",num:"0",nameEn:"THE FOOL",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a0a"/><rect width="160" height="240" fill="url(#g0)" opacity="0.3"/><defs><radialGradient id="g0" cx="50%" cy="40%"><stop offset="0%" stop-color="#c8534a" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><ellipse cx="80" cy="120" rx="38" ry="50" fill="#c8534a"/><ellipse cx="80" cy="120" rx="20" ry="30" fill="#8B0000" opacity="0.5"/><ellipse cx="80" cy="120" rx="8" ry="12" fill="#f5e6d3" opacity="0.8"/><path d="M80 75 Q110 90 100 120 Q90 150 80 120 Q70 90 80 75" stroke="#c8534a" stroke-width="4" fill="none" opacity="0.6"/><path d="M80 70 Q75 55 82 50 Q90 55 85 70" fill="#5a7a3a"/><path d="M82 52 Q88 45 95 50" stroke="#3a5a2a" stroke-width="1" fill="none"/><ellipse cx="72" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(-15 72 108)"/><ellipse cx="88" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(15 88 108)"/><circle cx="80" cy="118" r="6" fill="#f5e6d3"/><circle cx="78" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="82" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="30" cy="40" r="1.5" fill="#c8534a" opacity="0.5"/><circle cx="130" cy="60" r="1" fill="#c8534a" opacity="0.4"/><circle cx="50" cy="200" r="1" fill="#c8534a" opacity="0.3"/></svg>`,meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。",apple:"被咬过的苹果核里，藏着新世界的大门。"},
