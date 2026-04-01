@@ -5,83 +5,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>并蒂同根</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400&display=swap');
+
   *{margin:0;padding:0;box-sizing:border-box}
   body{
-    background:#0a0a12;
+    background:#080810;
     min-height:100vh;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-family:'PingFang SC','STKaiti','KaiTi','Microsoft YaHei',sans-serif;
+    font-family:'Noto Serif SC','PingFang SC','STKaiti','KaiTi',serif;
     color:#f0e6d3;overflow:hidden;
   }
 
-  /* 背景光晕 */
   body::before{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     background:
-      radial-gradient(ellipse 60% 50% at 50% 50%,rgba(60,40,80,0.35) 0%,transparent 70%),
-      radial-gradient(ellipse 80% 60% at 50% 50%,rgba(30,60,50,0.2) 0%,transparent 60%);
+      radial-gradient(ellipse 60% 50% at 50% 45%,rgba(60,30,70,0.4) 0%,transparent 70%),
+      radial-gradient(ellipse 80% 60% at 50% 55%,rgba(20,50,45,0.25) 0%,transparent 60%),
+      radial-gradient(ellipse 100% 80% at 50% 50%,rgba(5,5,15,0.8) 0%,transparent 80%);
   }
 
   .container{
     text-align:center;position:relative;z-index:1;
     padding:40px;
+    display:flex;flex-direction:column;align-items:center;gap:32px;
   }
 
+  /* 莲花 */
+  .lotus-wrap{
+    opacity:0;
+    animation:lotusBloom 2s ease 0.2s forwards;
+  }
+  @keyframes lotusBloom{
+    from{opacity:0;transform:translateY(20px) scale(0.9)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+  }
+
+  .lotus-svg{width:clamp(80px,15vw,120px);height:auto;filter:drop-shadow(0 0 20px rgba(200,120,140,0.4))}
+
   .top-line{
-    font-size:0.75rem;letter-spacing:8px;color:rgba(240,230,211,0.35);
-    margin-bottom:60px;text-transform:uppercase;
+    font-family:'Ma Shan Zheng', cursive;
+    font-size:clamp(0.9rem,2vw,1.1rem);
+    letter-spacing:0.6em;
+    color:rgba(220,200,180,0.4);
+    margin-bottom:8px;
+    opacity:0;
+    animation:fadeUp 1s ease 0.8s forwards;
   }
 
   .main-text{
-    font-size:clamp(1.6rem,4.5vw,2.8rem);
-    letter-spacing:0.3em;
-    line-height:2.2;
+    font-family:'Ma Shan Zheng', cursive;
+    font-size:clamp(1.8rem,5vw,3.2rem);
+    letter-spacing:0.25em;
+    line-height:2;
     color:#f0e6d3;
-    text-shadow:0 0 40px rgba(200,160,100,0.25);
   }
 
   .main-text .line{
     display:block;
     opacity:0;
-    animation:fadeIn 1.2s ease forwards;
+    animation:fadeUp 1.2s ease forwards;
   }
-  .main-text .line:nth-child(1){animation-delay:0.3s}
-  .main-text .line:nth-child(2){animation-delay:0.9s}
-  .main-text .line:nth-child(3){animation-delay:1.5s}
-  .main-text .line:nth-child(4){animation-delay:2.1s}
-
-  @keyframes fadeIn{
-    from{opacity:0;transform:translateY(12px)}
-    to{opacity:1;transform:translateY(0)}
-  }
+  .main-text .line:nth-child(1){animation-delay:1s}
+  .main-text .line:nth-child(2){animation-delay:1.6s}
 
   .divider{
-    width:1px;height:60px;
-    background:linear-gradient(to bottom,transparent,rgba(200,160,100,0.5),transparent);
-    margin:40px auto;
+    width:1px;height:40px;
+    background:linear-gradient(to bottom,transparent,rgba(200,160,120,0.4),transparent);
+    margin:0 auto;
     opacity:0;
-    animation:fadeIn 1s ease 1.8s forwards;
+    animation:fadeUp 1s ease 2s forwards;
   }
 
   .bottom-line{
-    font-size:0.7rem;letter-spacing:6px;color:rgba(240,230,211,0.25);
-    margin-top:16px;
+    font-family:'Noto Serif SC', serif;
+    font-weight:300;
+    font-size:clamp(0.6rem,1.5vw,0.75rem);
+    letter-spacing:0.5em;
+    color:rgba(200,180,160,0.3);
     opacity:0;
-    animation:fadeIn 1s ease 2.4s forwards;
+    animation:fadeUp 1s ease 2.2s forwards;
+  }
+
+  @keyframes fadeUp{
+    from{opacity:0;transform:translateY(16px)}
+    to{opacity:1;transform:translateY(0)}
   }
 
   /* 角落装饰 */
-  .corner{position:fixed;width:40px;height:40px;opacity:0.2;z-index:1}
-  .corner-tl{top:20px;left:20px;border-top:1px solid #c8534a;border-left:1px solid #c8534a}
-  .corner-tr{top:20px;right:20px;border-top:1px solid #c8534a;border-right:1px solid #c8534a}
-  .corner-bl{bottom:20px;left:20px;border-bottom:1px solid #c8534a;border-left:1px solid #c8534a}
-  .corner-br{bottom:20px;right:20px;border-bottom:1px solid #c8534a;border-right:1px solid #c8534a}
+  .corner{position:fixed;width:36px;height:36px;opacity:0.18;z-index:1}
+  .corner-tl{top:20px;left:20px;border-top:1px solid rgba(200,140,120,0.8);border-left:1px solid rgba(200,140,120,0.8)}
+  .corner-tr{top:20px;right:20px;border-top:1px solid rgba(200,140,120,0.8);border-right:1px solid rgba(200,140,120,0.8)}
+  .corner-bl{bottom:20px;left:20px;border-bottom:1px solid rgba(200,140,120,0.8);border-left:1px solid rgba(200,140,120,0.8)}
+  .corner-br{bottom:20px;right:20px;border-bottom:1px solid rgba(200,140,120,0.8);border-right:1px solid rgba(200,140,120,0.8)}
 
-  /* 底部小字 */
   .footer{
-    position:fixed;bottom:20px;left:0;right:0;text-align:center;
-    font-size:0.6rem;letter-spacing:4px;color:rgba(240,230,211,0.15);
-    z-index:1;
+    position:fixed;bottom:18px;left:0;right:0;text-align:center;
+    font-family:'Noto Serif SC', serif;
+    font-weight:300;
+    font-size:0.6rem;letter-spacing:4px;color:rgba(180,160,140,0.18);
+    z-index:1;letter-spacing:0.4em;
   }
 </style>
 </head>
@@ -93,7 +115,40 @@
 <div class="corner corner-br"></div>
 
 <div class="container">
-  <div class="top-line">Bì Tì Tóng Gēn · Sǐ Shēng Bù Lí</div>
+
+  <!-- 莲花 SVG -->
+  <div class="lotus-wrap">
+    <svg class="lotus-svg" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- 外层大花瓣 -->
+      <ellipse cx="100" cy="90" rx="70" ry="28" fill="rgba(180,80,100,0.08)" filter="blur(8px)"/>
+      <!-- 底层花瓣 -->
+      <path d="M100 130 Q60 100 55 65 Q65 55 100 60 Q135 55 145 65 Q140 100 100 130Z" fill="rgba(200,100,110,0.5)"/>
+      <path d="M100 130 Q55 95 50 60 Q62 48 100 52 Q138 48 150 60 Q145 95 100 130Z" fill="rgba(210,110,115,0.45)" transform="rotate(30 100 95)"/>
+      <path d="M100 130 Q55 95 50 60 Q62 48 100 52 Q138 48 150 60 Q145 95 100 130Z" fill="rgba(210,110,115,0.45)" transform="rotate(-30 100 95)"/>
+      <!-- 中层花瓣 -->
+      <path d="M100 125 Q65 100 62 70 Q72 60 100 63 Q128 60 138 70 Q135 100 100 125Z" fill="rgba(215,120,125,0.65)"/>
+      <path d="M100 125 Q65 100 62 70 Q72 60 100 63 Q128 60 138 70 Q135 100 100 125Z" fill="rgba(218,128,130,0.6)" transform="rotate(40 100 90)"/>
+      <path d="M100 125 Q65 100 62 70 Q72 60 100 63 Q128 60 138 70 Q135 100 100 125Z" fill="rgba(218,128,130,0.6)" transform="rotate(-40 100 90)"/>
+      <!-- 内层花瓣 -->
+      <path d="M100 118 Q72 98 72 72 Q80 64 100 66 Q120 64 128 72 Q128 98 100 118Z" fill="rgba(225,145,148,0.8)"/>
+      <path d="M100 118 Q72 98 72 72 Q80 64 100 66 Q120 64 128 72 Q128 98 100 118Z" fill="rgba(228,150,152,0.75)" transform="rotate(50 100 88)"/>
+      <path d="M100 118 Q72 98 72 72 Q80 64 100 66 Q120 64 128 72 Q128 98 100 118Z" fill="rgba(228,150,152,0.75)" transform="rotate(-50 100 88)"/>
+      <!-- 中心 -->
+      <ellipse cx="100" cy="105" rx="18" ry="14" fill="rgba(235,175,175,0.9)"/>
+      <ellipse cx="100" cy="103" rx="10" ry="8" fill="rgba(240,195,195,0.95)"/>
+      <ellipse cx="100" cy="101" rx="5" ry="4" fill="rgba(245,210,210,1)"/>
+      <!-- 莲蓬小点 -->
+      <circle cx="96" cy="104" r="1.5" fill="rgba(180,100,80,0.6)"/>
+      <circle cx="100" cy="102" r="1.5" fill="rgba(180,100,80,0.6)"/>
+      <circle cx="104" cy="104" r="1.5" fill="rgba(180,100,80,0.6)"/>
+      <circle cx="100" cy="107" r="1.5" fill="rgba(180,100,80,0.6)"/>
+      <!-- 水面波纹 -->
+      <ellipse cx="100" cy="140" rx="65" ry="10" fill="rgba(30,60,80,0.3)"/>
+      <ellipse cx="100" cy="140" rx="45" ry="6" fill="rgba(30,60,80,0.2)"/>
+    </svg>
+  </div>
+
+  <div class="top-line">Bì Tì · Tóng Gēn · Sǐ Shēng · Bù Lí</div>
 
   <div class="main-text">
     <span class="line">并蒂同根，死生不离，</span>
@@ -103,6 +158,7 @@
   <div class="divider"></div>
 
   <div class="bottom-line">甲木 · 壬水 · 情深不负</div>
+
 </div>
 
 <div class="footer">甲木向阳而生 · 壬水润下而守</div>
