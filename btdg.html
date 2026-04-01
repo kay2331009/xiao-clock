@@ -5,15 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>并蒂同根</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400&display=swap');
-
+  /* 思源宋体 CDN（国内可访问）+ font-family 备选 */
   *{margin:0;padding:0;box-sizing:border-box}
+
+  /* 思源宋体 CDN（站内资源优先加载） */
+  @font-face{
+    font-family:'SYSerif';
+    src:local('Source Han Serif SC'),local('SourceHanSerifSC-Regular'),
+         url('https://cdn.jsdelivr.net/npm/source-han-serif-cn@1.0.0/SourceHanSerifCN-Regular.otf') format('opentype');
+    font-weight:400;
+    font-style:normal;
+    unicode-range:U+4E00-9FFF;
+  }
+
   body{
     background:#080810;
     min-height:100vh;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-family:'Noto Serif SC','PingFang SC','STKaiti','KaiTi',serif;
+    font-family:'SYSerif','STKaiti','KaiTi','FangSong','STFangsong','SimSun',serif;
     color:#f0e6d3;overflow:hidden;
+    font-weight:400;
   }
 
   body::before{
@@ -43,8 +54,8 @@
   .lotus-svg{width:clamp(80px,15vw,120px);height:auto;filter:drop-shadow(0 0 20px rgba(200,120,140,0.4))}
 
   .top-line{
-    font-family:'Ma Shan Zheng', cursive;
-    font-size:clamp(0.9rem,2vw,1.1rem);
+    font-family:'STKaiti','KaiTi',serif;
+    font-size:clamp(0.8rem,2vw,1rem);
     letter-spacing:0.6em;
     color:rgba(220,200,180,0.4);
     margin-bottom:8px;
@@ -53,10 +64,10 @@
   }
 
   .main-text{
-    font-family:'Ma Shan Zheng', cursive;
+    font-family:'STKaiti','KaiTi','FangSong',serif;
     font-size:clamp(1.8rem,5vw,3.2rem);
     letter-spacing:0.25em;
-    line-height:2;
+    line-height:2.2;
     color:#f0e6d3;
   }
 
@@ -77,8 +88,7 @@
   }
 
   .bottom-line{
-    font-family:'Noto Serif SC', serif;
-    font-weight:300;
+    font-family:'STKaiti','KaiTi',serif;
     font-size:clamp(0.6rem,1.5vw,0.75rem);
     letter-spacing:0.5em;
     color:rgba(200,180,160,0.3);
@@ -100,10 +110,9 @@
 
   .footer{
     position:fixed;bottom:18px;left:0;right:0;text-align:center;
-    font-family:'Noto Serif SC', serif;
-    font-weight:300;
-    font-size:0.6rem;letter-spacing:4px;color:rgba(180,160,140,0.18);
-    z-index:1;letter-spacing:0.4em;
+    font-family:'STKaiti','KaiTi',serif;
+    font-size:0.6rem;letter-spacing:0.4em;color:rgba(180,160,140,0.18);
+    z-index:1;
   }
 </style>
 </head>
