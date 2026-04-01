@@ -787,16 +787,18 @@ function enterMode(mode){
   } else {
     document.getElementById('singleMode').classList.remove('show');
     document.getElementById('spreadMode').classList.add('show');
+    document.getElementById('spreadMode').querySelector('.spread-nav').classList.add('show');
     resetSpread();
   }
 }
 
 function goBack(){
+  document.getElementById('landing').style.display='flex';
   document.getElementById('singleMode').classList.remove('show');
   document.getElementById('spreadMode').classList.remove('show');
   document.getElementById('card').style.display='none';
+  document.getElementById('card').classList.remove('flipped');
   document.getElementById('resultSection').classList.remove('show');
-  document.getElementById('landing').style.display='flex';
   drawn=false; isFlipped=false; currentCard=null;
   reset();
 }
