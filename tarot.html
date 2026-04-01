@@ -92,10 +92,11 @@
   /* 深空背景（星空白满天） */
   body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     background:
-      radial-gradient(ellipse 120% 80% at 20% 20%,rgba(20,60,40,0.25) 0%,transparent 55%),
-      radial-gradient(ellipse 100% 70% at 80% 80%,rgba(120,30,20,0.2) 0%,transparent 50%),
-      radial-gradient(ellipse 80% 60% at 50% 50%,rgba(80,20,60,0.12) 0%,transparent 60%),
-      linear-gradient(180deg,#030810 0%,#050d18 40%,#040810 100%)}
+      radial-gradient(ellipse 120% 80% at 20% 20%,rgba(20,80,50,0.2) 0%,transparent 55%),
+      radial-gradient(ellipse 100% 70% at 80% 80%,rgba(150,40,20,0.18) 0%,transparent 50%),
+      radial-gradient(ellipse 80% 60% at 50% 50%,rgba(60,20,80,0.1) 0%,transparent 60%),
+      radial-gradient(ellipse 90% 90% at 50% 50%,rgba(5,10,30,0.7) 0%,transparent 70%),
+      linear-gradient(180deg,#020810 0%,#041020 40%,#030815 100%)}
   /* 苹果核心发光 */
   .apple-core{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;animation:appleCorePulse 4s ease-in-out infinite}
   .apple-core svg{filter:drop-shadow(0 0 30px rgba(200,83,74,0.5)) drop-shadow(0 0 80px rgba(200,83,74,0.2))}
@@ -364,16 +365,17 @@
   function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   window.addEventListener('resize', resize); resize();
 
-  // 苹果星云调色板：红、深红、橙、翠绿、深绿、金黄
+  // 苹果星云调色板（参考：翡翠绿+深红+蓝色星云）
   var nebulaColors = [
-    {r:200,g:55,b:45},   // 苹果红
-    {r:155,g:28,b:22},   // 深红
-    {r:220,g:115,b:40},  // 橙红
-    {r:48,g:165,b:88},   // 翠绿
-    {r:28,g:118,b:68},   // 深绿
-    {r:185,g:142,b:42},  // 金黄
-    {r:138,g:32,b:72},   // 紫红
-    {r:78,g:182,b:112},  // 浅绿
+    {r:40,g:180,b:100},  // 翡翠绿（主导）
+    {r:30,g:130,b:75},   // 深绿
+    {r:20,g:110,b:60},   // 墨绿
+    {r:180,g:60,b:30},   // 深红（星云核心）
+    {r:220,g:100,b:40},  // 橙红
+    {r:200,g:80,b:50},   // 暖红
+    {r:15,g:20,b:55},    // 深蓝（背景）
+    {r:60,g:160,b:200},  // 青蓝（亮点）
+    {r:180,g:140,b:50},  // 金黄
   ];
 
   // 星云团块中心（按权重分布）
