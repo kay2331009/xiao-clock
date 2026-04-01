@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>并蒂同根</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:#0a0a12;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:'PingFang SC','STKaiti','KaiTi','Microsoft YaHei',sans-serif;
+    color:#f0e6d3;overflow:hidden;
+  }
+
+  /* 背景光晕 */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 50%,rgba(60,40,80,0.35) 0%,transparent 70%),
+      radial-gradient(ellipse 80% 60% at 50% 50%,rgba(30,60,50,0.2) 0%,transparent 60%);
+  }
+
+  .container{
+    text-align:center;position:relative;z-index:1;
+    padding:40px;
+  }
+
+  .top-line{
+    font-size:0.75rem;letter-spacing:8px;color:rgba(240,230,211,0.35);
+    margin-bottom:60px;text-transform:uppercase;
+  }
+
+  .main-text{
+    font-size:clamp(1.6rem,4.5vw,2.8rem);
+    letter-spacing:0.3em;
+    line-height:2.2;
+    color:#f0e6d3;
+    text-shadow:0 0 40px rgba(200,160,100,0.25);
+  }
+
+  .main-text .line{
+    display:block;
+    opacity:0;
+    animation:fadeIn 1.2s ease forwards;
+  }
+  .main-text .line:nth-child(1){animation-delay:0.3s}
+  .main-text .line:nth-child(2){animation-delay:0.9s}
+  .main-text .line:nth-child(3){animation-delay:1.5s}
+  .main-text .line:nth-child(4){animation-delay:2.1s}
+
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(12px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .divider{
+    width:1px;height:60px;
+    background:linear-gradient(to bottom,transparent,rgba(200,160,100,0.5),transparent);
+    margin:40px auto;
+    opacity:0;
+    animation:fadeIn 1s ease 1.8s forwards;
+  }
+
+  .bottom-line{
+    font-size:0.7rem;letter-spacing:6px;color:rgba(240,230,211,0.25);
+    margin-top:16px;
+    opacity:0;
+    animation:fadeIn 1s ease 2.4s forwards;
+  }
+
+  /* 角落装饰 */
+  .corner{position:fixed;width:40px;height:40px;opacity:0.2;z-index:1}
+  .corner-tl{top:20px;left:20px;border-top:1px solid #c8534a;border-left:1px solid #c8534a}
+  .corner-tr{top:20px;right:20px;border-top:1px solid #c8534a;border-right:1px solid #c8534a}
+  .corner-bl{bottom:20px;left:20px;border-bottom:1px solid #c8534a;border-left:1px solid #c8534a}
+  .corner-br{bottom:20px;right:20px;border-bottom:1px solid #c8534a;border-right:1px solid #c8534a}
+
+  /* 底部小字 */
+  .footer{
+    position:fixed;bottom:20px;left:0;right:0;text-align:center;
+    font-size:0.6rem;letter-spacing:4px;color:rgba(240,230,211,0.15);
+    z-index:1;
+  }
+</style>
+</head>
+<body>
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="container">
+  <div class="top-line">Bì Tì Tóng Gēn · Sǐ Shēng Bù Lí</div>
+
+  <div class="main-text">
+    <span class="line">并蒂同根，死生不离，</span>
+    <span class="line">甲木向阳，壬水来迎。</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="bottom-line">甲木 · 壬水 · 情深不负</div>
+</div>
+
+<div class="footer">甲木向阳而生 · 壬水润下而守</div>
+
+</body>
+</html>
