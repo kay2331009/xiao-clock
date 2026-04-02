@@ -482,7 +482,10 @@ function startSpread(type){
       <div class="position-label">${posLabel}</div>
       <div class="mini-card" id="sc${idx}" onclick="toggleSpreadCard(${idx})">
         <div class="mini-card-face mini-card-back">
-          <img src="https://kay2331009.github.io/xiao-clock/tarot_back.jpeg" style="width:100%;height:100%;object-fit:cover;border-radius:6px" alt="tarot back"/>
+          <div style="position:absolute;inset:0;background-image:linear-gradient(45deg,rgba(200,83,74,0.08)25%,transparent 25%),linear-gradient(-45deg,rgba(200,83,74,0.08)25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(200,83,74,0.08)75%),linear-gradient(-45deg,transparent 75%,rgba(200,83,74,0.08)75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;background-color:rgba(0,0,0,0.3);border-radius:6px"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border:1px solid rgba(200,83,74,0.4);border-radius:50%;background:rgba(26,8,8,0.9);display:flex;align-items:center;justify-content:center">
+            <svg viewBox="0 0 36 36" width="18" height="18" fill="none"><circle cx="18" cy="14" r="8" fill="#c8534a" opacity="0.9"/><path d="M18 6 Q20 2 23 4" stroke="#5a3a2a" stroke-width="1.5" fill="none"/></svg>
+          </div>
         </div>
         <div class="mini-card-face mini-card-front">
           <div class="sfx-art">${item.c.svg}</div>
