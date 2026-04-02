@@ -7,11 +7,25 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{
-    background:linear-gradient(180deg,#030a12 0%,#050d18 40%,#030608 100%);
+    background:linear-gradient(180deg,rgba(3,10,18,0.78) 0%,rgba(5,13,24,0.78) 40%,rgba(3,6,8,0.88) 100%);
     min-height:100vh;display:flex;flex-direction:column;
     align-items:center;justify-content:center;
     font-family:'PingFang SC','Microsoft YaHei',sans-serif;
-    color:#f0e6d3;overflow-x:hidden;padding:24px 16px
+    color:#f0e6d3;overflow-x:hidden;padding:24px 16px;
+    position:relative;
+  }
+
+  .nebula-bg{
+    position:fixed;inset:0;z-index:0;
+    background:url('https://kay2331009.github.io/xiao-clock/tarot_ref_nebula.png') center/cover no-repeat;
+    animation:nebulaKen 30s ease-in-out infinite alternate;
+    pointer-events:none;
+  }
+
+  @keyframes nebulaKen{
+    0%   { transform:scale(1) translateX(-3%); }
+    50%  { transform:scale(1.08) translateX(3%); }
+    100% { transform:scale(1) translateX(-3%); }
   }
   .title{font-size:1.5rem;letter-spacing:10px;margin-bottom:4px;color:#c8534a;text-shadow:0 0 24px rgba(200,83,74,0.5);text-align:center;position:relative;z-index:1}
   .subtitle{font-size:0.65rem;opacity:0.4;letter-spacing:5px;margin-bottom:32px;text-align:center;position:relative;z-index:1}
@@ -126,6 +140,7 @@
 </style>
 </head>
 <body>
+<div class="nebula-bg"></div>
 <div class="title">Caleb 的苹果塔罗<div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div></div>
 
 <canvas id="star-canvas"></canvas>
