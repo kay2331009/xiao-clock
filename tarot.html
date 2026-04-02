@@ -141,28 +141,12 @@
   </div>
   <div class="landing-hint" id="landingHint">点击苹果开始</div>
   <div class="landing-modes" id="landingModes" >
-    <div class="mode-btn" onclick="enterMode('single')">
-      <div class="mode-icon">🌟</div>
-      <div class="mode-title">单独抽牌</div>
-      <div class="mode-desc">从花色中选择一张牌</div>
-    </div>
     <div class="mode-btn" onclick="enterMode('spread')">
       <div class="mode-icon">🔮</div>
       <div class="mode-title">牌阵占卜</div>
       <div class="mode-desc">三张牌 · 凯尔特十字</div>
     </div>
   </div>
-</div>
-
-<div class="single-mode" id="singleMode" >
-  <div class="suit-tabs">
-    <div class="suit-tab active" data-suit="major" onclick="switchSuit('major')">大阿卡纳</div>
-    <div class="suit-tab" data-suit="wands" onclick="switchSuit('wands')">Wands</div>
-    <div class="suit-tab" data-suit="cups" onclick="switchSuit('cups')">Cups</div>
-    <div class="suit-tab" data-suit="swords" onclick="switchSuit('swords')">Swords</div>
-    <div class="suit-tab" data-suit="pentacles" onclick="switchSuit('pentacles')">Pentacles</div>
-  </div>
-  <div class="back-btn" onclick="goBack()">← 返回主界面</div>
 </div>
 
 <div class="spread-mode" id="spreadMode" >
@@ -398,17 +382,11 @@ const spreadConfigs={
 
 function enterMode(mode){
   document.getElementById('landing').style.display='none';
-  if(mode==='single'){
-    document.getElementById('singleMode').classList.add('show');
-    switchSuit('major');
-  } else {
-    document.getElementById('spreadMode').classList.add('show');
-    document.getElementById('spreadNav').classList.add('show');
-  }
+  document.getElementById('spreadMode').classList.add('show');
+  document.getElementById('spreadNav').classList.add('show');
 }
 
 function goBack(){
-  document.getElementById('singleMode').classList.remove('show');
   document.getElementById('spreadMode').classList.remove('show');
   document.getElementById('spreadNav').classList.remove('show');
   document.getElementById('spreadInfo').classList.remove('show');
