@@ -7,25 +7,11 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{
-    background:linear-gradient(180deg,rgba(3,10,18,0.78) 0%,rgba(5,13,24,0.78) 40%,rgba(3,6,8,0.88) 100%);
+    background:radial-gradient(ellipse at 50% 20%,#1a0a2e 0%,#0d0d1a 60%,#050508 100%);
     min-height:100vh;display:flex;flex-direction:column;
     align-items:center;justify-content:center;
     font-family:'PingFang SC','Microsoft YaHei',sans-serif;
-    color:#f0e6d3;overflow-x:hidden;padding:24px 16px;
-    position:relative;
-  }
-
-  .nebula-bg{
-    position:fixed;inset:0;z-index:0;
-    background:url('https://kay2331009.github.io/xiao-clock/tarot_ref_nebula.png') center/cover no-repeat;
-    animation:nebulaKen 30s ease-in-out infinite alternate;
-    pointer-events:none;
-  }
-
-  @keyframes nebulaKen{
-    0%   { transform:scale(1) translateX(-3%); }
-    50%  { transform:scale(1.08) translateX(3%); }
-    100% { transform:scale(1) translateX(-3%); }
+    color:#f0e6d3;overflow-x:hidden;padding:24px 16px
   }
   .title{font-size:1.5rem;letter-spacing:10px;margin-bottom:4px;color:#c8534a;text-shadow:0 0 24px rgba(200,83,74,0.5);text-align:center;position:relative;z-index:1}
   .subtitle{font-size:0.65rem;opacity:0.4;letter-spacing:5px;margin-bottom:32px;text-align:center;position:relative;z-index:1}
@@ -98,23 +84,13 @@
   .spread-nav button.active{background:rgba(200,83,74,0.15);border-color:#c8534a}
 
 
-  /* ===== 星空画布 ===== */
-  #star-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
-  /* ===== 多层星云背景 ===== */
-  /* ===== 苹果星云粒子画布 ===== */
-  #nebula-canvas{display:none}
-  /* 深空背景（星空白满天） */
-  body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:
-      radial-gradient(ellipse 120% 80% at 20% 20%,rgba(20,80,50,0.2) 0%,transparent 55%),
-      radial-gradient(ellipse 100% 70% at 80% 80%,rgba(150,40,20,0.18) 0%,transparent 50%),
-      radial-gradient(ellipse 80% 60% at 50% 50%,rgba(60,20,80,0.1) 0%,transparent 60%),
-      radial-gradient(ellipse 90% 90% at 50% 50%,rgba(5,10,30,0.7) 0%,transparent 70%),
-      linear-gradient(180deg,#020810 0%,#041020 40%,#030815 100%)}
-  /* 苹果核心发光 */
-  .apple-core{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;animation:appleCorePulse 4s ease-in-out infinite}
-  .apple-core svg{filter:drop-shadow(0 0 30px rgba(200,83,74,0.5)) drop-shadow(0 0 80px rgba(200,83,74,0.2))}
-  @keyframes appleCorePulse{0%,100%{opacity:0.25;transform:translate(-50%,-50%) scale(1)}50%{opacity:0.4;transform:translate(-50%,-50%) scale(1.08)}}
+  /* ===== 星云粒子画布 ===== */
+  #nebula-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .nebula-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden}
+  .nebula-layer::before{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(140,30,60,0.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 70%,rgba(60,20,100,0.2) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(200,80,100,0.08) 0%,transparent 70%);animation:nebulaDrift1 20s ease-in-out infinite}
+  .nebula-layer::after{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse 70% 50% at 70% 20%,rgba(80,40,120,0.15) 0%,transparent 60%),radial-gradient(ellipse 50% 70% at 30% 80%,rgba(180,40,60,0.12) 0%,transparent 55%),radial-gradient(ellipse 40% 60% at 60% 60%,rgba(100,20,80,0.1) 0%,transparent 65%);animation:nebulaDrift2 25s ease-in-out infinite}
+  @keyframes nebulaDrift1{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(3%,2%) rotate(1deg)}66%{transform:translate(-2%,-1%) rotate(-1deg)}}
+  @keyframes nebulaDrift2{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-3%,2%) rotate(-1.5deg)}}
   /* ===== 增强主界面 ===== */
   .landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;cursor:pointer;position:relative;z-index:1}
   .landing-apple{position:relative;animation:appleFloat 3s ease-in-out infinite;transition:transform 0.3s;filter:drop-shadow(0 0 20px rgba(200,83,74,0.5)) drop-shadow(0 0 40px rgba(200,83,74,0.2))}
@@ -140,35 +116,10 @@
 </style>
 </head>
 <body>
-<div class="nebula-bg"></div>
 <div class="title">Caleb 的苹果塔罗<div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div></div>
 
-<canvas id="star-canvas"></canvas>
 <canvas id="nebula-canvas"></canvas>
-<div class="apple-core">
-  <svg viewBox="0 0 300 300" width="300" height="300" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="coreGlow" cx="50%" cy="50%">
-        <stop offset="0%" stop-color="#c8534a" stop-opacity="0.6"/>
-        <stop offset="40%" stop-color="#c8534a" stop-opacity="0.2"/>
-        <stop offset="100%" stop-color="transparent"/>
-      </radialGradient>
-      <radialGradient id="coreGlow2" cx="50%" cy="50%">
-        <stop offset="0%" stop-color="#80c8a0" stop-opacity="0.4"/>
-        <stop offset="60%" stop-color="#50a878" stop-opacity="0.1"/>
-        <stop offset="100%" stop-color="transparent"/>
-      </radialGradient>
-    </defs>
-    <!-- 星云光晕 -->
-    <circle cx="150" cy="150" r="140" fill="url(#coreGlow2)" opacity="0.5"/>
-    <circle cx="150" cy="150" r="100" fill="url(#coreGlow)" opacity="0.6"/>
-    <circle cx="150" cy="150" r="60" fill="url(#coreGlow)" opacity="0.4"/>
-    <!-- 苹果形状发光 -->
-    <ellipse cx="150" cy="155" rx="50" ry="55" fill="rgba(200,83,74,0.12)" filter="blur(8px)"/>
-    <ellipse cx="150" cy="155" rx="35" ry="38" fill="rgba(200,83,74,0.15)" filter="blur(5px)"/>
-    <ellipse cx="150" cy="155" rx="22" ry="25" fill="rgba(200,83,74,0.2)" filter="blur(3px)"/>
-  </svg>
-</div>
+<div class="nebula-layer"></div>
 
 <div class="landing" id="landing">
   <div class="landing-apple" id="landingApple">
@@ -254,6 +205,19 @@
   </div>
 </div>
 
+
+<div class="spread-info" id="spreadInfo"></div>
+<div class="spread-cards" id="spreadCards"></div>
+<div class="spread-detail" id="spreadDetail">
+  <div class="spread-detail-title" id="spreadDetailTitle"></div>
+  <div class="spread-detail-meaning" id="spreadDetailMeaning"></div>
+  <div class="spread-back-hint">点击卡片可翻转</div>
+</div>
+<div class="spread-nav" id="spreadNav">
+  <button class="" onclick="startSpread(1)">三张牌</button>
+  <button class="" onclick="startSpread(2)">五张牌</button>
+  <button class="" onclick="startSpread(3)">Celtic Cross</button>
+</div>
 <div class="result-section" id="resultSection">
   <div class="flip-hint" id="flipHint">点击牌面可翻转查看背面</div>
   <div class="result-meaning" id="resultMeaning"></div>
@@ -263,349 +227,15 @@
 </div>
 
 <script>
-// ===== 满天繁星系统 =====
-(function(){
-  var canvas = document.getElementById('star-canvas');
-  if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var W, H, stars = [];
-
-  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  window.addEventListener('resize', resize); resize();
-
-  // Star colors: cool blue-white, warm white, orange, faint red, greenish
-  var starColors = [
-    '255,255,255',   // pure white
-    '220,235,255',   // cool blue white
-    '255,245,220',   // warm white
-    '255,200,150',   // orange
-    '200,150,255',   // purple
-    '150,220,200',   // cyan-green
-    '255,180,180',   // faint red
-  ];
-
-  function Star(){
-    this.reset = function(){
-      this.x = Math.random() * W;
-      this.y = Math.random() * H;
-      // Size distribution: mostly tiny, few bigger
-      var r = Math.random();
-      if(r < 0.7) this.size = Math.random() * 0.8 + 0.3;        // tiny: 0.3-1.1
-      else if(r < 0.92) this.size = Math.random() * 1.2 + 0.8;  // small: 0.8-2.0
-      else this.size = Math.random() * 1.5 + 1.8;               // bigger: 1.8-3.3
-      this.baseOpacity = Math.random() * 0.6 + 0.2;              // 0.2-0.8
-      this.twinkleSpeed = Math.random() * 0.04 + 0.005;          // twinkle rate
-      this.twinklePhase = Math.random() * Math.PI * 2;
-      this.twinkleAmp = Math.random() * 0.4 + 0.1;              // 0.1-0.5 variation
-      this.colorIdx = Math.floor(Math.random() * starColors.length);
-      // Slow drift for larger stars
-      this.driftX = (Math.random() - 0.5) * 0.08;
-      this.driftY = (Math.random() - 0.5) * 0.04;
-    };
-    this.update = function(){
-      this.twinklePhase += this.twinkleSpeed;
-      this.x += this.driftX;
-      this.y += this.driftY;
-      if(this.x < -2) this.x = W + 2;
-      if(this.x > W + 2) this.x = -2;
-      if(this.y < -2) this.y = H + 2;
-      if(this.y > H + 2) this.y = -2;
-    };
-    this.draw = function(){
-      var o = this.baseOpacity * (1 - this.twinkleAmp + this.twinkleAmp * Math.sin(this.twinklePhase));
-      var c = starColors[this.colorIdx];
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + c + ',' + o + ')';
-      ctx.fill();
-      // Glow for brighter stars
-      if(this.size > 1.4 && o > 0.4){
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(' + c + ',' + (o * 0.06) + ')';
-        ctx.fill();
-      }
-      // Cross flare for biggest stars
-      if(this.size > 2.2 && o > 0.5){
-        var flare = this.size * 5;
-        ctx.strokeStyle = 'rgba(' + c + ',' + (o * 0.08) + ')';
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(this.x - flare, this.y);
-        ctx.lineTo(this.x + flare, this.y);
-        ctx.moveTo(this.x, this.y - flare);
-        ctx.lineTo(this.x, this.y + flare);
-        ctx.stroke();
-      }
-    };
-    this.reset();
-  }
-
-  // 500 stars minimum, scale with screen
-  var starCount = Math.max(500, Math.floor((W * H) / 3500));
-  for(var i = 0; i < starCount; i++) stars.push(new Star());
-
-  function animate(){
-    ctx.clearRect(0, 0, W, H);
-    for(var i = 0; i < stars.length; i++){
-      stars[i].update();
-      stars[i].draw();
-    }
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
-</script>
-
-<!-- ===== 真实银河星空系统（动画版）===== -->
-<script>
+// ===== 星云粒子系统 =====
 (function(){
   var canvas = document.getElementById('nebula-canvas');
   if(!canvas) return;
   var ctx = canvas.getContext('2d');
-  var W, H;
-  var bgStars = [];
-  var brightStars = [];
-  var nebulaBlobs = [];
-  var dustParticles = [];
-  var t = 0;
-
-  function resize(){
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    init();
-  }
-  window.addEventListener('resize', resize);
-
-  function init(){
-    bgStars = [];
-    brightStars = [];
-    nebulaBlobs = [];
-    dustParticles = [];
-
-    // 背景星空
-    var bgCount = Math.floor((W * H) / 1800);
-    for(var i = 0; i < bgCount; i++){
-      bgStars.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        size: Math.random() * 1.0 + 0.2,
-        opacity: Math.random() * 0.6 + 0.3,
-        twinkle: Math.random() * 0.025 + 0.005,
-        phase: Math.random() * Math.PI * 2,
-        color: Math.random() < 0.6 ? '255,255,255' :
-               Math.random() < 0.5 ? '200,215,255' : '255,235,210'
-      });
-    }
-
-    // 亮星
-    var brightCount = Math.floor((W * H) / 22000) + 18;
-    for(var i = 0; i < brightCount; i++){
-      brightStars.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        size: Math.random() * 2.8 + 1.2,
-        opacity: Math.random() * 0.8 + 0.4,
-        color: Math.random() < 0.35 ? '255,255,255' :
-               Math.random() < 0.55 ? '180,200,255' :
-               Math.random() < 0.75 ? '255,220,180' : '255,200,150',
-        flare: Math.random() < 0.55,
-        twinkle: Math.random() * 0.018 + 0.003,
-        phase: Math.random() * Math.PI * 2,
-        dx: (Math.random() - 0.5) * 0.008,
-        dy: (Math.random() - 0.5) * 0.004
-      });
-    }
-
-    // 星云斑块
-    var blobCount = Math.floor((W * H) / 35000) + 15;
-    var blobColors = [
-      '40,180,100','30,140,80','18,100,55',
-      '180,55,30','220,95,40','155,38,22',
-      '55,155,200','28,75,160',
-      '175,138,48','135,28,68'
-    ];
-    for(var i = 0; i < blobCount; i++){
-      nebulaBlobs.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        rx: Math.random() * 320 + 80,
-        ry: Math.random() * 200 + 50,
-        angle: Math.random() * Math.PI,
-        color: blobColors[Math.floor(Math.random() * blobColors.length)],
-        opacity: Math.random() * 0.1 + 0.03,
-        phase: Math.random() * Math.PI * 2,
-        speed: Math.random() * 0.004 + 0.001,
-        angleSpeed: (Math.random() - 0.5) * 0.0004,
-        dx: (Math.random() - 0.5) * 0.018,
-        dy: (Math.random() - 0.5) * 0.012
-      });
-    }
-
-    // V17 风格粒子
-    dustParticles = [];
-    for(var i = 0; i < 120; i++){
-      dustParticles.push(new DustParticle());
-    }
-    // 每4秒爆发一次
-    if(!window._dustBurstSet){
-      window._dustBurstSet = true;
-      setInterval(function(){
-        var cx = Math.random() * W, cy = Math.random() * H;
-        for(var i = 0; i < 12; i++){
-          var p = new DustParticle(); p.x = cx; p.y = cy;
-          var angle = (i / 12) * Math.PI * 2, speed = Math.random() * 1.5 + 0.5;
-          p.speedX = Math.cos(angle) * speed; p.speedY = Math.sin(angle) * speed;
-          p.opacity = 0.8; p.size = Math.random() * 1.5 + 0.5;
-          dustParticles.push(p);
-        }
-        if(dustParticles.length > 250) dustParticles.splice(0, 20);
-      }, 4000);
-    }
-  }
-
-  function drawGalaxy(angle){
-    ctx.save();
-    var cx = W * 0.5, cy = H * 0.42;
-
-    // 深空背景
-    var g0 = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.95);
-    g0.addColorStop(0, 'rgba(15,20,45,0.85)');
-    g0.addColorStop(0.5, 'rgba(8,12,30,0.9)');
-    g0.addColorStop(1, 'rgba(2,5,15,1)');
-    ctx.fillStyle = g0;
-    ctx.fillRect(0, 0, W, H);
-
-    // 银河外围光晕
-    var g1 = ctx.createRadialGradient(cx, cy, Math.max(W,H)*0.15, cx, cy, Math.max(W, H) * 0.85);
-    g1.addColorStop(0, 'rgba(40,55,90,0.3)');
-    g1.addColorStop(0.3, 'rgba(30,40,80,0.18)');
-    g1.addColorStop(0.7, 'rgba(20,25,60,0.08)');
-    g1.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g1;
-    ctx.fillRect(0, 0, W, H);
-
-    // 银河带主体（旋转）
-    ctx.translate(cx, cy);
-    ctx.rotate(angle);
-
-    var gs = Math.max(W, H);
-
-    // 主椭圆光带
-    var g2 = ctx.createRadialGradient(0, 0, 0, 0, 0, gs * 0.6);
-    g2.addColorStop(0, 'rgba(90,70,130,0.28)');
-    g2.addColorStop(0.15, 'rgba(70,85,150,0.2)');
-    g2.addColorStop(0.4, 'rgba(50,65,130,0.14)');
-    g2.addColorStop(0.7, 'rgba(35,50,110,0.07)');
-    g2.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g2;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, gs * 0.6, gs * 0.2, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 内层亮带
-    var g3 = ctx.createRadialGradient(0, 0, 0, 0, 0, gs * 0.3);
-    g3.addColorStop(0, 'rgba(120,100,170,0.22)');
-    g3.addColorStop(0.5, 'rgba(80,90,160,0.12)');
-    g3.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g3;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, gs * 0.3, gs * 0.1, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 银河核球
-    var g4 = ctx.createRadialGradient(0, 0, 0, 0, 0, gs * 0.12);
-    g4.addColorStop(0, 'rgba(240,220,200,0.22)');
-    g4.addColorStop(0.3, 'rgba(200,180,160,0.12)');
-    g4.addColorStop(0.7, 'rgba(140,120,140,0.06)');
-    g4.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g4;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, gs * 0.12, gs * 0.06, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  function drawNebulaBlobs(){
-    for(var i = 0; i < nebulaBlobs.length; i++){
-      var b = nebulaBlobs[i];
-      var o = b.opacity * (1 + 0.35 * Math.sin(b.phase));
-      ctx.save();
-      ctx.translate(b.x, b.y);
-      ctx.rotate(b.angle);
-      var grad = ctx.createRadialGradient(0, 0, 0, 0, 0, b.rx);
-      grad.addColorStop(0, 'rgba(' + b.color + ',' + o + ')');
-      grad.addColorStop(0.35, 'rgba(' + b.color + ',' + (o * 0.5) + ')');
-      grad.addColorStop(0.7, 'rgba(' + b.color + ',' + (o * 0.15) + ')');
-      grad.addColorStop(1, 'rgba(' + b.color + ',0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, b.rx, b.ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  function drawBgStars(){
-    for(var i = 0; i < bgStars.length; i++){
-      var s = bgStars[i];
-      s.phase += s.twinkle;
-      s.x += s.dx || 0; s.y += s.dy || 0;
-      if(s.x < 0) s.x = W;
-      if(s.x > W) s.x = 0;
-      if(s.y < 0) s.y = H;
-      if(s.y > H) s.y = 0;
-      var o = s.opacity * (1 - 0.3 + 0.3 * Math.sin(s.phase));
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + s.color + ',' + o + ')';
-      ctx.fill();
-    }
-  }
-
-  function drawBrightStars(){
-    for(var i = 0; i < brightStars.length; i++){
-      var s = brightStars[i];
-      s.phase += s.twinkle;
-      s.x += s.dx; s.y += s.dy;
-      if(s.x < -6) s.x = W + 6;
-      if(s.x > W + 6) s.x = -6;
-      if(s.y < -6) s.y = H + 6;
-      if(s.y > H + 6) s.y = -6;
-
-      var o = s.opacity * (1 - 0.25 + 0.25 * Math.sin(s.phase));
-
-      // 光晕
-      var grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size * 5);
-      grad.addColorStop(0, 'rgba(' + s.color + ',' + (o * 0.22) + ')');
-      grad.addColorStop(0.5, 'rgba(' + s.color + ',' + (o * 0.05) + ')');
-      grad.addColorStop(1, 'rgba(' + s.color + ',0)');
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size * 5, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // 十字光芒
-      if(s.flare && s.size > 1.8){
-        var flare = s.size * 7;
-        ctx.strokeStyle = 'rgba(' + s.color + ',' + (o * 0.1) + ')';
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(s.x - flare, s.y); ctx.lineTo(s.x + flare, s.y);
-        ctx.moveTo(s.x, s.y - flare); ctx.lineTo(s.x, s.y + flare);
-        ctx.stroke();
-      }
-
-      // 核心
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + s.color + ',' + o + ')';
-      ctx.fill();
-    }
-  }
-
-  function DustParticle(){
+  var W, H, particles = [];
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  function Particle(){
     this.reset = function(){
       this.x = Math.random() * W; this.y = Math.random() * H;
       this.size = Math.random() * 2 + 0.5;
@@ -635,45 +265,23 @@
     };
     this.reset();
   }
-
-  function drawDust(){
-    for(var i = 0; i < dustParticles.length; i++){
-      dustParticles[i].update();
-      dustParticles[i].draw();
+  var count = Math.min(120, Math.floor((W * H) / 12000));
+  for(var i = 0; i < count; i++) particles.push(new Particle());
+  function burst(){
+    var cx = Math.random() * W, cy = Math.random() * H;
+    for(var i = 0; i < 12; i++){
+      var p = new Particle(); p.x = cx; p.y = cy; p.size = Math.random() * 1.5 + 0.5;
+      var angle = (i / 12) * Math.PI * 2, speed = Math.random() * 1.5 + 0.5;
+      p.speedX = Math.cos(angle) * speed; p.speedY = Math.sin(angle) * speed;
+      p.opacity = 0.8; particles.push(p);
     }
+    if(particles.length > 250) particles.splice(0, 20);
   }
-
-  function animate(){
-    t += 0.01;
-    var galaxyAngle = -0.25 + Math.sin(t * 0.5) * 0.3;  // 银河带明显摆动 ±17度
-    ctx.clearRect(0, 0, W, H);
-    drawGalaxy(galaxyAngle);
-    drawNebulaBlobs();
-    drawBgStars();
-    drawDust();
-    drawBrightStars();
-
-    // 更新 blob（加快 x6）
-    for(var i = 0; i < nebulaBlobs.length; i++){
-      var b = nebulaBlobs[i];
-      b.phase += b.speed * 4;
-      b.angle += b.angleSpeed * 5;
-      b.x += b.dx * 6; b.y += b.dy * 6;
-      if(b.x < -b.rx * 2) b.x = W + b.rx;
-      if(b.x > W + b.rx * 2) b.x = -b.rx;
-      if(b.y < -b.ry * 2) b.y = H + b.ry;
-      if(b.y > H + b.ry * 2) b.y = -b.ry;
-    }
-
-    requestAnimationFrame(animate);
-  }
-
-  resize();
+  setInterval(burst, 4000);
+  function animate(){ ctx.clearRect(0, 0, W, H); for(var i=0;i<particles.length;i++){ particles[i].update(); particles[i].draw(); } requestAnimationFrame(animate); }
   animate();
 })();
 </script>
-</script>
-
 <script>
 const majorArcana=[
   {name:"愚人",num:"0",nameEn:"THE FOOL",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a0a"/><rect width="160" height="240" fill="url(#g0)" opacity="0.3"/><defs><radialGradient id="g0" cx="50%" cy="40%"><stop offset="0%" stop-color="#c8534a" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><ellipse cx="80" cy="120" rx="38" ry="50" fill="#c8534a"/><ellipse cx="80" cy="120" rx="20" ry="30" fill="#8B0000" opacity="0.5"/><ellipse cx="80" cy="120" rx="8" ry="12" fill="#f5e6d3" opacity="0.8"/><path d="M80 75 Q110 90 100 120 Q90 150 80 120 Q70 90 80 75" stroke="#c8534a" stroke-width="4" fill="none" opacity="0.6"/><path d="M80 70 Q75 55 82 50 Q90 55 85 70" fill="#5a7a3a"/><path d="M82 52 Q88 45 95 50" stroke="#3a5a2a" stroke-width="1" fill="none"/><ellipse cx="72" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(-15 72 108)"/><ellipse cx="88" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(15 88 108)"/><circle cx="80" cy="118" r="6" fill="#f5e6d3"/><circle cx="78" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="82" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="30" cy="40" r="1.5" fill="#c8534a" opacity="0.5"/><circle cx="130" cy="60" r="1" fill="#c8534a" opacity="0.4"/><circle cx="50" cy="200" r="1" fill="#c8534a" opacity="0.3"/></svg>`,meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。",apple:"被咬过的苹果核里，藏着新世界的大门。"},
@@ -790,31 +398,25 @@ const spreadConfigs={
 
 function enterMode(mode){
   document.getElementById('landing').style.display='none';
-  // Hide card wrapper and reset state first
-  document.getElementById('card').style.display='none';
-  document.getElementById('card').classList.remove('flipped');
-  document.getElementById('resultSection').classList.remove('show');
-  drawn=false; isFlipped=false; currentCard=null;
   if(mode==='single'){
-    document.getElementById('spreadMode').classList.remove('show');
     document.getElementById('singleMode').classList.add('show');
     switchSuit('major');
   } else {
-    document.getElementById('singleMode').classList.remove('show');
     document.getElementById('spreadMode').classList.add('show');
-    document.getElementById('spreadMode').querySelector('.spread-nav').classList.add('show');
-    resetSpread();
+    document.getElementById('spreadNav').classList.add('show');
   }
 }
 
 function goBack(){
-  document.getElementById('landing').style.display='flex';
   document.getElementById('singleMode').classList.remove('show');
   document.getElementById('spreadMode').classList.remove('show');
+  document.getElementById('spreadNav').classList.remove('show');
+  document.getElementById('spreadInfo').classList.remove('show');
+  document.getElementById('spreadCards').classList.remove('show');
+  document.getElementById('spreadDetail').classList.remove('show');
   document.getElementById('card').style.display='none';
-  document.getElementById('card').classList.remove('flipped');
   document.getElementById('resultSection').classList.remove('show');
-  drawn=false; isFlipped=false; currentCard=null;
+  document.getElementById('landing').style.display='flex';
   reset();
 }
 
@@ -928,8 +530,8 @@ function toggleFlip(){
   if(!drawn)return;
   isFlipped=!isFlipped;
   const card=document.getElementById('card');
-  if(isFlipped)card.classList.add('flipped');
-  else card.classList.remove('flipped');
+  if(isFlipped)card.classList.remove('flipped');
+  else card.classList.add('flipped');
 }
 
 function reset(){
