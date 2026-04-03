@@ -101,6 +101,50 @@
     font-size:0.58rem;color:rgba(200,83,74,0.4);letter-spacing:2px;
     z-index:2
   }
+
+  /* 总览按钮 */
+  .all-btn{
+    position:relative;z-index:1;margin-top:20px;
+    padding:7px 22px;background:transparent;
+    border:1px solid rgba(200,83,74,0.2);color:rgba(200,83,74,0.4);
+    border-radius:30px;font-size:0.62rem;letter-spacing:2px;
+    cursor:pointer;transition:all 0.3s
+  }
+  .all-btn:hover{color:#c8534a;border-color:rgba(200,83,74,0.4)}
+
+  /* 总览弹窗 */
+  .all-overlay{
+    position:fixed;inset:0;background:rgba(3,5,8,0.92);
+    z-index:200;display:none;flex-direction:column;
+    align-items:center;padding:24px 16px;overflow-y:auto
+  }
+  .all-overlay.show{display:flex}
+  .all-header{
+    font-size:0.7rem;letter-spacing:5px;color:#c8534a;
+    margin-bottom:20px;text-align:center
+  }
+  .all-close{
+    position:fixed;top:20px;right:20px;
+    padding:8px 16px;background:rgba(200,83,74,0.08);
+    border:1px solid rgba(200,83,74,0.25);color:#c8534a;
+    border-radius:20px;font-size:0.65rem;letter-spacing:2px;
+    cursor:pointer;z-index:201;transition:all 0.3s
+  }
+  .all-close:hover{background:rgba(200,83,74,0.15)}
+  .all-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:10px;width:100%;max-width:640px
+  }
+  .all-item{
+    padding:12px 14px;background:rgba(200,83,74,0.04);
+    border:1px solid rgba(200,83,74,0.12);border-radius:10px;
+    font-size:0.78rem;line-height:1.8;color:rgba(240,230,211,0.75);
+    letter-spacing:0.3px
+  }
+  .all-item-cat{
+    font-size:0.55rem;letter-spacing:2px;color:rgba(200,83,74,0.45);
+    margin-bottom:4px
+  }
 </style>
 </head>
 <body>
@@ -185,6 +229,14 @@
 <div class="hint" id="hint">👻 幽灵正在等待...</div>
 
 <div class="count-badge" id="countBadge">已行动 0 次</div>
+
+<button class="all-btn" id="allBtn" onclick="showAll()">总览全部 50 条</button>
+
+<div class="all-overlay" id="allOverlay">
+  <button class="all-close" onclick="closeAll()">关闭</button>
+  <div class="all-header">— 行动指南总览 —</div>
+  <div class="all-grid" id="allGrid"></div>
+</div>
 
 <script>
 const actions = [
@@ -286,6 +338,24 @@ function drawAction() {
 }
 
 document.getElementById('ghostBtn').addEventListener('click', drawAction);
+
+function showAll() {
+  const grid = document.getElementById('allGrid');
+  grid.innerHTML = '';
+  actions.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'all-item';
+    div.innerHTML = '<div class="all-item-cat">'+a.category+'</div>'+a.text;
+    grid.appendChild(div);
+  });
+  document.getElementById('allOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAll() {
+  document.getElementById('allOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
 
 initStars();
 </script>
