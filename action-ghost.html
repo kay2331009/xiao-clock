@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>苹果叫你做件事</title>
+<title>苹果幽灵叫你做件事</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{
@@ -15,80 +15,91 @@
     position:relative
   }
 
+  /* 背景星星 */
   .stars{position:fixed;inset:0;pointer-events:none;z-index:0}
   .star{position:absolute;border-radius:50%;background:#fff;
     animation:twinkle var(--d,3s) ease-in-out infinite}
   @keyframes twinkle{0%,100%{opacity:0.1}50%{opacity:0.9}}
 
-  .visual-section{
+  /* 幽灵苹果SVG */
+  .ghost-wrap{
     position:relative;z-index:1;
-    display:flex;flex-direction:column;align-items:center;
-    margin-bottom:28px
-  }
-
-  .apple-wrap{
-    width:120px;height:120px;
+    width:200px;height:220px;
     cursor:pointer;transition:transform 0.3s;
-    animation:appleFloat 3s ease-in-out infinite
+    margin-bottom:32px
   }
-  .apple-wrap:hover{transform:scale(1.08)}
-  .apple-wrap svg{width:120px;height:120px;
-    filter:drop-shadow(0 0 20px rgba(200,83,74,0.5))}
-  @keyframes appleFloat{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-8px)}
-  }
+  .ghost-wrap:hover{transform:scale(1.04)}
+  .ghost-wrap svg{width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(200,83,74,0.3))}
 
   .title{
-    font-size:1.35rem;letter-spacing:8px;margin-bottom:6px;
+    font-size:1.4rem;letter-spacing:8px;margin-bottom:6px;
     color:#c8534a;text-align:center;position:relative;z-index:1;
     text-shadow:0 0 30px rgba(200,83,74,0.4)
   }
   .subtitle{
-    font-size:0.58rem;opacity:0.4;letter-spacing:4px;
-    margin-bottom:32px;text-align:center;position:relative;z-index:1
+    font-size:0.6rem;opacity:0.45;letter-spacing:4px;
+    margin-bottom:40px;text-align:center;position:relative;z-index:1
   }
 
   .action-card{
     position:relative;z-index:1;max-width:360px;width:100%;
-    min-height:130px;
+    min-height:140px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:24px 24px;
+    padding:28px 24px;
     background:rgba(200,83,74,0.04);
     border:1px solid rgba(200,83,74,0.18);
-    border-radius:16px;text-align:center;
-    transition:opacity 0.5s,transform 0.5s
+    border-radius:16px;
+    text-align:center;
+    transition:opacity 0.6s,transform 0.6s
   }
   .action-card.fade{opacity:0;transform:translateY(10px)}
 
   .action-text{
-    font-size:1.05rem;line-height:2;color:rgba(240,230,211,0.9);
-    margin-bottom:14px;letter-spacing:0.5px
+    font-size:1.1rem;line-height:2;color:rgba(240,230,211,0.9);
+    margin-bottom:18px;letter-spacing:1px
   }
   .action-category{
     font-size:0.58rem;letter-spacing:3px;color:rgba(200,83,74,0.5);
     border:1px solid rgba(200,83,74,0.2);padding:2px 10px;
-    border-radius:10px;margin-bottom:14px
+    border-radius:10px;margin-bottom:18px
   }
 
   .btn{
-    padding:8px 26px;background:transparent;
+    padding:9px 28px;background:transparent;
     border:1px solid rgba(200,83,74,0.35);color:#c8534a;
     border-radius:30px;font-size:0.7rem;letter-spacing:2px;
     cursor:pointer;transition:all 0.3s
   }
   .btn:hover{background:rgba(200,83,74,0.1);border-color:#c8534a}
 
+  /* 幽灵动画 */
+  .ghost-body{animation:ghostFloat 3s ease-in-out infinite}
+  @keyframes ghostFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
+  .ghost-eye{animation:ghostBlink 4s ease-in-out infinite}
+  @keyframes ghostBlink{0%,90%,100%{opacity:1}95%{opacity:0}}
+  .ghost-mouth{animation:ghostSpeak 2.5s ease-in-out infinite}
+  @keyframes ghostSpeak{
+    0%,100%{d:path('M-12,8 Q0,16 12,8')}
+    50%{d:path('M-12,8 Q0,22 12,8')}
+  }
+  .apple-glow{animation:appleGlow 2s ease-in-out infinite}
+  @keyframes appleGlow{0%,100%{opacity:0.5}50%{opacity:1}}
+
+  /* 提示文字 */
   .hint{
-    position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
-    font-size:0.58rem;color:rgba(200,83,74,0.3);letter-spacing:3px;
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+    font-size:0.58rem;color:rgba(200,83,74,0.35);letter-spacing:3px;
     animation:pulse 3s ease-in-out infinite;white-space:nowrap
   }
-  @keyframes pulse{0%,100%{opacity:0.25}50%{opacity:0.7}}
+  @keyframes pulse{0%,100%{opacity:0.3}50%{opacity:0.8}}
 
   .count-badge{
     position:fixed;top:20px;right:20px;
-    font-size:0.58rem;color:rgba(200,83,74,0.35);letter-spacing:2px;z-index:2
+    font-size:0.58rem;color:rgba(200,83,74,0.4);letter-spacing:2px;
+    z-index:2
   }
 </style>
 </head>
@@ -96,54 +107,82 @@
 
 <div class="stars" id="stars"></div>
 
-<div class="visual-section">
-  <div class="apple-wrap" id="appleBtn" title="点击抽取行动指令">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="appleAura" cx="50%" cy="50%">
-          <stop offset="0%" stop-color="#c8534a" stop-opacity="0.35"/>
-          <stop offset="100%" stop-color="transparent"/>
-        </radialGradient>
-        <radialGradient id="appleBodyGrad" cx="38%" cy="35%" r="60%">
-          <stop offset="0%" stop-color="#d4645a"/>
-          <stop offset="60%" stop-color="#c8534a"/>
-          <stop offset="100%" stop-color="#8B0000"/>
-        </radialGradient>
-        <filter id="appleShadow">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#8B0000" flood-opacity="0.4"/>
-        </filter>
-      </defs>
-      <!-- 光晕 -->
-      <circle cx="50" cy="55" r="52" fill="url(#appleAura)"/>
-      <!-- 苹果主体（圆滚滚） -->
-      <ellipse cx="50" cy="57" rx="38" ry="40" fill="url(#appleBodyGrad)" filter="url(#appleShadow)"/>
-      <!-- 顶部内凹 -->
-      <ellipse cx="50" cy="22" rx="10" ry="5" fill="#c8534a" opacity="0.5"/>
-      <!-- 左高光 -->
-      <ellipse cx="34" cy="44" rx="9" ry="11" fill="rgba(255,255,255,0.18)" transform="rotate(-15,34,44)"/>
-      <!-- 腮红 -->
-      <ellipse cx="26" cy="62" rx="8" ry="5" fill="rgba(180,60,60,0.3)"/>
-      <ellipse cx="74" cy="62" rx="8" ry="5" fill="rgba(180,60,60,0.3)"/>
-      <!-- 茎 -->
-      <path d="M50,20 Q48,10 52,6" stroke="#5a3a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <!-- 叶子 -->
-      <path d="M52,6 Q62,0 68,8 Q60,15 52,12 Q50,10 52,6Z" fill="#5a7a3a" stroke="#4a6a2a" stroke-width="0.5"/>
-      <!-- 苹果底部高光弧 -->
-      <path d="M35,86 Q50,94 65,86" stroke="rgba(139,0,0,0.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
-    </svg>
-  </div>
+<div class="ghost-wrap" id="ghostBtn" title="点击抽取行动指令">
+  <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+    <!-- 苹果光晕 -->
+    <defs>
+      <radialGradient id="appleGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#c8534a" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#c8534a" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- 幽灵身体 -->
+    <g class="ghost-body" transform="translate(100,100)">
+      <!-- 幽灵外晕 -->
+      <ellipse cx="0" cy="10" rx="55" ry="65" fill="url(#appleGlow)" class="apple-glow"/>
+
+      <!-- 幽灵斗篷/身形 -->
+      <path d="M-38,-20 Q-42,-50 -20,-70 Q0,-82 20,-70 Q42,-50 38,-20 Q30,30 20,50 Q10,70 0,80 Q-10,70 -20,50 Q-30,30 -38,-20Z"
+        fill="rgba(240,238,230,0.06)" stroke="rgba(200,83,74,0.25)" stroke-width="1"/>
+
+      <!-- 幽灵主体白色 -->
+      <path d="M-32,-15 Q-35,-45 -18,-62 Q0,-72 18,-62 Q35,-45 32,-15 Q24,22 14,42 Q7,58 0,66 Q-7,58 -14,42 Q-24,22 -32,-15Z"
+        fill="rgba(240,238,230,0.07)" stroke="rgba(200,83,74,0.15)" stroke-width="0.8"/>
+
+      <!-- 左眼 -->
+      <ellipse class="ghost-eye" cx="-12" cy="-28" rx="5" ry="6"
+        fill="rgba(200,83,74,0.7)" filter="url(#glow)"/>
+      <circle cx="-12" cy="-29" r="2" fill="#c8534a"/>
+
+      <!-- 右眼 -->
+      <ellipse class="ghost-eye" cx="12" cy="-28" rx="5" ry="6"
+        fill="rgba(200,83,74,0.7)" filter="url(#glow)"/>
+      <circle cx="12" cy="-29" r="2" fill="#c8534a"/>
+
+      <!-- 嘴巴（说话动画用） -->
+      <path d="M-10,-10 Q0,-3 10,-10" stroke="rgba(200,83,74,0.5)" stroke-width="1.5"
+        fill="none" stroke-linecap="round" class="ghost-mouth"/>
+
+      <!-- 幽灵尾部波浪 -->
+      <path d="M-20,50 Q-10,58 0,50 Q10,42 20,50"
+        stroke="rgba(200,83,74,0.2)" stroke-width="1" fill="none"/>
+    </g>
+
+    <!-- 苹果（在幽灵胸前微微发光） -->
+    <g transform="translate(100,150)">
+      <ellipse cx="0" cy="0" rx="22" ry="20"
+        fill="rgba(200,83,74,0.12)" stroke="rgba(200,83,74,0.3)" stroke-width="1"/>
+      <path d="M0,-14 Q4,-22 8,-20 Q6,-14 4,-12" fill="rgba(80,160,80,0.5)" stroke="rgba(80,160,80,0.4)" stroke-width="0.5"/>
+      <ellipse cx="0" cy="0" rx="16" ry="14" fill="rgba(200,83,74,0.08)"/>
+      <!-- 苹果上的小鬼脸 -->
+      <circle cx="-4" cy="-2" r="1.5" fill="rgba(200,83,74,0.5)"/>
+      <circle cx="4" cy="-2" r="1.5" fill="rgba(200,83,74,0.5)"/>
+      <path d="M-3,3 Q0,6 3,3" stroke="rgba(200,83,74,0.4)" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- 装饰眼睛（幽灵四周的小眼睛） -->
+    <circle cx="40" cy="60" r="3" fill="rgba(200,83,74,0.2)"/>
+    <circle cx="160" cy="75" r="2" fill="rgba(200,83,74,0.15)"/>
+    <circle cx="55" cy="170" r="2.5" fill="rgba(200,83,74,0.18)"/>
+    <circle cx="150" cy="160" r="2" fill="rgba(200,83,74,0.12)"/>
+  </svg>
 </div>
 
-<div class="title">苹果叫你做件事</div>
-<div class="subtitle">MAKE A MOVE · 犹豫吗？让苹果推你一把</div>
+<div class="title">苹果幽灵叫你做件事</div>
+<div class="subtitle">MAKE A MOVE · 犹豫吗？让幽灵推你一把</div>
 
 <div class="action-card" id="actionCard">
   <div class="action-category" id="actionCategory">— 此刻 —</div>
-  <div class="action-text" id="actionText">点击苹果，领取你的行动指令</div>
+  <div class="action-text" id="actionText">点击上方幽灵，领取你的行动指令</div>
   <button class="btn" id="actionBtn" onclick="drawAction()">抽一个</button>
 </div>
 
-<div class="hint" id="hint">🍎 苹果正在等待...</div>
+<div class="hint" id="hint">👻 幽灵正在等待...</div>
 
 <div class="count-badge" id="countBadge">已行动 0 次</div>
 
@@ -237,16 +276,16 @@ function drawAction() {
     text.textContent = a.text;
     cat.textContent = a.category;
     btn.textContent = '再来一个';
-    hint.textContent = '🍎 去吧，别想了';
+    hint.textContent = '👻 幽灵说：去吧';
 
     count++;
     badge.textContent = '已行动 ' + count + ' 次';
 
     card.classList.remove('fade');
-  }, 350);
+  }, 400);
 }
 
-document.getElementById('appleBtn').addEventListener('click', drawAction);
+document.getElementById('ghostBtn').addEventListener('click', drawAction);
 
 initStars();
 </script>
