@@ -100,42 +100,36 @@
   <div class="apple-wrap" id="appleBtn" title="点击抽取行动指令">
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="appleAura" cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stop-color="#c8534a" stop-opacity="0.4"/>
-          <stop offset="55%" stop-color="#c8534a" stop-opacity="0.1"/>
-          <stop offset="100%" stop-color="#c8534a" stop-opacity="0"/>
+        <radialGradient id="appleAura" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#c8534a" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="transparent"/>
         </radialGradient>
-        <filter id="appleGlow">
-          <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        <radialGradient id="appleBodyGrad" cx="38%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#d4645a"/>
+          <stop offset="60%" stop-color="#c8534a"/>
+          <stop offset="100%" stop-color="#8B0000"/>
+        </radialGradient>
+        <filter id="appleShadow">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#8B0000" flood-opacity="0.4"/>
         </filter>
       </defs>
-      <!-- 苹果光晕 -->
-      <ellipse cx="50" cy="54" rx="50" ry="48" fill="url(#appleAura)"/>
-      <!-- 苹果主体 -->
-      <path d="M50,16
-        Q64,12 72,22
-        Q84,34 84,52
-        Q84,76 50,90
-        Q16,76 16,52
-        Q16,34 28,22
-        Q36,12 50,16Z"
-        fill="rgba(200,83,74,0.2)"
-        stroke="rgba(200,83,74,0.6)"
-        stroke-width="1.5"
-        filter="url(#appleGlow)"/>
+      <!-- 光晕 -->
+      <circle cx="50" cy="55" r="52" fill="url(#appleAura)"/>
+      <!-- 苹果主体（圆滚滚） -->
+      <ellipse cx="50" cy="57" rx="38" ry="40" fill="url(#appleBodyGrad)" filter="url(#appleShadow)"/>
+      <!-- 顶部内凹 -->
+      <ellipse cx="50" cy="22" rx="10" ry="5" fill="#c8534a" opacity="0.5"/>
       <!-- 左高光 -->
-      <path d="M28,38 Q24,50 26,62" stroke="rgba(255,255,255,0.1)"
-        stroke-width="4" fill="none" stroke-linecap="round"/>
-      <!-- 右暗部 -->
-      <path d="M74,38 Q78,52 75,64" stroke="rgba(0,0,0,0.12)"
-        stroke-width="5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="34" cy="44" rx="9" ry="11" fill="rgba(255,255,255,0.18)" transform="rotate(-15,34,44)"/>
+      <!-- 腮红 -->
+      <ellipse cx="26" cy="62" rx="8" ry="5" fill="rgba(180,60,60,0.3)"/>
+      <ellipse cx="74" cy="62" rx="8" ry="5" fill="rgba(180,60,60,0.3)"/>
       <!-- 茎 -->
-      <path d="M50,16 Q52,8 56,6 Q60,4 62,6"
-        stroke="rgba(80,160,80,0.65)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M50,20 Q48,10 52,6" stroke="#5a3a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
       <!-- 叶子 -->
-      <path d="M56,11 Q66,4 70,10 Q67,16 60,15 Q56,14 56,11Z"
-        fill="rgba(80,160,80,0.55)" stroke="rgba(80,160,80,0.4)" stroke-width="0.6"/>
+      <path d="M52,6 Q62,0 68,8 Q60,15 52,12 Q50,10 52,6Z" fill="#5a7a3a" stroke="#4a6a2a" stroke-width="0.5"/>
+      <!-- 苹果底部高光弧 -->
+      <path d="M35,86 Q50,94 65,86" stroke="rgba(139,0,0,0.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
     </svg>
   </div>
 </div>
