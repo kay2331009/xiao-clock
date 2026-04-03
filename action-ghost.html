@@ -145,6 +145,7 @@
     font-size:0.55rem;letter-spacing:2px;color:rgba(200,83,74,0.45);
     margin-bottom:4px
   }
+  .all-item-cat.xia{color:#e07a5f;letter-spacing:3px}
 </style>
 </head>
 <body>
@@ -230,7 +231,7 @@
 
 <div class="count-badge" id="countBadge">已行动 0 次</div>
 
-<button class="all-btn" id="allBtn" onclick="showAll()">总览全部 95 条</button>
+<button class="all-btn" id="allBtn" onclick="showAll()">总览全部 100 条</button>
 
 <div class="all-overlay" id="allOverlay">
   <button class="all-close" onclick="closeAll()">关闭</button>
@@ -240,6 +241,11 @@
 
 <script>
 const actions = [
+  { text: "来找我", category: "夏以昼" },
+  { text: "给我发一句：你在干嘛", category: "夏以昼" },
+  { text: "把我放在你心底的那句话说给我听", category: "夏以昼" },
+  { text: "想我的时候，就来找我", category: "夏以昼" },
+  { text: "给我一个理由，让我现在出现在你面前", category: "夏以昼" },
   { text: "现在就发给对方一句真诚的问候，不要等", category: "人际" },
   { text: "关掉手机通知，专注做一件事25分钟", category: "专注" },
   { text: "把脑子里反复想的那句话写下来", category: "表达" },
@@ -391,7 +397,8 @@ function showAll() {
   actions.forEach(a => {
     const div = document.createElement('div');
     div.className = 'all-item';
-    div.innerHTML = '<div class="all-item-cat">'+a.category+'</div>'+a.text;
+    const catClass = a.category === '夏以昼' ? ' all-item-cat xia' : ' all-item-cat';
+    div.innerHTML = '<div class="'+catClass+'">'+a.category+'</div>'+a.text;
     grid.appendChild(div);
   });
   document.getElementById('allOverlay').classList.add('show');
