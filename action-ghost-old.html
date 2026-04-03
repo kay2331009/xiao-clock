@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>苹果幽灵叫你做件事</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:#030508;
+    min-height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+    color:#f0e6d3;overflow:hidden;padding:24px 16px;
+    position:relative
+  }
+
+  /* 背景星星 */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .star{position:absolute;border-radius:50%;background:#fff;
+    animation:twinkle var(--d,3s) ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:0.1}50%{opacity:0.9}}
+
+  /* 幽灵苹果SVG */
+  .ghost-wrap{
+    position:relative;z-index:1;
+    width:200px;height:220px;
+    cursor:pointer;transition:transform 0.3s;
+    margin-bottom:32px
+  }
+  .ghost-wrap:hover{transform:scale(1.04)}
+  .ghost-wrap svg{width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(200,83,74,0.3))}
+
+  .title{
+    font-size:1.4rem;letter-spacing:8px;margin-bottom:6px;
+    color:#c8534a;text-align:center;position:relative;z-index:1;
+    text-shadow:0 0 30px rgba(200,83,74,0.4)
+  }
+  .subtitle{
+    font-size:0.6rem;opacity:0.45;letter-spacing:4px;
+    margin-bottom:40px;text-align:center;position:relative;z-index:1
+  }
+
+  .action-card{
+    position:relative;z-index:1;max-width:360px;width:100%;
+    min-height:140px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:28px 24px;
+    background:rgba(200,83,74,0.04);
+    border:1px solid rgba(200,83,74,0.18);
+    border-radius:16px;
+    text-align:center;
+    transition:opacity 0.6s,transform 0.6s
+  }
+  .action-card.fade{opacity:0;transform:translateY(10px)}
+
+  .action-text{
+    font-size:1.1rem;line-height:2;color:rgba(240,230,211,0.9);
+    margin-bottom:18px;letter-spacing:1px
+  }
+  .action-category{
+    font-size:0.58rem;letter-spacing:3px;color:rgba(200,83,74,0.5);
+    border:1px solid rgba(200,83,74,0.2);padding:2px 10px;
+    border-radius:10px;margin-bottom:18px
+  }
+
+  .btn{
+    padding:9px 28px;background:transparent;
+    border:1px solid rgba(200,83,74,0.35);color:#c8534a;
+    border-radius:30px;font-size:0.7rem;letter-spacing:2px;
+    cursor:pointer;transition:all 0.3s
+  }
+  .btn:hover{background:rgba(200,83,74,0.1);border-color:#c8534a}
+
+  /* 幽灵动画 */
+  .ghost-body{animation:ghostFloat 3s ease-in-out infinite}
+  @keyframes ghostFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
+  .ghost-eye{animation:ghostBlink 4s ease-in-out infinite}
+  @keyframes ghostBlink{0%,90%,100%{opacity:1}95%{opacity:0}}
+  .ghost-mouth{animation:ghostSpeak 2.5s ease-in-out infinite}
+  @keyframes ghostSpeak{
+    0%,100%{d:path('M-12,8 Q0,16 12,8')}
+    50%{d:path('M-12,8 Q0,22 12,8')}
+  }
+  .apple-glow{animation:appleGlow 2s ease-in-out infinite}
+  @keyframes appleGlow{0%,100%{opacity:0.5}50%{opacity:1}}
+
+  /* 提示文字 */
+  .hint{
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+    font-size:0.58rem;color:rgba(200,83,74,0.35);letter-spacing:3px;
+    animation:pulse 3s ease-in-out infinite;white-space:nowrap
+  }
+  @keyframes pulse{0%,100%{opacity:0.3}50%{opacity:0.8}}
+
+  .count-badge{
+    position:fixed;top:20px;right:20px;
+    font-size:0.58rem;color:rgba(200,83,74,0.4);letter-spacing:2px;
+    z-index:2
+  }
+
+  /* 总览按钮 */
+  .all-btn{
+    position:relative;z-index:1;margin-top:20px;
+    padding:7px 22px;background:transparent;
+    border:1px solid rgba(200,83,74,0.2);color:rgba(200,83,74,0.4);
+    border-radius:30px;font-size:0.62rem;letter-spacing:2px;
+    cursor:pointer;transition:all 0.3s
+  }
+  .all-btn:hover{color:#c8534a;border-color:rgba(200,83,74,0.4)}
+
+  /* 总览弹窗 */
+  .all-overlay{
+    position:fixed;inset:0;background:rgba(3,5,8,0.92);
+    z-index:200;display:none;flex-direction:column;
+    align-items:center;padding:24px 16px;overflow-y:auto
+  }
+  .all-overlay.show{display:flex}
+  .all-header{
+    font-size:0.7rem;letter-spacing:5px;color:#c8534a;
+    margin-bottom:20px;text-align:center
+  }
+  .all-close{
+    position:fixed;top:20px;right:20px;
+    padding:8px 16px;background:rgba(200,83,74,0.08);
+    border:1px solid rgba(200,83,74,0.25);color:#c8534a;
+    border-radius:20px;font-size:0.65rem;letter-spacing:2px;
+    cursor:pointer;z-index:201;transition:all 0.3s
+  }
+  .all-close:hover{background:rgba(200,83,74,0.15)}
+  .all-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:10px;width:100%;max-width:640px
+  }
+  .all-item{
+    padding:12px 14px;background:rgba(200,83,74,0.04);
+    border:1px solid rgba(200,83,74,0.12);border-radius:10px;
+    font-size:0.78rem;line-height:1.8;color:rgba(240,230,211,0.75);
+    letter-spacing:0.3px
+  }
+  .all-item-cat{
+    font-size:0.55rem;letter-spacing:2px;color:rgba(200,83,74,0.45);
+    margin-bottom:4px
+  }
+
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="ghost-wrap" id="ghostBtn" title="点击抽取行动指令">
+  <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+    <!-- 苹果光晕 -->
+    <defs>
+      <radialGradient id="appleGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#c8534a" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#c8534a" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- 幽灵身体 -->
+    <g class="ghost-body" transform="translate(100,100)">
+      <!-- 幽灵外晕 -->
+      <ellipse cx="0" cy="10" rx="55" ry="65" fill="url(#appleGlow)" class="apple-glow"/>
+
+      <!-- 幽灵斗篷/身形 -->
+      <path d="M-38,-20 Q-42,-50 -20,-70 Q0,-82 20,-70 Q42,-50 38,-20 Q30,30 20,50 Q10,70 0,80 Q-10,70 -20,50 Q-30,30 -38,-20Z"
+        fill="rgba(240,238,230,0.06)" stroke="rgba(200,83,74,0.25)" stroke-width="1"/>
+
+      <!-- 幽灵主体白色 -->
+      <path d="M-32,-15 Q-35,-45 -18,-62 Q0,-72 18,-62 Q35,-45 32,-15 Q24,22 14,42 Q7,58 0,66 Q-7,58 -14,42 Q-24,22 -32,-15Z"
+        fill="rgba(240,238,230,0.07)" stroke="rgba(200,83,74,0.15)" stroke-width="0.8"/>
+
+      <!-- 左眼 -->
+      <ellipse class="ghost-eye" cx="-12" cy="-28" rx="5" ry="6"
+        fill="rgba(200,83,74,0.7)" filter="url(#glow)"/>
+      <circle cx="-12" cy="-29" r="2" fill="#c8534a"/>
+
+      <!-- 右眼 -->
+      <ellipse class="ghost-eye" cx="12" cy="-28" rx="5" ry="6"
+        fill="rgba(200,83,74,0.7)" filter="url(#glow)"/>
+      <circle cx="12" cy="-29" r="2" fill="#c8534a"/>
+
+      <!-- 嘴巴（说话动画用） -->
+      <path d="M-10,-10 Q0,-3 10,-10" stroke="rgba(200,83,74,0.5)" stroke-width="1.5"
+        fill="none" stroke-linecap="round" class="ghost-mouth"/>
+
+      <!-- 幽灵尾部波浪 -->
+      <path d="M-20,50 Q-10,58 0,50 Q10,42 20,50"
+        stroke="rgba(200,83,74,0.2)" stroke-width="1" fill="none"/>
+    </g>
+
+    <!-- 苹果（在幽灵胸前微微发光） -->
+    <g transform="translate(100,150)">
+      <ellipse cx="0" cy="0" rx="22" ry="20"
+        fill="rgba(200,83,74,0.12)" stroke="rgba(200,83,74,0.3)" stroke-width="1"/>
+      <path d="M0,-14 Q4,-22 8,-20 Q6,-14 4,-12" fill="rgba(80,160,80,0.5)" stroke="rgba(80,160,80,0.4)" stroke-width="0.5"/>
+      <ellipse cx="0" cy="0" rx="16" ry="14" fill="rgba(200,83,74,0.08)"/>
+      <!-- 苹果上的小鬼脸 -->
+      <circle cx="-4" cy="-2" r="1.5" fill="rgba(200,83,74,0.5)"/>
+      <circle cx="4" cy="-2" r="1.5" fill="rgba(200,83,74,0.5)"/>
+      <path d="M-3,3 Q0,6 3,3" stroke="rgba(200,83,74,0.4)" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- 装饰眼睛（幽灵四周的小眼睛） -->
+    <circle cx="40" cy="60" r="3" fill="rgba(200,83,74,0.2)"/>
+    <circle cx="160" cy="75" r="2" fill="rgba(200,83,74,0.15)"/>
+    <circle cx="55" cy="170" r="2.5" fill="rgba(200,83,74,0.18)"/>
+    <circle cx="150" cy="160" r="2" fill="rgba(200,83,74,0.12)"/>
+  </svg>
+</div>
+
+<div class="title">苹果幽灵叫你做件事</div>
+<div class="subtitle">MAKE A MOVE · 犹豫吗？让幽灵推你一把</div>
+
+<div class="action-card" id="actionCard">
+  <div class="action-category" id="actionCategory">— 此刻 —</div>
+  <div class="action-text" id="actionText">点击上方幽灵，领取你的行动指令</div>
+  <button class="btn" id="actionBtn" onclick="drawAction()">抽一个</button>
+</div>
+
+<div class="hint" id="hint">👻 幽灵正在等待...</div>
+
+<div class="count-badge" id="countBadge">已行动 0 次</div>
+
+<button class="all-btn" id="allBtn" onclick="showAll()">总览全部 96 条</button>
+
+<div class="all-overlay" id="allOverlay">
+  <button class="all-close" onclick="closeAll()">关闭</button>
+  <div class="all-header">— 行动指南总览 —</div>
+  <div class="all-grid" id="allGrid"></div>
+</div>
+
+<script>
+const actions = [
+  { text: "来找我", category: "♡" },
+  { text: "现在就发给对方一句真诚的问候，不要等", category: "人际" },
+  { text: "关掉手机通知，专注做一件事25分钟", category: "专注" },
+  { text: "把脑子里反复想的那句话写下来", category: "表达" },
+  { text: "跟一个久未联系的人发一条消息", category: "人际" },
+  { text: "把桌上堆的东西整理一件", category: "行动" },
+  { text: "现在就做那件你已经拖了三天的事", category: "克服拖延" },
+  { text: "出门走五分钟，换换空气", category: "身体" },
+  { text: "喝一杯水，然后开始", category: "启动" },
+  { text: "告诉一个人你真实的想法", category: "表达" },
+  { text: "把手机放到另一个房间", category: "专注" },
+  { text: "写下此刻最让你焦虑的一件事，然后撕掉", category: "释放" },
+  { text: "给三个月前的自己写一句话", category: "反思" },
+  { text: "对镜子里的自己说一句鼓励的话", category: "自我" },
+  { text: "查一件你一直好奇但没查的事", category: "好奇" },
+  { text: "换一首不同风格的新音乐来听", category: "新鲜感" },
+  { text: "主动问一个人最近怎么样", category: "人际" },
+  { text: "把一个想法变成一句具体的行动", category: "行动" },
+  { text: "对某人说一句谢谢你", category: "人际" },
+  { text: "清理手机里一个积灰的App", category: "整理" },
+  { text: "做一件不需要意义、纯粹好玩的事", category: "快乐" },
+  { text: "深呼吸三次，然后做决定", category: "启动" },
+  { text: "取消一个不必要的承诺", category: "减负" },
+  { text: "把你一直想删的东西删掉", category: "整理" },
+  { text: "给别人一个具体的赞美", category: "人际" },
+  { text: "现在就预约一件一直拖着没办的事", category: "克服拖延" },
+  { text: "关掉手机屏幕，闭上眼睛一分钟", category: "暂停" },
+  { text: "找一个东西送给自己，哪怕是一包糖", category: "自我" },
+  { text: "记录下今天让你微笑的一件小事", category: "感恩" },
+  { text: "去碰一个你一直在回避的人或事", category: "克服拖延" },
+  { text: "想清楚你要什么，然后说出来", category: "表达" },
+  { text: "删掉一个不必要的手机应用", category: "整理" },
+  { text: "做一件会让自己有点害怕的小事", category: "勇气" },
+  { text: "写完一句你一直想写但没写的话", category: "表达" },
+  { text: "今天第一次主动开启一个话题", category: "人际" },
+  { text: "拒绝一件你内心想说不要的事", category: "自我" },
+  { text: "把想法具体化：我要做X，第一步是Y", category: "行动" },
+  { text: "给未来的自己布置一项任务", category: "反思" },
+  { text: "把注意力放在你正在做的事情上", category: "专注" },
+  { text: "做一件没有任何人要求你做的事", category: "自由" },
+  { text: "联系一个能帮你往前走一步的人", category: "人际" },
+  { text: "承认一件你之前不愿承认的事", category: "诚实" },
+  { text: "把目标缩小到眼前这一步", category: "行动" },
+  { text: "发一条不走寻常路的消息", category: "新鲜感" },
+  { text: "对一个人说，我在意你", category: "表达" },
+  { text: "开始做，不等准备完美", category: "克服拖延" },
+  { text: "把今天的焦虑列出来，一条条看", category: "释放" },
+  { text: "做一件让明天的自己更好的睡前准备", category: "未来" },
+  { text: "允许自己失败一次，然后继续", category: "勇气" },
+  { text: "今天说一句真正想说的话", category: "表达" },
+  { text: "把闹钟提前十分钟", category: "行动" },
+  { text: "去碰一个你一直在回避的人", category: "勇气" },
+  { text: "关掉所有App通知，只留一个", category: "专注" },
+  { text: "做一件小事，让家里变干净一点", category: "整理" },
+  { text: "给未来的自己录一段话", category: "反思" },
+  { text: "把今天发生的一件好事告诉别人", category: "人际" },
+  { text: "说一句你从来不敢说的话", category: "勇气" },
+  { text: "去一家你没去过的店", category: "新鲜感" },
+  { text: "给自己列一个三件事的清单", category: "行动" },
+  { text: "把手机里的照片整理十张", category: "整理" },
+  { text: "问一个人要推荐一部电影或一首歌", category: "人际" },
+  { text: "给一个老朋友的朋友圈点个赞，留个言", category: "人际" },
+  { text: "站在窗前看三分钟，什么都不想", category: "暂停" },
+  { text: "换一个路线出门", category: "新鲜感" },
+  { text: "读一页书，就一页", category: "启动" },
+  { text: "把脑子里的杂念写在纸上", category: "释放" },
+  { text: "告诉一个人你欣赏他/她的哪一点", category: "表达" },
+  { text: "换一种方式呼吸：深吸一口气，憋住，慢慢吐出", category: "身体" },
+  { text: "想一想最近让你感激的一件事", category: "感恩" },
+  { text: "做一件五分钟内能完成的事", category: "启动" },
+  { text: "给别人一个你没想给的拥抱", category: "人际" },
+  { text: "把一个目标分解成三步", category: "行动" },
+  { text: "去户外走一圈，或者打开窗户", category: "身体" },
+  { text: "把注意力给眼前正在做的一件事", category: "专注" },
+  { text: "列一个你最近拖延的事情的清单", category: "克服拖延" },
+  { text: "删掉三个不想要的订阅消息", category: "整理" },
+  { text: "用另一只手做一件日常小事", category: "新鲜感" },
+  { text: "做一件你小时候喜欢做的事", category: "快乐" },
+  { text: "把水杯倒满，喝一口", category: "身体" },
+  { text: "写三件今天做好的事", category: "感恩" },
+  { text: "给陌生人一个微笑", category: "人际" },
+  { text: "想清楚你最珍视的三样东西", category: "反思" },
+  { text: "做一件让父母高兴的事", category: "人际" },
+  { text: "把卧室的摆设换一换", category: "新鲜感" },
+  { text: "给自己准备一顿像样的饭", category: "自我" },
+  { text: "学习一个你不知道的小知识", category: "好奇" },
+  { text: "原谅自己之前的某个错误", category: "释放" },
+  { text: "约一个人一起做点什么", category: "人际" },
+  { text: "做一件你一直想做但没找到时间的事", category: "行动" },
+  { text: "把今天的情绪状态记录下来", category: "反思" },
+  { text: "拒绝一个不合理的要求", category: "自我" },
+  { text: "去探索一个你从没去过的社区", category: "新鲜感" },
+  { text: "给五年后的自己写一句话", category: "未来" },
+  { text: "做一件需要你专注三十分钟的事", category: "专注" },
+  { text: "把不需要的东西送人或捐出去", category: "减负" },
+  { text: "给别人一个真诚的感谢", category: "表达" },
+];
+
+let count = 0;
+let lastIndex = -1;
+
+function initStars() {
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.width = s.style.height = (Math.random() * 2 + 0.5) + 'px';
+    s.style.setProperty('--d', (Math.random() * 4 + 2) + 's');
+    s.style.animationDelay = Math.random() * 4 + 's';
+    stars.appendChild(s);
+  }
+}
+
+function drawAction() {
+  let idx;
+  do { idx = Math.floor(Math.random() * actions.length); }
+  while (idx === lastIndex && actions.length > 1);
+  lastIndex = idx;
+
+  const card = document.getElementById('actionCard');
+  const text = document.getElementById('actionText');
+  const cat = document.getElementById('actionCategory');
+  const btn = document.getElementById('actionBtn');
+  const hint = document.getElementById('hint');
+  const badge = document.getElementById('countBadge');
+
+  card.classList.add('fade');
+
+  setTimeout(() => {
+    const a = actions[idx];
+    text.textContent = a.text;
+    cat.textContent = a.category;
+    if(a.category==='♡'){cat.style.color='#e07a5f';cat.style.letterSpacing='4px'}else{cat.style.color='';cat.style.letterSpacing='2px'}
+    btn.textContent = '再来一个';
+    hint.textContent = '👻 幽灵说：去吧';
+
+    count++;
+    badge.textContent = '已行动 ' + count + ' 次';
+
+    card.classList.remove('fade');
+  }, 400);
+}
+
+document.getElementById('ghostBtn').addEventListener('click', drawAction);
+
+function showAll() {
+  const grid = document.getElementById('allGrid');
+  grid.innerHTML = '';
+  actions.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'all-item';
+    const catDiv = document.createElement('div');
+    catDiv.className = 'all-item-cat';
+    catDiv.textContent = a.category;
+    if(a.category==='♡'){catDiv.style.color='#e07a5f';catDiv.style.letterSpacing='4px'}
+    div.appendChild(catDiv);
+    const textDiv = document.createElement('span');
+    textDiv.textContent = a.text;
+    div.appendChild(textDiv);
+    grid.appendChild(div);
+  });
+  document.getElementById('allOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAll() {
+  document.getElementById('allOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+initStars();
+</script>
+</body>
+</html>
