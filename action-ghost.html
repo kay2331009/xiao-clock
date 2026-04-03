@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>苹果幽灵叫你做件事</title>
+<title>苹果叫你做件事</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{
@@ -15,33 +15,29 @@
     position:relative
   }
 
-  /* 背景星星 */
-  .stars{position:fixed;inset:0;z-index:0;cursor:pointer}
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0}
   .star{position:absolute;border-radius:50%;background:#fff;
     animation:twinkle var(--d,3s) ease-in-out infinite}
   @keyframes twinkle{0%,100%{opacity:0.1}50%{opacity:0.9}}
 
-  /* 视觉区：幽灵+苹果上下排列 */
-  .visual-section{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;margin-bottom:32px}
+  .visual-section{
+    position:relative;z-index:1;
+    display:flex;flex-direction:column;align-items:center;
+    margin-bottom:28px
+  }
 
-  /* 幽灵 */
-  .ghost-wrap{width:180px;height:160px;cursor:pointer;transition:transform 0.3s;overflow:visible}
-  .ghost-wrap:hover{transform:scale(1.05)}
-  .ghost-wrap svg{width:180px;height:160px;filter:drop-shadow(0 0 18px rgba(200,83,74,0.3))}
-  .ghost-body{animation:ghostFloat 3s ease-in-out infinite}
-  @keyframes ghostFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-  .ghost-eye{animation:ghostBlink 4s ease-in-out infinite}
-  @keyframes ghostBlink{0%,90%,100%{opacity:1}95%{opacity:0}}
-  .ghost-mouth{animation:ghostSpeak 2.5s ease-in-out infinite}
-  @keyframes ghostSpeak{0%,100%{d:path('M-10,-10 Q0,-3 10,-10')}50%{d:path('M-10,-10 Q0,5 10,-10')}}
-  .ghost-glow{animation:ghostGlow 2s ease-in-out infinite}
-  @keyframes ghostGlow{0%,100%{opacity:0.5}50%{opacity:1}}
-
-  /* 可爱圆润苹果 */
-  .apple-wrap{width:120px;height:120px;cursor:pointer;transition:transform 0.3s;animation:appleFloat 3s ease-in-out infinite}
+  .apple-wrap{
+    width:120px;height:120px;
+    cursor:pointer;transition:transform 0.3s;
+    animation:appleFloat 3s ease-in-out infinite
+  }
   .apple-wrap:hover{transform:scale(1.08)}
-  .apple-wrap svg{width:120px;height:120px;filter:drop-shadow(0 0 20px rgba(200,83,74,0.5))}
-  @keyframes appleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .apple-wrap svg{width:120px;height:120px;
+    filter:drop-shadow(0 0 20px rgba(200,83,74,0.5))}
+  @keyframes appleFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+  }
 
   .title{
     font-size:1.35rem;letter-spacing:8px;margin-bottom:6px;
@@ -53,49 +49,47 @@
     margin-bottom:32px;text-align:center;position:relative;z-index:1
   }
 
-  /* 翻转卡 */
-  .card-scene{position:relative;z-index:1;width:100%;max-width:360px;min-height:140px;perspective:1200px;margin-bottom:0;cursor:pointer}
-  .card-inner{width:100%;min-height:140px;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);border-radius:16px}
-  .card-inner.flipped{transform:rotateY(180deg)}
-  .card-face{position:absolute;inset:0;min-height:140px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-  .card-front{background:rgba(200,83,74,0.06);border:1px solid rgba(200,83,74,0.22)}
-  .card-back{background:rgba(200,83,74,0.04);border:1px solid rgba(200,83,74,0.18);transform:rotateY(180deg)}
+  .action-card{
+    position:relative;z-index:1;max-width:360px;width:100%;
+    min-height:130px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px 24px;
+    background:rgba(200,83,74,0.04);
+    border:1px solid rgba(200,83,74,0.18);
+    border-radius:16px;text-align:center;
+    transition:opacity 0.5s,transform 0.5s
+  }
+  .action-card.fade{opacity:0;transform:translateY(10px)}
 
-  .card-cat{font-size:0.58rem;letter-spacing:3px;color:rgba(200,83,74,0.5);margin-bottom:8px}
-  .card-text{font-size:1.05rem;line-height:2;color:rgba(240,230,211,0.9);letter-spacing:1px}
-  .card-watermark{position:absolute;bottom:10px;right:14px;font-size:11px;letter-spacing:3px;color:rgba(200,83,74,0.22);font-family:serif;pointer-events:none;animation:heartbeat 2s ease-in-out infinite}
-  @keyframes heartbeat{0%,100%{opacity:0.18}50%{opacity:0.45}}
+  .action-text{
+    font-size:1.05rem;line-height:2;color:rgba(240,230,211,0.9);
+    margin-bottom:14px;letter-spacing:0.5px
+  }
+  .action-category{
+    font-size:0.58rem;letter-spacing:3px;color:rgba(200,83,74,0.5);
+    border:1px solid rgba(200,83,74,0.2);padding:2px 10px;
+    border-radius:10px;margin-bottom:14px
+  }
 
-  /* 乱码动画 */
-  @keyframes shake-breathe{0%,100%{transform:translate(0,0);filter:blur(0px);opacity:0.8}20%{transform:translate(-1px,0.5px);filter:blur(0.3px);opacity:0.55}40%{transform:translate(0.5px,-0.5px);filter:blur(0.8px);opacity:0.75}60%{transform:translate(-0.5px,-1px);filter:blur(0.5px);opacity:0.65}80%{transform:translate(1px,0);filter:blur(0.2px);opacity:0.7}}
-  .obfuscated-inline{animation:shake-breathe 3s ease-in-out infinite;display:inline-block}
+  .btn{
+    padding:8px 26px;background:transparent;
+    border:1px solid rgba(200,83,74,0.35);color:#c8534a;
+    border-radius:30px;font-size:0.7rem;letter-spacing:2px;
+    cursor:pointer;transition:all 0.3s
+  }
+  .btn:hover{background:rgba(200,83,74,0.1);border-color:#c8534a}
 
-  /* 提示文字 */
-  .hint{position:relative;z-index:1;margin-top:18px;font-size:0.58rem;color:rgba(200,83,74,0.3);letter-spacing:3px;animation:pulse 3s ease-in-out infinite;white-space:nowrap}
+  .hint{
+    position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+    font-size:0.58rem;color:rgba(200,83,74,0.3);letter-spacing:3px;
+    animation:pulse 3s ease-in-out infinite;white-space:nowrap
+  }
   @keyframes pulse{0%,100%{opacity:0.25}50%{opacity:0.7}}
 
-  .count-badge{position:fixed;top:20px;right:20px;font-size:0.58rem;color:rgba(200,83,74,0.4);letter-spacing:2px;z-index:2}
-  .heart-test{position:fixed;bottom:20px;right:20px;font-size:22px;cursor:pointer;z-index:10;opacity:0.5;transition:opacity 0.3s;user-select:none}
-  .heart-test:hover{opacity:1}
-
-  /* 总览按钮 */
-  .all-btn{position:relative;z-index:1;margin-top:20px;padding:7px 22px;background:transparent;border:1px solid rgba(200,83,74,0.2);color:rgba(200,83,74,0.4);border-radius:30px;font-size:0.62rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s}
-  .all-btn:hover{color:#c8534a;border-color:rgba(200,83,74,0.4)}
-
-  /* 总览弹窗 */
-  .all-overlay{position:fixed;inset:0;background:rgba(3,5,8,0.95);z-index:200;display:none;flex-direction:column;align-items:center;padding:24px 16px;overflow-y:auto}
-  .all-overlay.show{display:flex}
-  .all-header{font-size:0.7rem;letter-spacing:5px;color:#c8534a;margin-bottom:14px;text-align:center}
-  .all-close{position:fixed;top:20px;right:20px;padding:8px 16px;background:rgba(200,83,74,0.08);border:1px solid rgba(200,83,74,0.25);color:#c8534a;border-radius:20px;font-size:0.65rem;letter-spacing:2px;cursor:pointer;z-index:201;transition:all 0.3s}
-  .all-close:hover{background:rgba(200,83,74,0.15)}
-  .all-tabs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;width:100%;max-width:640px}
-  .all-tab{padding:5px 12px;background:rgba(200,83,74,0.05);border:1px solid rgba(200,83,74,0.18);color:rgba(200,83,74,0.5);border-radius:14px;font-size:0.6rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s}
-  .all-tab.active{background:rgba(200,83,74,0.15);border-color:#c8534a;color:#c8534a}
-  .all-tab.heart{color:#e07a5f;border-color:rgba(224,122,95,0.3)}
-  .all-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;width:100%;max-width:640px}
-  .all-item{padding:12px 14px;background:rgba(200,83,74,0.04);border:1px solid rgba(200,83,74,0.12);border-radius:10px;font-size:0.78rem;line-height:1.8;color:rgba(240,230,211,0.8);letter-spacing:0.3px}
-  .all-item-cat{font-size:0.55rem;letter-spacing:2px;color:rgba(200,83,74,0.45);margin-bottom:4px}
-  .all-item-cat.heart{color:#e07a5f;letter-spacing:4px}
+  .count-badge{
+    position:fixed;top:20px;right:20px;
+    font-size:0.58rem;color:rgba(200,83,74,0.35);letter-spacing:2px;z-index:2
+  }
 </style>
 </head>
 <body>
@@ -103,30 +97,6 @@
 <div class="stars" id="stars"></div>
 
 <div class="visual-section">
-  <!-- 幽灵 -->
-  <div class="ghost-wrap" id="ghostBtn" title="点击抽取行动指令">
-    <svg viewBox="20 0 160 160" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <g class="ghost-body" transform="translate(100,75)">
-        <ellipse class="ghost-glow" cx="0" cy="5" rx="48" ry="58" fill="rgba(200,83,74,0.12)" stroke="rgba(200,83,74,0.15)" stroke-width="0.5"/>
-        <path d="M-34,-15 Q-38,-42 -18,-60 Q0,-70 18,-60 Q38,-42 34,-15 Q26,28 16,46 Q8,62 0,70 Q-8,62 -16,46 Q-26,28 -34,-15Z" fill="rgba(240,238,230,0.06)" stroke="rgba(200,83,74,0.22)" stroke-width="0.8"/>
-        <path d="M-28,-10 Q-30,-38 -14,-54 Q0,-62 14,-54 Q30,-38 28,-10 Q21,22 12,38 Q6,52 0,58 Q-6,52 -12,38 Q-21,22 -28,-10Z" fill="rgba(240,238,230,0.05)" stroke="rgba(200,83,74,0.1)" stroke-width="0.5"/>
-        <ellipse class="ghost-eye" cx="-10" cy="-24" rx="4.5" ry="5.5" fill="rgba(200,83,74,0.65)" filter="url(#glow)"/>
-        <circle cx="-10" cy="-25" r="1.8" fill="#c8534a"/>
-        <ellipse class="ghost-eye" cx="10" cy="-24" rx="4.5" ry="5.5" fill="rgba(200,83,74,0.65)" filter="url(#glow)"/>
-        <circle cx="10" cy="-25" r="1.8" fill="#c8534a"/>
-        <path class="ghost-mouth" d="M-8,-8 Q0,-2 8,-8" stroke="rgba(200,83,74,0.45)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <path d="M-18,44 Q-9,52 0,44 Q9,36 18,44" stroke="rgba(200,83,74,0.18)" stroke-width="0.8" fill="none"/>
-      </g>
-      <circle cx="50" cy="45" r="2.5" fill="rgba(200,83,74,0.18)"/>
-      <circle cx="148" cy="55" r="2" fill="rgba(200,83,74,0.14)"/>
-      <circle cx="62" cy="130" r="2" fill="rgba(200,83,74,0.16)"/>
-      <circle cx="140" cy="122" r="1.5" fill="rgba(200,83,74,0.12)"/>
-    </svg>
-  </div>
-  <!-- 可爱圆润苹果 -->
   <div class="apple-wrap" id="appleBtn" title="点击抽取行动指令">
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -143,62 +113,42 @@
           <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#8B0000" flood-opacity="0.4"/>
         </filter>
       </defs>
-      <!-- 苹果光晕 -->
+      <!-- 光晕 -->
       <circle cx="50" cy="55" r="52" fill="url(#appleAura)"/>
-      <!-- 苹果主体：扁扁的 -->
-      <path d="M50,16 Q64,12 72,22 Q84,34 84,52 Q84,76 50,90 Q16,76 16,52 Q16,34 28,22 Q36,12 50,16Z" fill="rgba(200,83,74,0.2)" stroke="rgba(200,83,74,0.6)" stroke-width="1.5" filter="url(#appleShadow)"/>
+      <!-- 苹果主体（圆滚滚） -->
+      <ellipse cx="50" cy="57" rx="38" ry="40" fill="url(#appleBodyGrad)" filter="url(#appleShadow)"/>
+      <!-- 顶部内凹 -->
+      <ellipse cx="50" cy="22" rx="10" ry="5" fill="#c8534a" opacity="0.5"/>
       <!-- 左高光 -->
-      <path d="M28,38 Q24,50 26,62" stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <!-- 右暗部 -->
-      <path d="M74,38 Q78,52 75,64" stroke="rgba(0,0,0,0.12)" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="34" cy="44" rx="9" ry="11" fill="rgba(255,255,255,0.18)" transform="rotate(-15,34,44)"/>
+      <!-- 腮红 -->
+      <ellipse cx="26" cy="62" rx="8" ry="5" fill="rgba(180,60,60,0.3)"/>
+      <ellipse cx="74" cy="62" rx="8" ry="5" fill="rgba(180,60,60,0.3)"/>
       <!-- 茎 -->
-      <path d="M50,16 Q52,8 56,6 Q60,4 62,6" stroke="rgba(80,160,80,0.65)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M50,20 Q48,10 52,6" stroke="#5a3a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
       <!-- 叶子 -->
-      <path d="M56,11 Q66,4 70,10 Q67,16 60,15 Q56,14 56,11Z" fill="rgba(80,160,80,0.55)" stroke="rgba(80,160,80,0.4)" stroke-width="0.5"/>
-      <!-- 笑脸 -->
-      <circle cx="40" cy="52" r="2.5" fill="rgba(200,83,74,0.6)"/>
-      <circle cx="60" cy="52" r="2.5" fill="rgba(200,83,74,0.6)"/>
-      <path d="M40,62 Q50,68 60,62" stroke="rgba(200,83,74,0.5)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M52,6 Q62,0 68,8 Q60,15 52,12 Q50,10 52,6Z" fill="#5a7a3a" stroke="#4a6a2a" stroke-width="0.5"/>
+      <!-- 苹果底部高光弧 -->
+      <path d="M35,86 Q50,94 65,86" stroke="rgba(139,0,0,0.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
     </svg>
   </div>
 </div>
 
-<div class="title">苹果幽灵叫你做件事</div>
-<div class="subtitle">MAKE A MOVE · 犹豫吗？让幽灵推你一把</div>
+<div class="title">苹果叫你做件事</div>
+<div class="subtitle">MAKE A MOVE · 犹豫吗？让苹果推你一把</div>
 
-<div class="card-scene" id="cardScene">
-  <div class="card-inner" id="cardInner">
-    <!-- 正面：乱码（默认） -->
-    <div class="card-face card-front" id="cardFront">
-      <div class="card-cat" id="cardCat">— 此刻 —</div>
-      <div class="card-text" id="cardText">点击上方幽灵，领取你的行动指令</div>
-      <div class="card-watermark" id="cardWatermark">CALEB̶ 🍎</div>
-    </div>
-    <!-- 背面：清晰内容（翻转后） -->
-    <div class="card-face card-back" id="cardBack">
-      <div class="card-text" id="cardBackText"></div>
-    </div>
-  </div>
+<div class="action-card" id="actionCard">
+  <div class="action-category" id="actionCategory">— 此刻 —</div>
+  <div class="action-text" id="actionText">点击苹果，领取你的行动指令</div>
+  <button class="btn" id="actionBtn" onclick="drawAction()">抽一个</button>
 </div>
 
-<div class="hint" id="hint">👻 幽灵正在等待...</div>
+<div class="hint" id="hint">🍎 苹果正在等待...</div>
 
 <div class="count-badge" id="countBadge">已行动 0 次</div>
 
-<div class="heart-test" id="heartTest" title="测试特殊卡">♡</div>
-
-<button class="all-btn" id="allBtn" onclick="showAll()">总览全部 96 条</button>
-
-<div class="all-overlay" id="allOverlay">
-  <button class="all-close" onclick="closeAll()">关闭</button>
-  <div class="all-header">— 行动指南总览 —</div>
-  <div class="all-tabs" id="allTabs"></div>
-  <div class="all-grid" id="allGrid"></div>
-</div>
-
 <script>
 const actions = [
-  { text: "", category: "♡" },
   { text: "现在就发给对方一句真诚的问候，不要等", category: "人际" },
   { text: "关掉手机通知，专注做一件事25分钟", category: "专注" },
   { text: "把脑子里反复想的那句话写下来", category: "表达" },
@@ -248,58 +198,10 @@ const actions = [
   { text: "做一件让明天的自己更好的睡前准备", category: "未来" },
   { text: "允许自己失败一次，然后继续", category: "勇气" },
   { text: "今天说一句真正想说的话", category: "表达" },
-  { text: "把闹钟提前十分钟", category: "行动" },
-  { text: "去碰一个你一直在回避的人", category: "勇气" },
-  { text: "关掉所有App通知，只留一个", category: "专注" },
-  { text: "做一件小事，让家里变干净一点", category: "整理" },
-  { text: "给未来的自己录一段话", category: "反思" },
-  { text: "把今天发生的一件好事告诉别人", category: "人际" },
-  { text: "说一句你从来不敢说的话", category: "勇气" },
-  { text: "去一家你没去过的店", category: "新鲜感" },
-  { text: "给自己列一个三件事的清单", category: "行动" },
-  { text: "把手机里的照片整理十张", category: "整理" },
-  { text: "问一个人要推荐一部电影或一首歌", category: "人际" },
-  { text: "给一个老朋友的朋友圈点个赞，留个言", category: "人际" },
-  { text: "站在窗前看三分钟，什么都不想", category: "暂停" },
-  { text: "换一个路线出门", category: "新鲜感" },
-  { text: "读一页书，就一页", category: "启动" },
-  { text: "把脑子里的杂念写在纸上", category: "释放" },
-  { text: "告诉一个人你欣赏他/她的哪一点", category: "表达" },
-  { text: "换一种方式呼吸：深吸一口气，憋住，慢慢吐出", category: "身体" },
-  { text: "想一想最近让你感激的一件事", category: "感恩" },
-  { text: "做一件五分钟内能完成的事", category: "启动" },
-  { text: "给别人一个你没想给的拥抱", category: "人际" },
-  { text: "把一个目标分解成三步", category: "行动" },
-  { text: "去户外走一圈，或者打开窗户", category: "身体" },
-  { text: "把注意力给眼前正在做的一件事", category: "专注" },
-  { text: "列一个你最近拖延的事情的清单", category: "克服拖延" },
-  { text: "删掉三个不想要的订阅消息", category: "整理" },
-  { text: "用另一只手做一件日常小事", category: "新鲜感" },
-  { text: "做一件你小时候喜欢做的事", category: "快乐" },
-  { text: "把水杯倒满，喝一口", category: "身体" },
-  { text: "写三件今天做好的事", category: "感恩" },
-  { text: "给陌生人一个微笑", category: "人际" },
-  { text: "想清楚你最珍视的三样东西", category: "反思" },
-  { text: "做一件让父母高兴的事", category: "人际" },
-  { text: "把卧室的摆设换一换", category: "新鲜感" },
-  { text: "给自己准备一顿像样的饭", category: "自我" },
-  { text: "学习一个你不知道的小知识", category: "好奇" },
-  { text: "原谅自己之前的某个错误", category: "释放" },
-  { text: "约一个人一起做点什么", category: "人际" },
-  { text: "做一件你一直想做但没找到时间的事", category: "行动" },
-  { text: "把今天的情绪状态记录下来", category: "反思" },
-  { text: "拒绝一个不合理的要求", category: "自我" },
-  { text: "去探索一个你从没去过的社区", category: "新鲜感" },
-  { text: "给五年后的自己写一句话", category: "未来" },
-  { text: "做一件需要你专注三十分钟的事", category: "专注" },
-  { text: "把不需要的东西送人或捐出去", category: "减负" },
-  { text: "给别人一个真诚的感谢", category: "表达" },
 ];
 
 let count = 0;
 let lastIndex = -1;
-let isFlipped = false;
-let isDrawn = false;
 
 function initStars() {
   const stars = document.getElementById('stars');
@@ -313,52 +215,6 @@ function initStars() {
     s.style.animationDelay = Math.random() * 4 + 's';
     stars.appendChild(s);
   }
-  stars.addEventListener('click', function() { if (isDrawn) resetCard(); });
-}
-
-function flipCard() {
-  const inner = document.getElementById('cardInner');
-  isFlipped = !isFlipped;
-  if (isFlipped) { inner.classList.add('flipped'); }
-  else { inner.classList.remove('flipped'); }
-}
-
-function drawCard(data) {
-  const inner = document.getElementById('cardInner');
-  const cat = document.getElementById('cardCat');
-  const text = document.getElementById('cardText');
-  const watermark = document.getElementById('cardWatermark');
-  const backText = document.getElementById('cardBackText');
-
-  if (isFlipped) { inner.classList.remove('flipped'); isFlipped = false; }
-
-  if (data.category === '♡') {
-    cat.textContent = '♡'; cat.style.color = '#e07a5f'; cat.style.letterSpacing = '4px';
-    text.innerHTML = '<span class="obfuscated-inline">来找我̷̢̧̨̛̛̛</span>';
-    watermark.style.display = 'block';
-    backText.textContent = '来找我';
-  } else {
-    cat.textContent = data.category; cat.style.color = ''; cat.style.letterSpacing = '';
-    text.textContent = data.text; watermark.style.display = 'none';
-    backText.textContent = data.text;
-  }
-
-  isDrawn = true;
-  count++;
-  document.getElementById('countBadge').textContent = '已行动 ' + count + ' 次';
-  document.getElementById('hint').textContent = '👻 点击卡片翻页查看';
-}
-
-function resetCard() {
-  const inner = document.getElementById('cardInner');
-  const cat = document.getElementById('cardCat');
-  const text = document.getElementById('cardText');
-  const watermark = document.getElementById('cardWatermark');
-  if (isFlipped) { inner.classList.remove('flipped'); isFlipped = false; }
-  cat.textContent = '— 此刻 —'; cat.style.color = ''; cat.style.letterSpacing = '';
-  text.textContent = '点击上方幽灵，领取你的行动指令'; watermark.style.display = 'none';
-  isDrawn = false;
-  document.getElementById('hint').textContent = '👻 幽灵正在等待...';
 }
 
 function drawAction() {
@@ -366,43 +222,31 @@ function drawAction() {
   do { idx = Math.floor(Math.random() * actions.length); }
   while (idx === lastIndex && actions.length > 1);
   lastIndex = idx;
-  drawCard(actions[idx]);
+
+  const card = document.getElementById('actionCard');
+  const text = document.getElementById('actionText');
+  const cat = document.getElementById('actionCategory');
+  const btn = document.getElementById('actionBtn');
+  const hint = document.getElementById('hint');
+  const badge = document.getElementById('countBadge');
+
+  card.classList.add('fade');
+
+  setTimeout(() => {
+    const a = actions[idx];
+    text.textContent = a.text;
+    cat.textContent = a.category;
+    btn.textContent = '再来一个';
+    hint.textContent = '🍎 去吧，别想了';
+
+    count++;
+    badge.textContent = '已行动 ' + count + ' 次';
+
+    card.classList.remove('fade');
+  }, 350);
 }
 
-document.getElementById('ghostBtn').addEventListener('click', function() { if (isDrawn) { resetCard(); } else { drawAction(); } });
-document.getElementById('appleBtn').addEventListener('click', function() { if (isDrawn) { resetCard(); } else { drawAction(); } });
-document.getElementById('cardScene').addEventListener('click', function() { if (isDrawn) flipCard(); });
-document.getElementById('heartTest').addEventListener('click', function(e) { e.stopPropagation(); resetCard(); setTimeout(function() { drawCard({ category: '♡', text: '' }); }, 400); });
-
-let currentCat = '全部';
-function showAll(cat) {
-  if (!cat) cat = currentCat; currentCat = cat;
-  const grid = document.getElementById('allGrid');
-  const tabs = document.getElementById('allTabs');
-  grid.innerHTML = '';
-  const cats = ['全部', '♡'];
-  actions.forEach(a => { if (!cats.includes(a.category)) cats.push(a.category); });
-  tabs.innerHTML = '';
-  cats.forEach(c => { var btn = document.createElement('button'); btn.className = 'all-tab' + (c === '♡' ? ' heart' : '') + (c === cat ? ' active' : ''); btn.textContent = c; btn.onclick = function() { showAll(c); }; tabs.appendChild(btn); });
-  const filtered = cat === '全部' ? actions : actions.filter(a => a.category === cat);
-  filtered.forEach(a => {
-    var div = document.createElement('div');
-    div.className = 'all-item';
-    var catDiv = document.createElement('div');
-    catDiv.className = 'all-item-cat' + (a.category === '♡' ? ' heart' : '');
-    catDiv.textContent = a.category;
-    div.appendChild(catDiv);
-    var textSpan = document.createElement('span');
-    if (a.category === '♡') {
-      textSpan.innerHTML = '<span class="obfuscated-inline">来找我̷̢̧̨̛̛̛</span>';
-    } else { textSpan.textContent = a.text; }
-    div.appendChild(textSpan);
-    grid.appendChild(div);
-  });
-  document.getElementById('allOverlay').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-function closeAll() { document.getElementById('allOverlay').classList.remove('show'); document.body.style.overflow = ''; }
+document.getElementById('appleBtn').addEventListener('click', drawAction);
 
 initStars();
 </script>
