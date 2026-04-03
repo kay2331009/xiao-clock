@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caleb 的苹果塔罗</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:radial-gradient(ellipse at 50% 20%,#1a0a2e 0%,#0d0d1a 60%,#050508 100%);
+    min-height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+    color:#f0e6d3;overflow-x:hidden;padding:24px 16px
+  }
+  .title{font-size:1.5rem;letter-spacing:10px;margin-bottom:4px;color:#c8534a;text-shadow:0 0 24px rgba(200,83,74,0.5);text-align:center;position:relative;z-index:1}
+  .subtitle{font-size:0.65rem;opacity:0.4;letter-spacing:5px;margin-bottom:32px;text-align:center;position:relative;z-index:1}
+  .suit-tabs{display:flex;gap:8px;margin-bottom:20px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
+  .suit-tab{padding:6px 16px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:rgba(200,83,74,0.6);border-radius:20px;font-size:0.65rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s}
+  .suit-tab.active{background:rgba(200,83,74,0.15);border-color:#c8534a;color:#c8534a}
+  .card-wrapper{display:none;perspective:1200px;position:relative;z-index:1}
+  .card-wrapper.show{display:block}
+  .card{width:240px;height:408px;position:relative;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(0.23,1,0.32,1);cursor:pointer}
+  .card.flipped{transform:rotateY(180deg)}
+  .card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;overflow:hidden}
+  .card-back{background:linear-gradient(160deg,#1a0808,#2a1010,#160808);border:2px solid rgba(200,83,74,0.3);box-shadow:0 0 50px rgba(200,83,74,0.15),inset 0 0 40px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center}
+  .card-back-inner{width:208px;height:376px;border-radius:8px;position:relative;overflow:hidden;border:1px solid rgba(200,83,74,0.25)}
+  .checkerboard{position:absolute;inset:0;background-image:linear-gradient(45deg,rgba(200,83,74,0.08)25%,transparent 25%),linear-gradient(-45deg,rgba(200,83,74,0.08)25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(200,83,74,0.08)75%),linear-gradient(-45deg,transparent 75%,rgba(200,83,74,0.08)75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0px;background-color:rgba(0,0,0,0.3)}
+  .back-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border:1px solid rgba(200,83,74,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(26,8,8,0.9);box-shadow:0 0 20px rgba(200,83,74,0.3)}
+  .back-center svg{width:36px;height:36px}
+  .back-corner{position:absolute;width:20px;height:20px;border-color:rgba(200,83,74,0.35);border-style:solid}
+  .back-corner.tl{top:6px;left:6px;border-width:1px 0 0 1px}
+  .back-corner.tr{top:6px;right:6px;border-width:1px 1px 0 0}
+  .back-corner.bl{bottom:6px;left:6px;border-width:0 0 1px 1px}
+  .back-corner.br{bottom:6px;right:6px;border-width:0 1px 1px 0}
+  .tap-hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:0.6rem;color:rgba(200,83,74,0.5);letter-spacing:3px;animation:pulse 2.5s ease-in-out infinite;white-space:nowrap}
+  @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
+  .card-front{background:linear-gradient(155deg,#1a0a0a,#241010);transform:rotateY(180deg);border:2px solid rgba(200,83,74,0.25);box-shadow:0 0 40px rgba(200,83,74,0.15),inset 0 0 40px rgba(0,0,0,0.3)}
+  .cb-border{position:absolute;inset:0;pointer-events:none;border-radius:12px;padding:10px;background-image:linear-gradient(45deg,rgba(200,83,74,0.12)25%,transparent 25%),linear-gradient(-45deg,rgba(200,83,74,0.12)25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(200,83,74,0.12)75%),linear-gradient(-45deg,transparent 75%,rgba(200,83,74,0.12)75%);background-size:14px 14px;background-position:0 0,0 7px,7px -7px,-7px 0px;background-color:rgba(0,0,0,0.25);border-radius:12px}
+  .card-inner{position:absolute;inset:12px;border-radius:8px;border:1px solid rgba(200,83,74,0.15);display:flex;flex-direction:column;overflow:hidden}
+  .card-number-circle{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;border:1px solid rgba(200,83,74,0.5);background:rgba(26,10,10,0.9);display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:rgba(200,83,74,0.8);z-index:2}
+  .card-art-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .card-art-area::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(200,83,74,0.08)0%,transparent 65%)}
+  .card-art-svg{width:160px;height:240px;position:relative;z-index:1}
+  .card-bottom{padding:8px 10px 10px;text-align:center;border-top:1px solid rgba(200,83,74,0.12);background:rgba(0,0,0,0.2)}
+  .card-name{font-size:1rem;color:#c8534a;letter-spacing:3px}
+  .card-name.reversed{color:#e07a5f}
+  .card-name-en{font-size:0.5rem;color:rgba(200,83,74,0.45);letter-spacing:2px;margin-top:2px}
+  .result-section{margin-top:24px;text-align:center;opacity:0;transform:translateY(14px);transition:opacity 0.8s,transform 0.8s;position:relative;z-index:1;max-width:340px}
+  .result-section.show{opacity:1;transform:translateY(0)}
+  .result-meaning{font-size:0.85rem;line-height:2;color:rgba(240,230,211,0.8);padding:0 8px;margin-bottom:10px}
+  .caleb-msg{font-size:0.72rem;color:rgba(200,83,74,0.55);letter-spacing:1px;font-style:italic;margin-bottom:14px}
+  .flip-hint{font-size:0.65rem;color:rgba(200,83,74,0.4);letter-spacing:2px;margin-bottom:10px;display:none}
+  .flip-hint.show{display:block}
+  .btn{padding:9px 28px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:#c8534a;border-radius:30px;font-size:0.72rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s;display:none;margin:4px}
+  .btn:hover{background:rgba(200,83,74,0.08);border-color:#c8534a}
+  .btn.show{display:inline-block}
+  #btnResetSpread{display:none}
+  #btnResetSpread.show{display:inline-block}
+  .wands-badge{background:rgba(200,83,74,0.1);border:1px solid rgba(200,83,74,0.3);color:#c8534a;font-size:0.6rem;letter-spacing:2px;padding:2px 8px;border-radius:10px;margin-left:4px}
+
+  .spread-info{margin-bottom:16px;font-size:0.75rem;color:rgba(200,83,74,0.6);letter-spacing:2px;text-align:center;display:none}
+  .spread-info.show{display:block}
+  .spread-cards{display:none;flex-wrap:wrap;justify-content:center;gap:12px;max-width:700px;margin:0 auto}
+  .spread-cards.show{display:flex}
+  .spread-card-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .spread-card-item .mini-card{width:90px;height:153px;position:relative;transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(0.23,1,0.32,1);cursor:pointer}
+  .spread-card-item .mini-card.flipped{transform:rotateY(180deg)}
+  .spread-card-item .mini-card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:8px;overflow:hidden}
+  .spread-card-item .mini-card-back{background:linear-gradient(160deg,#1a0808,#2a1010);border:1px solid rgba(200,83,74,0.3);display:flex;align-items:center;justify-content:center}
+  .spread-card-item .mini-card-front{background:linear-gradient(155deg,#1a0a0a,#241010);transform:rotateY(180deg);border:1px solid rgba(200,83,74,0.2)}
+  .spread-card-item .mini-card-front .sfx-art{width:100%;height:115px;display:flex;align-items:center;justify-content:center}
+  .spread-card-item .mini-card-front .sfx-art svg{width:70px;height:110px}
+  .spread-card-item .mini-card-front .sfx-name{font-size:0.55rem;color:#c8534a;text-align:center;padding:0 4px 4px;letter-spacing:1px}
+  .spread-card-item .position-label{font-size:0.6rem;color:rgba(200,83,74,0.5);letter-spacing:2px;text-align:center}
+  .spread-detail{display:none;margin-top:20px;text-align:center;padding:16px;background:rgba(200,83,74,0.05);border:1px solid rgba(200,83,74,0.15);border-radius:12px;max-width:500px;margin-left:auto;margin-right:auto}
+  .spread-detail.show{display:block}
+  .spread-detail-title{font-size:0.7rem;color:#c8534a;letter-spacing:3px;margin-bottom:12px}
+  .spread-detail-meaning{font-size:0.8rem;line-height:1.9;color:rgba(240,230,211,0.8)}
+  .spread-back-hint{font-size:0.6rem;color:rgba(200,83,74,0.4);letter-spacing:2px;margin-top:8px}
+  .spread-nav{display:none;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+  .spread-nav.show{display:flex}
+  .spread-nav button{padding:10px 24px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:rgba(200,83,74,0.7);border-radius:24px;font-size:0.7rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s;margin:4px}
+  .spread-nav button:hover{background:rgba(200,83,74,0.1);border-color:#c8534a}
+  .spread-nav button.active{background:rgba(200,83,74,0.15);border-color:#c8534a}
+
+
+  /* ===== 星云粒子画布 ===== */
+  #nebula-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .nebula-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden}
+  .nebula-layer::before{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(140,30,60,0.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 70%,rgba(60,20,100,0.2) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(200,80,100,0.08) 0%,transparent 70%);animation:nebulaDrift1 20s ease-in-out infinite}
+  .nebula-layer::after{content:'';position:absolute;inset:-50%;background:radial-gradient(ellipse 70% 50% at 70% 20%,rgba(80,40,120,0.15) 0%,transparent 60%),radial-gradient(ellipse 50% 70% at 30% 80%,rgba(180,40,60,0.12) 0%,transparent 55%),radial-gradient(ellipse 40% 60% at 60% 60%,rgba(100,20,80,0.1) 0%,transparent 65%);animation:nebulaDrift2 25s ease-in-out infinite}
+  @keyframes nebulaDrift1{0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(3%,2%) rotate(1deg)}66%{transform:translate(-2%,-1%) rotate(-1deg)}}
+  @keyframes nebulaDrift2{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-3%,2%) rotate(-1.5deg)}}
+  /* ===== 增强主界面 ===== */
+  .landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;cursor:pointer;position:relative;z-index:1}
+  .landing-apple{position:relative;animation:appleFloat 3s ease-in-out infinite;transition:transform 0.3s;filter:drop-shadow(0 0 20px rgba(200,83,74,0.5)) drop-shadow(0 0 40px rgba(200,83,74,0.2))}
+  .landing-apple::before{content:'';position:absolute;inset:-30px;background:radial-gradient(circle,rgba(200,83,74,0.15) 0%,transparent 70%);border-radius:50%;animation:glowPulse 2.5s ease-in-out infinite}
+  .landing-apple:hover{transform:scale(1.08)}
+  @keyframes appleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+  @keyframes glowPulse{0%,100%{opacity:0.5;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+  .landing-hint{font-size:0.7rem;color:rgba(200,83,74,0.5);letter-spacing:3px;margin-top:20px;animation:pulse 2s ease-in-out infinite}
+  .landing-modes{display:flex;gap:24px;margin-top:40px;flex-wrap:wrap;justify-content:center}
+  .mode-btn{width:160px;padding:24px 20px;background:rgba(200,83,74,0.08);border:1px solid rgba(200,83,74,0.2);border-radius:16px;cursor:pointer;transition:all 0.3s;text-align:center}
+  .mode-btn:hover{background:rgba(200,83,74,0.15);border-color:rgba(200,83,74,0.4);transform:translateY(-4px)}
+  .mode-icon{font-size:2.5rem;margin-bottom:12px}
+  .mode-title{font-size:1rem;color:#c8534a;letter-spacing:3px;margin-bottom:8px}
+  .mode-desc{font-size:0.65rem;color:rgba(200,83,74,0.5);letter-spacing:1px}
+  .single-mode,.spread-mode{display:none}
+  .single-mode.show,.spread-mode.show{display:block}
+  .back-btn{position:fixed;top:20px;right:20px;padding:8px 16px;font-size:0.7rem;color:rgba(200,83,74,0.6);letter-spacing:2px;cursor:pointer;background:rgba(26,10,10,0.8);border:1px solid rgba(200,83,74,0.25);border-radius:20px;z-index:100;transition:all 0.3s}
+  .back-btn:hover{color:#c8534a;border-color:#c8534a;background:rgba(200,83,74,0.1)}
+  .spread-nav{display:none;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+  .spread-nav.show{display:flex}
+  .spread-nav button{padding:10px 24px;background:transparent;border:1px solid rgba(200,83,74,0.3);color:rgba(200,83,74,0.7);border-radius:24px;font-size:0.7rem;letter-spacing:2px;cursor:pointer;transition:all 0.3s;margin:4px}
+  .spread-nav button:hover,.spread-nav button.active{background:rgba(200,83,74,0.1);border-color:#c8534a}
+</style>
+</head>
+<body>
+<div class="title">Caleb 的苹果塔罗<div class="subtitle">A P P L E &nbsp; T A R O T &nbsp; · &nbsp; CYBER EDITION</div></div>
+
+<canvas id="nebula-canvas"></canvas>
+<div class="nebula-layer"></div>
+
+<div class="landing" id="landing">
+  <div class="landing-apple" id="landingApple">
+    <svg viewBox="0 0 100 100" width="100" height="100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="appleGlow" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#c8534a" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="58" r="55" fill="url(#appleGlow)"/>
+      <ellipse cx="50" cy="58" rx="36" ry="38" fill="#c8534a"/>
+      <ellipse cx="50" cy="58" rx="22" ry="24" fill="#8B0000" opacity="0.3"/>
+      <ellipse cx="42" cy="48" rx="8" ry="10" fill="#f5e6d3" opacity="0.15"/>
+      <path d="M50 20 Q47 8 52 4" stroke="#5a3a2a" stroke-width="2" fill="none"/>
+      <path d="M52 4 Q62 0 68 8 Q60 14 52 4" fill="#5a7a3a"/>
+      <path d="M50 58 Q68 68 60 88 Q50 98 40 88 Q32 68 50 58" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.35"/>
+    </svg>
+  </div>
+  <div class="landing-hint" id="landingHint">点击苹果开始</div>
+  <div class="landing-modes" id="landingModes" >
+    <div class="mode-btn" onclick="enterMode('single')">
+      <div class="mode-icon">🌟</div>
+      <div class="mode-title">单独抽牌</div>
+      <div class="mode-desc">从花色中选择一张牌</div>
+    </div>
+    <div class="mode-btn" onclick="enterMode('spread')">
+      <div class="mode-icon">🔮</div>
+      <div class="mode-title">牌阵占卜</div>
+      <div class="mode-desc">三张牌 · 凯尔特十字</div>
+    </div>
+  </div>
+</div>
+
+<div class="single-mode" id="singleMode" >
+  <div class="suit-tabs">
+    <div class="suit-tab active" data-suit="major" onclick="switchSuit('major')">大阿卡纳</div>
+    <div class="suit-tab" data-suit="wands" onclick="switchSuit('wands')">Wands</div>
+    <div class="suit-tab" data-suit="cups" onclick="switchSuit('cups')">Cups</div>
+    <div class="suit-tab" data-suit="swords" onclick="switchSuit('swords')">Swords</div>
+    <div class="suit-tab" data-suit="pentacles" onclick="switchSuit('pentacles')">Pentacles</div>
+  </div>
+  <div class="back-btn" onclick="goBack()">← 返回主界面</div>
+</div>
+
+<div class="spread-mode" id="spreadMode" >
+  <div class="back-btn" onclick="goBack()">← 返回主界面</div>
+  <div class="spread-nav">
+    <button class="" onclick="startSpread(1)">三张牌</button>
+    <button class="" onclick="startSpread(2)">五张牌</button>
+    <button class="" onclick="startSpread(3)">Celtic Cross</button>
+  </div>
+  <div class="spread-info" id="spreadInfo"></div>
+  <div class="spread-cards" id="spreadCards"></div>
+  <div class="spread-detail" id="spreadDetail">
+    <div class="spread-detail-title" id="spreadDetailTitle"></div>
+    <div class="spread-detail-meaning" id="spreadDetailMeaning"></div>
+    <div class="spread-back-hint">点击卡片可翻转</div>
+  </div>
+</div>
+
+<div class="card-wrapper">
+  <div class="card" id="card" onclick="if(!drawn)drawCard();else toggleFlip()">
+    <div class="card-face card-back">
+      <div class="card-back-inner">
+        <div class="checkerboard"></div>
+        <div class="back-center"><svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="14" r="10" fill="#c8534a" opacity="0.9"/><ellipse cx="18" cy="14" rx="5" ry="4" fill="#8B0000" opacity="0.4"/><path d="M18 4 Q20 0 23 2" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><path d="M16 6 Q12 4 13 8" fill="#3a5a2a"/></svg></div>
+        <div class="back-corner tl"></div><div class="back-corner tr"></div><div class="back-corner bl"></div><div class="back-corner br"></div>
+        <div class="tap-hint" id="tapHint">点击抽牌</div>
+      </div>
+    </div>
+    <div class="card-face card-front">
+      <div class="cb-border"></div>
+      <div class="card-inner">
+        <div class="card-number-circle" id="cardNumber"></div>
+        <div class="card-art-area"><div class="card-art-svg" id="cardArt"></div></div>
+        <div class="card-bottom">
+          <div class="card-name" id="cardName"></div>
+          <div class="card-name-en" id="cardNameEn"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="spread-info" id="spreadInfo"></div>
+<div class="spread-cards" id="spreadCards"></div>
+<div class="spread-detail" id="spreadDetail">
+  <div class="spread-detail-title" id="spreadDetailTitle"></div>
+  <div class="spread-detail-meaning" id="spreadDetailMeaning"></div>
+  <div class="spread-back-hint">点击卡片可翻转</div>
+</div>
+<div class="spread-nav" id="spreadNav">
+  <button class="" onclick="startSpread(1)">三张牌</button>
+  <button class="" onclick="startSpread(2)">五张牌</button>
+  <button class="" onclick="startSpread(3)">Celtic Cross</button>
+</div>
+<div class="result-section" id="resultSection">
+  <div class="flip-hint" id="flipHint">点击牌面可翻转查看背面</div>
+  <div class="result-meaning" id="resultMeaning"></div>
+  <div class="caleb-msg" id="calebMsg"></div>
+  <button class="btn" id="btnRedraw" onclick="event.stopPropagation();reset()">再抽一次</button>
+  <button class="btn" id="btnResetSpread" onclick="event.stopPropagation();resetSpread()">重选牌阵</button>
+</div>
+
+<script>
+// ===== 星云粒子系统 =====
+(function(){
+  var canvas = document.getElementById('nebula-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W, H, particles = [];
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  function Particle(){
+    this.reset = function(){
+      this.x = Math.random() * W; this.y = Math.random() * H;
+      this.size = Math.random() * 2 + 0.5;
+      this.speedX = (Math.random() - 0.5) * 0.3;
+      this.speedY = (Math.random() - 0.5) * 0.3;
+      this.opacity = Math.random() * 0.5 + 0.1;
+      this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+      this.twinklePhase = Math.random() * Math.PI * 2;
+      var rnd = Math.random();
+      if(rnd < 0.4) this.color = '200,83,74';
+      else if(rnd < 0.7) this.color = '240,208,128';
+      else this.color = '180,100,200';
+    };
+    this.update = function(){
+      this.x += this.speedX; this.y += this.speedY;
+      this.twinklePhase += this.twinkleSpeed;
+      if(this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+    };
+    this.draw = function(){
+      var o = this.opacity * (0.5 + 0.5 * Math.sin(this.twinklePhase));
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + this.color + ',' + o + ')'; ctx.fill();
+      if(this.size > 1.2){
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + this.color + ',' + (o * 0.08) + ')'; ctx.fill();
+      }
+    };
+    this.reset();
+  }
+  var count = Math.min(120, Math.floor((W * H) / 12000));
+  for(var i = 0; i < count; i++) particles.push(new Particle());
+  function burst(){
+    var cx = Math.random() * W, cy = Math.random() * H;
+    for(var i = 0; i < 12; i++){
+      var p = new Particle(); p.x = cx; p.y = cy; p.size = Math.random() * 1.5 + 0.5;
+      var angle = (i / 12) * Math.PI * 2, speed = Math.random() * 1.5 + 0.5;
+      p.speedX = Math.cos(angle) * speed; p.speedY = Math.sin(angle) * speed;
+      p.opacity = 0.8; particles.push(p);
+    }
+    if(particles.length > 250) particles.splice(0, 20);
+  }
+  setInterval(burst, 4000);
+  function animate(){ ctx.clearRect(0, 0, W, H); for(var i=0;i<particles.length;i++){ particles[i].update(); particles[i].draw(); } requestAnimationFrame(animate); }
+  animate();
+})();
+</script>
+<script>
+const majorArcana=[
+  {name:"愚人",num:"0",nameEn:"THE FOOL",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a0a"/><rect width="160" height="240" fill="url(#g0)" opacity="0.3"/><defs><radialGradient id="g0" cx="50%" cy="40%"><stop offset="0%" stop-color="#c8534a" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><ellipse cx="80" cy="120" rx="38" ry="50" fill="#c8534a"/><ellipse cx="80" cy="120" rx="20" ry="30" fill="#8B0000" opacity="0.5"/><ellipse cx="80" cy="120" rx="8" ry="12" fill="#f5e6d3" opacity="0.8"/><path d="M80 75 Q110 90 100 120 Q90 150 80 120 Q70 90 80 75" stroke="#c8534a" stroke-width="4" fill="none" opacity="0.6"/><path d="M80 70 Q75 55 82 50 Q90 55 85 70" fill="#5a7a3a"/><path d="M82 52 Q88 45 95 50" stroke="#3a5a2a" stroke-width="1" fill="none"/><ellipse cx="72" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(-15 72 108)"/><ellipse cx="88" cy="108" rx="5" ry="14" fill="#f5e6d3" transform="rotate(15 88 108)"/><circle cx="80" cy="118" r="6" fill="#f5e6d3"/><circle cx="78" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="82" cy="116" r="1.5" fill="#1a0a0a"/><circle cx="30" cy="40" r="1.5" fill="#c8534a" opacity="0.5"/><circle cx="130" cy="60" r="1" fill="#c8534a" opacity="0.4"/><circle cx="50" cy="200" r="1" fill="#c8534a" opacity="0.3"/></svg>`,meaning:"新的开始，无限可能。旅途才刚开始，保持开放的心态。",apple:"被咬过的苹果核里，藏着新世界的大门。"},
+  {name:"魔术师",num:"I",nameEn:"THE MAGICIAN",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a1a"/><defs><radialGradient id="g1" cx="50%" cy="50%"><stop offset="0%" stop-color="#3a5a8a" stop-opacity="0.2"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect width="160" height="240" fill="url(#g1)"/><path d="M50 100 L80 30 L110 100 Z" fill="#1a1a2e" stroke="#c8534a" stroke-width="0.5"/><ellipse cx="80" cy="100" rx="35" ry="8" fill="#1a1a2e" stroke="#c8534a" stroke-width="0.5"/><rect x="30" y="170" width="100" height="6" fill="#5a3a2a" opacity="0.8"/><circle cx="50" cy="162" r="9" fill="#c8534a"/><circle cx="80" cy="158" r="10" fill="#c8534a"/><circle cx="110" cy="162" r="9" fill="#c8534a"/><line x1="80" y1="30" x2="80" y2="10" stroke="#f0d080" stroke-width="1" opacity="0.6"/><circle cx="80" cy="8" r="2" fill="#f0d080" opacity="0.7"/><circle cx="72" cy="15" r="1" fill="#f0d080" opacity="0.5"/><circle cx="88" cy="15" r="1" fill="#f0d080" opacity="0.5"/><circle cx="80" cy="24" r="5" fill="#c8534a"/><ellipse cx="80" cy="88" rx="15" ry="18" fill="#f5e6d3" opacity="0.1"/></svg>`,meaning:"你拥有实现目标所需的一切。行动力就是现在。",apple:"四颗苹果摆在你面前，你想用哪颗？"},
+  {name:"女祭司",num:"II",nameEn:"HIGH PRIESTESS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0510"/><circle cx="80" cy="95" r="55" fill="#1a0a2e" opacity="0.6"/><path d="M60 80 Q80 60 100 80 Q80 100 60 80" fill="#f0d080" opacity="0.8"/><path d="M20 160 Q80 140 140 160" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M80 150 Q75 130 80 110" stroke="#5a3a2a" stroke-width="2" fill="none"/><circle cx="60" cy="148" r="8" fill="#c8534a"/><circle cx="100" cy="145" r="7" fill="#c8534a"/><circle cx="130" cy="155" r="6" fill="#c8534a"/><path d="M50 95 L80 30 L110 95 Z" fill="#1a0510" opacity="0.9"/><ellipse cx="80" cy="95" rx="38" ry="10" fill="#1a0510"/><path d="M60 95 Q80 85 100 95" stroke="#c8534a" stroke-width="1" fill="none" opacity="0.5"/><circle cx="25" cy="30" r="2" fill="#c8534a" opacity="0.4"/><circle cx="140" cy="50" r="1.5" fill="#c8534a" opacity="0.3"/><rect x="0" y="200" width="160" height="40" fill="#0a0510"/></svg>`,meaning:"相信你的直觉。答案不在外界，而在你的内心深处。",apple:"月光落在苹果上，夜在说话。"},
+  {name:"女皇",num:"III",nameEn:"THE EMPRESS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a100a"/><defs><radialGradient id="g3" cx="50%" cy="30%"><stop offset="0%" stop-color="#8a5a3a" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect width="160" height="240" fill="url(#g3)"/><rect x="75" y="130" width="10" height="80" fill="#5a3a2a"/><path d="M80 135 Q50 120 30 135" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M80 135 Q110 120 130 135" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M55 70 L65 50 L80 65 L95 50 L105 70 L100 90 L60 90 Z" fill="#c8534a" opacity="0.8"/><circle cx="45" cy="128" r="10" fill="#c8534a"/><circle cx="80" cy="118" r="12" fill="#c8534a"/><circle cx="115" cy="128" r="10" fill="#c8534a"/><circle cx="30" cy="138" r="7" fill="#c8534a"/><circle cx="130" cy="138" r="7" fill="#c8534a"/><circle cx="80" cy="65" r="4" fill="#f0d080" opacity="0.9"/><circle cx="20" cy="40" r="1.5" fill="#c8534a" opacity="0.4"/></svg>`,meaning:"丰盛与创造力的能量正在流动。让自己被滋养。",apple:"苹果树下的女人，掌管着所有的生长。"},
+  {name:"皇帝",num:"IV",nameEn:"THE EMPEROR",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a1a"/><path d="M55 65 L65 45 L80 60 L95 45 L105 65 L100 85 L60 85 Z" fill="#c8534a" opacity="0.7"/><circle cx="80" cy="60" r="4" fill="#f0d080" opacity="0.8"/><rect x="40" y="120" width="80" height="80" rx="4" fill="#1a1a2e" opacity="0.8"/><rect x="40" y="120" width="80" height="4" fill="#c8534a" opacity="0.4"/><circle cx="80" cy="160" r="18" fill="#c8534a" opacity="0.6"/><ellipse cx="80" cy="160" rx="10" ry="12" fill="#8B0000" opacity="0.3"/><path d="M80 142 Q78 128 82 120" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 120 Q88 114 95 120 Q88 126 82 120" fill="#5a7a3a"/></svg>`,meaning:"建立结构与秩序。领导力在你手中，但别忘了柔软。",apple:"红苹果代表命令，但命令不是一切。"},
+  {name:"教皇",num:"V",nameEn:"THE HIEROPHANT",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0510"/><path d="M50 95 L80 35 L110 95 Z" fill="#1a0a2e" opacity="0.9"/><ellipse cx="80" cy="95" rx="38" ry="8" fill="#1a0a2e" opacity="0.8"/><path d="M65 55 L80 35 L95 55 L92 62 L80 52 L68 62 Z" fill="#c8534a" opacity="0.5"/><rect x="55" y="150" width="50" height="60" rx="3" fill="#1a1a2e" opacity="0.7"/><circle cx="80" cy="130" r="15" fill="#c8534a" opacity="0.6"/><path d="M72 125 L80 115 L88 125" stroke="#f0d080" stroke-width="1" fill="none" opacity="0.5"/><circle cx="80" cy="130" r="5" fill="#8B0000" opacity="0.4"/><path d="M80 115 Q78 100 82 92" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><path d="M82 92 Q88 86 94 92 Q88 98 82 92" fill="#5a7a3a"/></svg>`,meaning:"遵循传统不是懦弱。有时候已知的路是真正的路。",apple:"两棵苹果树之间的路，是留给你的。"},
+  {name:"恋人",num:"VI",nameEn:"THE LOVERS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0808"/><circle cx="55" cy="120" r="30" fill="#c8534a"/><circle cx="105" cy="120" r="30" fill="#c8534a"/><ellipse cx="80" cy="120" rx="10" ry="20" fill="#8B0000" opacity="0.3"/><path d="M55 90 Q60 70 80 60 Q100 70 105 90" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M80 60 Q75 45 80 40 Q85 45 82 60" fill="#5a7a3a"/><path d="M80 60 Q90 50 95 55 Q88 62 82 60" fill="#5a7a3a"/><line x1="0" y1="200" x2="160" y2="40" stroke="#c8534a" stroke-width="0.5" opacity="0.3"/><path d="M0 200 L5 190 L10 200 Z" fill="#c8534a" opacity="0.3"/><circle cx="30" cy="180" r="6" fill="#c8534a" opacity="0.5"/><circle cx="130" cy="180" r="6" fill="#c8534a" opacity="0.5"/></svg>`,meaning:"关系中的选择，或价值观之间的平衡。跟随你的心。",apple:"两颗苹果，一颗给你，一颗给我。"},
+  {name:"战车",num:"VII",nameEn:"THE CHARIOT",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a1a"/><rect x="35" y="130" width="90" height="50" rx="5" fill="#1a1a2e" stroke="#c8534a" stroke-width="1"/><ellipse cx="30" cy="150" rx="18" ry="25" fill="#c8534a"/><ellipse cx="130" cy="150" rx="18" ry="25" fill="#c8534a"/><ellipse cx="30" cy="130" rx="6" ry="10" fill="#8B0000" opacity="0.4"/><ellipse cx="130" cy="130" rx="6" ry="10" fill="#8B0000" opacity="0.4"/><path d="M48 150 Q80 140 112 150" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><circle cx="80" cy="190" r="22" fill="none" stroke="#c8534a" stroke-width="2" opacity="0.6"/><circle cx="80" cy="190" r="8" fill="#c8534a" opacity="0.4"/><path d="M60 110 L70 95 L80 108 L90 95 L100 110" fill="#c8534a" opacity="0.7"/></svg>`,meaning:"意志力与决心在驱动你。坚定地向前。",apple:"战车由两匹马拉着，一匹是苹果，一匹是你。"},
+  {name:"力量",num:"VIII",nameEn:"STRENGTH",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a0a"/><ellipse cx="80" cy="110" rx="45" ry="50" fill="#c8534a"/><ellipse cx="80" cy="110" rx="25" ry="30" fill="#8B0000" opacity="0.3"/><ellipse cx="65" cy="90" rx="8" ry="12" fill="#f5e6d3" opacity="0.1"/><path d="M80 60 Q78 45 82 38" stroke="#5a3a2a" stroke-width="2.5" fill="none"/><path d="M82 38 Q88 30 95 35 Q88 42 82 38" fill="#5a7a3a"/><path d="M55 155 Q45 140 55 130" stroke="#f5e6d3" stroke-width="3" fill="none" opacity="0.3" stroke-linecap="round"/><path d="M105 155 Q115 140 105 130" stroke="#f5e6d3" stroke-width="3" fill="none" opacity="0.3" stroke-linecap="round"/></svg>`,meaning:"内在的力量比外在的控制更重要。温柔地坚持。",apple:"不需要抓住苹果，放轻松它反而会在。"},
+  {name:"隐者",num:"IX",nameEn:"THE HERMIT",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050510"/><circle cx="80" cy="90" r="20" fill="#f0d080" opacity="0.3"/><circle cx="80" cy="90" r="14" fill="#f0d080" opacity="0.4"/><circle cx="80" cy="90" r="8" fill="#f0d080" opacity="0.7"/><path d="M80 70 Q78 60 82 55" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 55 Q88 50 92 55 Q86 60 82 55" fill="#5a7a3a"/><path d="M50 240 L55 150 L80 130 L105 150 L110 240" fill="#1a1a2e" opacity="0.8"/><ellipse cx="80" cy="238" rx="35" ry="4" fill="#c8534a" opacity="0.1"/><circle cx="25" cy="30" r="1.5" fill="#f0d080" opacity="0.3"/><circle cx="140" cy="50" r="1" fill="#f0d080" opacity="0.2"/></svg>`,meaning:"需要独处的时间。向内探索，你会找到答案。",apple:"提灯的人，在苹果园深处寻找自己。"},
+  {name:"命运之轮",num:"X",nameEn:"WHEEL OF FORTUNE",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0515"/><circle cx="80" cy="120" r="60" fill="none" stroke="#c8534a" stroke-width="2" opacity="0.5"/><circle cx="80" cy="120" r="45" fill="none" stroke="#c8534a" stroke-width="1" opacity="0.3"/><circle cx="80" cy="120" r="8" fill="#c8534a" opacity="0.6"/><line x1="80" y1="60" x2="80" y2="180" stroke="#c8534a" stroke-width="1" opacity="0.3"/><line x1="20" y1="120" x2="140" y2="120" stroke="#c8534a" stroke-width="1" opacity="0.3"/><circle cx="80" cy="58" r="8" fill="#c8534a"/><circle cx="80" cy="182" r="8" fill="#c8534a"/><circle cx="18" cy="120" r="8" fill="#c8534a"/><circle cx="142" cy="120" r="8" fill="#c8534a"/><ellipse cx="80" cy="200" rx="6" ry="4" fill="#c8534a" opacity="0.3"/></svg>`,meaning:"命运的转折点。接受变化，它会带来新的可能。",apple:"苹果从树上落下，轮子开始转动。"},
+  {name:"正义",num:"XI",nameEn:"JUSTICE",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a15"/><path d="M80 30 L75 50 L65 50 L80 75 L95 50 L85 50 Z" fill="#f0d080" opacity="0.7"/><rect x="50" y="90" width="60" height="3" fill="#f0d080" opacity="0.5"/><circle cx="80" cy="150" r="30" fill="#c8534a" opacity="0.8"/><ellipse cx="80" cy="150" rx="15" ry="20" fill="#8B0000" opacity="0.3"/><path d="M80 120 Q78 105 82 98" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 98 Q88 92 95 98 Q88 104 82 98" fill="#5a7a3a"/><line x1="80" y1="105" x2="80" y2="115" stroke="#f0d080" stroke-width="2" opacity="0.4"/></svg>`,meaning:"因果在运作。做出选择时，考虑它的真实后果。",apple:"一刀切下去，苹果公平地分成两半。"},
+  {name:"倒吊人",num:"XII",nameEn:"HANGED MAN",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M80 30 L80 100" stroke="#5a3a2a" stroke-width="4"/><path d="M50 100 L110 100" stroke="#5a3a2a" stroke-width="3"/><circle cx="80" cy="140" r="25" fill="#c8534a" opacity="0.7"/><ellipse cx="80" cy="140" rx="12" ry="18" fill="#8B0000" opacity="0.3"/><path d="M80 115 Q78 100 82 93" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><path d="M82 93 Q88 87 94 93 Q88 99 82 93" fill="#5a7a3a"/><circle cx="72" cy="135" r="2" fill="#f0d080" opacity="0.4"/><circle cx="88" cy="135" r="2" fill="#f0d080" opacity="0.4"/><path d="M72 145 Q80 150 88 145" stroke="#f0d080" stroke-width="1" fill="none" opacity="0.3"/></svg>`,meaning:"换一种视角看世界。暂停不是放弃，是等待时机。",apple:"倒挂的人看见的世界，是苹果向上的那一面。"},
+  {name:"死神",num:"XIII",nameEn:"DEATH",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0505"/><path d="M80 80 Q40 50 30 90 Q50 110 80 100 Q110 110 130 90 Q120 50 80 80" fill="#c8534a" opacity="0.4"/><path d="M80 80 Q40 110 30 90 Q50 100 80 100 Q110 100 130 90 Q120 110 80 80" fill="#8B0000" opacity="0.3"/><circle cx="80" cy="160" r="20" fill="#5a3a2a" opacity="0.5"/><circle cx="80" cy="160" r="10" fill="#3a1a0a" opacity="0.4"/><path d="M80 140 Q78 125 82 118" stroke="#5a7a3a" stroke-width="2" fill="none"/><path d="M82 118 Q88 112 94 118 Q88 124 82 118" fill="#5a7a3a"/><rect x="0" y="195" width="160" height="45" fill="#0a0505"/></svg>`,meaning:"结束即是开始。放下旧的，才能迎接新的。",apple:"旧的苹果落下，新的花在枝头。"},
+  {name:"节制",num:"XIV",nameEn:"TEMPERANCE",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M50 130 L50 200 L80 200 L80 130" fill="#1a3a5a" opacity="0.4" stroke="#3a5a8a" stroke-width="0.5"/><path d="M80 130 L80 200 L110 200 L110 130" fill="#1a3a5a" opacity="0.4" stroke="#3a5a8a" stroke-width="0.5"/><circle cx="80" cy="115" r="20" fill="#c8534a" opacity="0.7"/><ellipse cx="80" cy="115" rx="10" ry="14" fill="#8B0000" opacity="0.3"/><path d="M80 95 Q78 80 82 73" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 73 Q88 67 95 73 Q88 79 82 73" fill="#5a7a3a"/><path d="M50 165 Q65 155 80 165 Q95 175 110 165" stroke="#3a5a8a" stroke-width="1" fill="none" opacity="0.5"/><circle cx="80" cy="113" r="4" fill="#f0d080" opacity="0.3"/></svg>`,meaning:"平衡与调和。无论发生什么，保持内心的平静。",apple:"苹果在水中漂浮，找到自己的位置。"},
+  {name:"恶魔",num:"XV",nameEn:"THE DEVIL",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0505"/><path d="M50 50 L60 30 L70 50 L60 55 Z" fill="#c8534a" opacity="0.6"/><path d="M90 50 L100 30 L110 50 L100 55 Z" fill="#c8534a" opacity="0.6"/><ellipse cx="80" cy="110" rx="40" ry="45" fill="#1a0a0a" opacity="0.8"/><circle cx="80" cy="110" r="30" fill="#c8534a" opacity="0.6"/><ellipse cx="80" cy="110" rx="15" ry="20" fill="#8B0000" opacity="0.4"/><path d="M80 80 Q78 65 82 58" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 58 Q88 52 95 58 Q88 64 82 58" fill="#5a7a3a"/><circle cx="70" cy="105" r="3" fill="#f0d080" opacity="0.5"/><circle cx="90" cy="105" r="3" fill="#f0d080" opacity="0.5"/><path d="M70 120 Q80 125 90 120" stroke="#f0d080" stroke-width="1.5" fill="none" opacity="0.4"/></svg>`,meaning:"有什么在束缚你？认识到它，是挣脱的第一步。",apple:"被绑住的不是苹果，是你对它的执念。"},
+  {name:"塔",num:"XVI",nameEn:"THE TOWER",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050508"/><rect x="65" y="60" width="30" height="150" rx="2" fill="#1a0a2e" opacity="0.8"/><path d="M65 60 L80 30 L95 60 Z" fill="#1a0a2e" opacity="0.8"/><line x1="80" y1="0" x2="80" y2="60" stroke="#f0d080" stroke-width="2" opacity="0.8"/><line x1="60" y1="10" x2="80" y2="60" stroke="#f0d080" stroke-width="1.5" opacity="0.6"/><line x1="100" y1="10" x2="80" y2="60" stroke="#f0d080" stroke-width="1.5" opacity="0.6"/><circle cx="55" cy="120" r="7" fill="#c8534a" opacity="0.7"/><circle cx="105" cy="140" r="6" fill="#c8534a" opacity="0.6"/><circle cx="45" cy="160" r="5" fill="#c8534a" opacity="0.5"/><circle cx="115" cy="100" r="5" fill="#c8534a" opacity="0.6"/><circle cx="80" cy="210" r="18" fill="#c8534a" opacity="0.3"/></svg>`,meaning:"突如其来的改变。震动之后，是重建的根基。",apple:"雷电击中苹果树，但树根还在。"},
+  {name:"星星",num:"XVII",nameEn:"THE STAR",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a1a"/><polygon points="80,15 84,35 105,35 88,48 95,70 80,57 65,70 72,48 55,35 76,35" fill="#f0d080" opacity="0.8"/><polygon points="30,50 32,60 43,60 34,67 38,78 30,72 22,78 26,67 17,60 28,60" fill="#f0d080" opacity="0.4"/><ellipse cx="80" cy="190" rx="55" ry="15" fill="#1a3a5a" opacity="0.5"/><circle cx="80" cy="180" r="18" fill="#c8534a" opacity="0.6"/><circle cx="80" cy="180" r="8" fill="#f0d080" opacity="0.3"/></svg>`,meaning:"希望与疗愈在前方。保持信念，光就在那里。",apple:"满天星光下，一颗苹果在泉边发亮。"},
+  {name:"月亮",num:"XVIII",nameEn:"THE MOON",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#030810"/><circle cx="80" cy="70" r="40" fill="#f0d080" opacity="0.15"/><circle cx="80" cy="70" r="30" fill="#f0d080" opacity="0.1"/><ellipse cx="80" cy="200" rx="70" ry="20" fill="#0a1a3a" opacity="0.6"/><ellipse cx="60" cy="198" rx="15" ry="8" fill="#c8534a" opacity="0.4"/><ellipse cx="80" cy="200" rx="12" ry="6" fill="#c8534a" opacity="0.5"/><ellipse cx="100" cy="198" rx="15" ry="8" fill="#c8534a" opacity="0.4"/><circle cx="72" cy="65" r="4" fill="#1a0a0a" opacity="0.3"/><circle cx="88" cy="65" r="4" fill="#1a0a0a" opacity="0.3"/><path d="M72 78 Q80 82 88 78" stroke="#1a0a0a" stroke-width="1.5" fill="none" opacity="0.2"/></svg>`,meaning:"一切可能不是表面看到的那样。信任你的直觉。",apple:"月光下的苹果湖，倒映着不只一个世界。"},
+  {name:"太阳",num:"XIX",nameEn:"THE SUN",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a1005"/><circle cx="80" cy="100" r="40" fill="#f0d080" opacity="0.2"/><circle cx="80" cy="100" r="28" fill="#f0d080" opacity="0.3"/><circle cx="80" cy="100" r="16" fill="#f0d080" opacity="0.5"/><circle cx="80" cy="100" r="14" fill="#c8534a"/><circle cx="80" cy="100" r="6" fill="#f0d080" opacity="0.3"/><circle cx="75" cy="96" r="2" fill="#f0d080" opacity="0.6"/><circle cx="85" cy="96" r="2" fill="#f0d080" opacity="0.6"/><line x1="80" y1="50" x2="80" y2="30" stroke="#f0d080" stroke-width="2" opacity="0.5"/><line x1="80" y1="150" x2="80" y2="170" stroke="#f0d080" stroke-width="2" opacity="0.5"/><line x1="30" y1="100" x2="10" y2="100" stroke="#f0d080" stroke-width="2" opacity="0.5"/><line x1="150" y1="100" x2="130" y2="100" stroke="#f0d080" stroke-width="2" opacity="0.5"/><path d="M80 86 Q82 80 80 74" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><path d="M80 74 Q85 68 90 73 Q84 78 80 74" fill="#5a7a3a"/></svg>`,meaning:"纯粹的快乐与成功。去拥抱它，你值得。",apple:"太阳下的苹果，熟得刚刚好。"},
+  {name:"审判",num:"XX",nameEn:"JUDGEMENT",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0515"/><path d="M80 160 L40 110 Q40 70 80 60 Q120 70 120 110 Z" fill="#1a0a2e" opacity="0.5"/><circle cx="80" cy="80" r="15" fill="#f0d080" opacity="0.5"/><circle cx="55" cy="130" r="12" fill="#c8534a" opacity="0.7"/><circle cx="80" cy="125" r="14" fill="#c8534a" opacity="0.8"/><circle cx="105" cy="130" r="12" fill="#c8534a" opacity="0.7"/><path d="M80 111 Q78 96 82 89" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 89 Q88 83 95 89 Q88 95 82 89" fill="#5a7a3a"/></svg>`,meaning:"被召唤去醒来。也许是时候重新开始了。",apple:"号角响起，苹果树在沉睡后苏醒。"},
+  {name:"世界",num:"XXI",nameEn:"THE WORLD",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a0a"/><ellipse cx="80" cy="120" rx="55" ry="70" fill="none" stroke="#5a7a3a" stroke-width="2" opacity="0.4"/><ellipse cx="80" cy="120" rx="55" ry="70" fill="none" stroke="#c8534a" stroke-width="1" opacity="0.2"/><circle cx="80" cy="120" r="28" fill="#c8534a"/><ellipse cx="80" cy="120" rx="15" ry="18" fill="#8B0000" opacity="0.3"/><ellipse cx="70" cy="110" rx="5" ry="8" fill="#f5e6d3" opacity="0.15"/><path d="M80 92 Q78 80 82 72" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 72 Q88 66 94 72 Q88 78 82 72" fill="#5a7a3a"/><path d="M80 50 A70 70 0 0 1 150 120" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.5"/><path d="M80 190 A70 70 0 0 1 10 120" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.5"/><circle cx="80" cy="50" r="4" fill="#f0d080" opacity="0.6"/><circle cx="80" cy="190" r="4" fill="#f0d080" opacity="0.6"/><circle cx="150" cy="120" r="4" fill="#f0d080" opacity="0.6"/><circle cx="10" cy="120" r="4" fill="#f0d080" opacity="0.6"/></svg>`,meaning:"一个阶段的完成。你已经走了这么远，为自己骄傲。",apple:"苹果在圆环中央，一切刚刚好。"}
+];
+
+// Wands suit - 14 cards
+const wandsSuit=[
+  {name:"权杖 Ace",num:"Ace",nameEn:"ACE OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><defs><radialGradient id="gw0" cx="50%" cy="60%"><stop offset="0%" stop-color="#c8534a" stop-opacity="0.2"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect width="160" height="240" fill="url(#gw0)"/><circle cx="80" cy="160" r="45" fill="#c8534a" opacity="0.25"/><circle cx="80" cy="160" r="30" fill="#c8534a" opacity="0.35"/><circle cx="80" cy="160" r="18" fill="#c8534a" opacity="0.5"/><path d="M80 160 L80 50" stroke="#5a3a2a" stroke-width="6"/><path d="M80 50 Q75 30 80 20 Q85 30 82 50" fill="#5a7a3a"/><path d="M80 20 Q90 15 98 22 Q90 28 82 22" fill="#c8534a"/><circle cx="80" cy="160" r="6" fill="#f0d080" opacity="0.6"/><circle cx="30" cy="40" r="1.5" fill="#c8534a" opacity="0.4"/><circle cx="130" cy="60" r="1" fill="#c8534a" opacity="0.3"/></svg>`,meaning:"原始的创意冲动。某件事正在你的内心燃烧，等待被点燃。",apple:"火焰藏在苹果核里，等你给它一个出口。"},
+  {name:"权杖 二",num:"II",nameEn:"TWO OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M55 200 L55 80" stroke="#5a3a2a" stroke-width="5"/><path d="M105 200 L105 80" stroke="#5a3a2a" stroke-width="5"/><path d="M55 80 Q50 60 55 50 Q65 60 58 80" fill="#5a7a3a"/><path d="M105 80 Q100 60 105 50 Q115 60 108 80" fill="#5a7a3a"/><circle cx="55" cy="75" r="8" fill="#c8534a"/><circle cx="105" cy="75" r="8" fill="#c8534a"/><path d="M40 140 Q80 120 120 140" stroke="#c8534a" stroke-width="1" fill="none" opacity="0.5"/><path d="M40 150 Q80 130 120 150" stroke="#c8534a" stroke-width="1" fill="none" opacity="0.3"/></svg>`,meaning:"看见更多的可能性。站在门槛上，思考下一步的方向。",apple:"两棵树之间，你得选择看哪边的风景。"},
+  {name:"权杖 三",num:"III",nameEn:"THREE OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M45 210 L45 70" stroke="#5a3a2a" stroke-width="5"/><path d="M80 210 L80 70" stroke="#5a3a2a" stroke-width="5"/><path d="M115 210 L115 70" stroke="#5a3a2a" stroke-width="5"/><path d="M45 70 Q40 50 45 40 Q55 50 48 70" fill="#5a7a3a"/><path d="M80 70 Q75 50 80 40 Q90 50 83 70" fill="#5a7a3a"/><path d="M115 70 Q110 50 115 40 Q125 50 118 70" fill="#5a7a3a"/><circle cx="45" cy="65" r="7" fill="#c8534a"/><circle cx="80" cy="65" r="7" fill="#c8534a"/><circle cx="115" cy="65" r="7" fill="#c8534a"/><path d="M30 100 Q80 85 130 100" stroke="#c8534a" stroke-width="0.5" fill="none" opacity="0.3"/></svg>`,meaning:"多线并行的进展。你的创造正在展开，耐心等待收获。",apple:"三棵树并排站着，各自的天空一样大。"},
+  {name:"权杖 四",num:"IV",nameEn:"FOUR OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M20 210 L20 90" stroke="#5a3a2a" stroke-width="5"/><path d="M50 210 L50 90" stroke="#5a3a2a" stroke-width="5"/><path d="M110 210 L110 90" stroke="#5a3a2a" stroke-width="5"/><path d="M140 210 L140 90" stroke="#5a3a2a" stroke-width="5"/><path d="M20 90 Q15 70 20 60 Q30 70 23 90" fill="#5a7a3a"/><path d="M50 90 Q45 70 50 60 Q60 70 53 90" fill="#5a7a3a"/><path d="M110 90 Q105 70 110 60 Q120 70 113 90" fill="#5a7a3a"/><path d="M140 90 Q135 70 140 60 Q150 70 143 90" fill="#5a7a3a"/><circle cx="20" cy="85" r="6" fill="#c8534a"/><circle cx="50" cy="85" r="6" fill="#c8534a"/><circle cx="110" cy="85" r="6" fill="#c8534a"/><circle cx="140" cy="85" r="6" fill="#c8534a"/><path d="M20 55 L140 55" stroke="#c8534a" stroke-width="1.5" fill="none"/><path d="M50 55 Q80 45 110 55" fill="none" stroke="#c8534a" stroke-width="1" opacity="0.5"/></svg>`,meaning:"庆祝与歇息。完成了重要阶段，和在乎的人一起庆祝。",apple:"四棵树上挂满了苹果，等着被摘下来分享。"},
+  {name:"权杖 五",num:"V",nameEn:"FIVE OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M30 210 L40 80" stroke="#5a3a2a" stroke-width="5" transform="rotate(-15 80 120)"/><path d="M55 210 L65 80" stroke="#5a3a2a" stroke-width="5" transform="rotate(-5 80 120)"/><path d="M80 210 L80 80" stroke="#5a3a2a" stroke-width="5"/><path d="M105 210 L95 80" stroke="#5a3a2a" stroke-width="5" transform="rotate(5 80 120)"/><path d="M130 210 L120 80" stroke="#5a3a2a" stroke-width="5" transform="rotate(15 80 120)"/><circle cx="36" cy="88" r="7" fill="#c8534a" opacity="0.7"/><circle cx="61" cy="78" r="7" fill="#c8534a" opacity="0.7"/><circle cx="80" cy="73" r="7" fill="#c8534a" opacity="0.7"/><circle cx="99" cy="78" r="7" fill="#c8534a" opacity="0.7"/><circle cx="124" cy="88" r="7" fill="#c8534a" opacity="0.7"/><path d="M36 82 Q61 70 99 82" stroke="#c8534a" stroke-width="0.5" fill="none" opacity="0.3"/></svg>`,meaning:"创意上的冲突。竞争或分歧存在，但也是突破的前奏。",apple:"五根棍子搅在一起，苹果们在里面找不到方向。"},
+  {name:"权杖 六",num:"VI",nameEn:"SIX OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M30 210 L30 60" stroke="#5a3a2a" stroke-width="5"/><path d="M55 210 L55 60" stroke="#5a3a2a" stroke-width="5"/><path d="M80 210 L80 60" stroke="#5a3a2a" stroke-width="5"/><path d="M105 210 L105 60" stroke="#5a3a2a" stroke-width="5"/><path d="M130 210 L130 60" stroke="#5a3a2a" stroke-width="5"/><path d="M30 60 Q25 40 30 30 Q40 40 33 60" fill="#5a7a3a"/><path d="M55 60 Q50 40 55 30 Q65 40 58 60" fill="#5a7a3a"/><path d="M80 60 Q75 40 80 30 Q90 40 83 60" fill="#5a7a3a"/><path d="M105 60 Q100 40 105 30 Q115 40 108 60" fill="#5a7a3a"/><path d="M130 60 Q125 40 130 30 Q140 40 133 60" fill="#5a7a3a"/><circle cx="30" cy="55" r="5" fill="#c8534a"/><circle cx="55" cy="55" r="5" fill="#c8534a"/><circle cx="80" cy="55" r="5" fill="#f0d080" opacity="0.7"/><circle cx="105" cy="55" r="5" fill="#c8534a"/><circle cx="130" cy="55" r="5" fill="#c8534a"/><path d="M30 30 L130 30" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.5"/></svg>`,meaning:"胜利与认可。你克服了阻碍，开始享受努力的成果。",apple:"五个苹果在列队，中间那个最亮。"},
+  {name:"权杖 七",num:"VII",nameEn:"SEVEN OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M80 210 L80 50" stroke="#5a3a2a" stroke-width="6"/><path d="M80 50 Q70 25 80 12 Q90 25 83 50" fill="#5a7a3a"/><circle cx="80" cy="45" r="12" fill="#c8534a"/><circle cx="80" cy="45" r="6" fill="#8B0000" opacity="0.4"/><path d="M80 30 Q65 20 55 30" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M80 30 Q95 20 105 30" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M80 30 Q80 15 80 5" stroke="#5a3a2a" stroke-width="3" fill="none"/><circle cx="55" cy="28" r="6" fill="#c8534a" opacity="0.6"/><circle cx="105" cy="28" r="6" fill="#c8534a" opacity="0.6"/><circle cx="80" cy="3" r="5" fill="#c8534a" opacity="0.6"/><path d="M55 35 L105 35" stroke="#c8534a" stroke-width="0.5" fill="none" opacity="0.3"/></svg>`,meaning:"挑战与坚持。有人在攻击你，但你的位置站得稳。",apple:"一个苹果站在树顶，被五颗围着。五对一的战争。"},
+  {name:"权杖 八",num:"VIII",nameEn:"EIGHT OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M30 200 L40 70" stroke="#5a3a2a" stroke-width="4" transform="rotate(-20 80 120)"/><path d="M55 200 L65 70" stroke="#5a3a2a" stroke-width="4" transform="rotate(-10 80 120)"/><path d="M80 200 L80 70" stroke="#5a3a2a" stroke-width="4"/><path d="M105 200 L95 70" stroke="#5a3a2a" stroke-width="4" transform="rotate(10 80 120)"/><path d="M130 200 L120 70" stroke="#5a3a2a" stroke-width="4" transform="rotate(20 80 120)"/><path d="M42 73 Q40 60 45 55" fill="#5a7a3a"/><path d="M67 73 Q65 60 70 55" fill="#5a7a3a"/><path d="M80 70 Q78 55 83 50" fill="#5a7a3a"/><path d="M93 73 Q95 60 90 55" fill="#5a7a3a"/><path d="M118 73 Q120 60 115 55" fill="#5a7a3a"/><circle cx="45" cy="68" r="6" fill="#c8534a" opacity="0.7"/><circle cx="70" cy="65" r="6" fill="#c8534a" opacity="0.7"/><circle cx="83" cy="60" r="6" fill="#c8534a" opacity="0.7"/><circle cx="90" cy="65" r="6" fill="#c8534a" opacity="0.7"/><circle cx="115" cy="68" r="6" fill="#c8534a" opacity="0.7"/><path d="M42 200 Q80 185 118 200" stroke="#f0d080" stroke-width="0.5" fill="none" opacity="0.3"/></svg>`,meaning:"快速行动。事情突然加速，势不可挡地向前推进。",apple:"八颗苹果从天而降，速度快得像流星。"},
+  {name:"权杖 九",num:"IX",nameEn:"NINE OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M25 210 L35 60" stroke="#5a3a2a" stroke-width="4" transform="rotate(-10 80 120)"/><path d="M55 210 L55 60" stroke="#5a3a2a" stroke-width="4"/><path d="M80 210 L80 60" stroke="#5a3a2a" stroke-width="4"/><path d="M105 210 L105 60" stroke="#5a3a2a" stroke-width="4"/><path d="M130 210 L120 60" stroke="#5a3a2a" stroke-width="4" transform="rotate(10 80 120)"/><circle cx="33" cy="58" r="7" fill="#c8534a" opacity="0.5"/><circle cx="55" cy="55" r="7" fill="#c8534a" opacity="0.5"/><circle cx="80" cy="55" r="7" fill="#c8534a" opacity="0.5"/><circle cx="105" cy="55" r="7" fill="#c8534a" opacity="0.5"/><circle cx="122" cy="58" r="7" fill="#c8534a" opacity="0.5"/><path d="M20 200 Q80 180 140 200" stroke="#5a3a2a" stroke-width="2" fill="none" opacity="0.5"/><path d="M55 50 L105 50" stroke="#c8534a" stroke-width="1.5" fill="none" opacity="0.3"/></svg>`,meaning:"韧性。经过多次攻击仍然站立，你已经学会了坚持。",apple:"九颗苹果被风吹过，但树还站着。"},
+  {name:"权杖 十",num:"X",nameEn:"TEN OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M20 210 L30 50" stroke="#5a3a2a" stroke-width="4" transform="rotate(-15 80 120)"/><path d="M40 210 L50 50" stroke="#5a3a2a" stroke-width="4" transform="rotate(-7 80 120)"/><path d="M60 210 L70 50" stroke="#5a3a2a" stroke-width="4" transform="rotate(-2 80 120)"/><path d="M80 210 L80 50" stroke="#5a3a2a" stroke-width="4"/><path d="M100 210 L90 50" stroke="#5a3a2a" stroke-width="4" transform="rotate(2 80 120)"/><path d="M120 210 L110 50" stroke="#5a3a2a" stroke-width="4" transform="rotate(7 80 120)"/><path d="M140 210 L130 50" stroke="#5a3a2a" stroke-width="4" transform="rotate(15 80 120)"/><circle cx="29" cy="55" r="5" fill="#c8534a" opacity="0.6"/><circle cx="49" cy="48" r="5" fill="#c8534a" opacity="0.6"/><circle cx="69" cy="46" r="5" fill="#c8534a" opacity="0.6"/><circle cx="80" cy="45" r="5" fill="#c8534a" opacity="0.6"/><circle cx="91" cy="46" r="5" fill="#c8534a" opacity="0.6"/><circle cx="111" cy="48" r="5" fill="#c8534a" opacity="0.6"/><circle cx="131" cy="55" r="5" fill="#c8534a" opacity="0.6"/></svg>`,meaning:"疲惫与重担。你承担了太多，是时候放下一些了。",apple:"十颗苹果挂在同一棵树上，压弯了枝。"},
+  {name:"权杖侍从",num:"Page",nameEn:"PAGE OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M60 210 L70 80" stroke="#5a3a2a" stroke-width="5"/><path d="M100 210 L90 80" stroke="#5a3a2a" stroke-width="5"/><path d="M70 80 Q65 55 72 42 Q85 55 73 80" fill="#5a7a3a"/><path d="M90 80 Q95 55 88 42 Q75 55 87 80" fill="#5a7a3a"/><circle cx="72" cy="52" r="9" fill="#c8534a" opacity="0.8"/><circle cx="88" cy="52" r="9" fill="#c8534a" opacity="0.8"/><circle cx="72" cy="52" r="4" fill="#8B0000" opacity="0.3"/><circle cx="88" cy="52" r="4" fill="#8B0000" opacity="0.3"/><path d="M55 130 Q80 115 105 130" stroke="#c8534a" stroke-width="0.5" fill="none" opacity="0.3"/><circle cx="30" cy="40" r="1.5" fill="#f0d080" opacity="0.4"/><circle cx="140" cy="60" r="1" fill="#f0d080" opacity="0.3"/></svg>`,meaning:"热忱的信使。带着新想法出现，兴奋但还不成熟。",apple:"两棵小苹果树在说话，风带来了消息。"},
+  {name:"权杖骑士",num:"Knight",nameEn:"KNIGHT OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M40 210 L55 60" stroke="#5a3a2a" stroke-width="6" transform="rotate(-12 80 120)"/><path d="M55 60 Q45 35 55 20 Q70 35 56 60" fill="#5a7a3a"/><circle cx="55" cy="52" r="12" fill="#c8534a"/><circle cx="55" cy="52" r="6" fill="#8B0000" opacity="0.4"/><path d="M55 40 Q30 30 25 45" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.4"/><circle cx="25" cy="48" r="5" fill="#c8534a" opacity="0.5"/><path d="M35 200 Q80 185 125 200" stroke="#c8534a" stroke-width="0.5" fill="none" opacity="0.3"/><circle cx="30" cy="50" r="1" fill="#f0d080" opacity="0.5"/><circle cx="130" cy="30" r="1" fill="#f0d080" opacity="0.4"/></svg>`,meaning:"行动与冲动。勇往直前，但可能过于急躁。",apple:"一颗燃烧的苹果在奔跑，身后留下火焰的轨迹。"},
+  {name:"权杖皇后",num:"Queen",nameEn:"QUEEN OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M40 210 L40 70" stroke="#5a3a2a" stroke-width="6"/><path d="M120 210 L120 70" stroke="#5a3a2a" stroke-width="6"/><path d="M40 70 Q30 45 40 30 Q55 45 43 70" fill="#5a7a3a"/><path d="M120 70 Q130 45 120 30 Q105 45 117 70" fill="#5a7a3a"/><circle cx="40" cy="58" r="14" fill="#c8534a"/><circle cx="120" cy="58" r="14" fill="#c8534a"/><ellipse cx="80" cy="100" rx="25" ry="20" fill="#c8534a" opacity="0.2"/><circle cx="80" cy="95" r="15" fill="#c8534a" opacity="0.35"/><circle cx="80" cy="93" r="8" fill="#c8534a" opacity="0.5"/><path d="M40 30 L120 30" stroke="#c8534a" stroke-width="1" fill="none" opacity="0.3"/></svg>`,meaning:"自信与温暖。充满热情的领导力，吸引他人追随。",apple:"苹果树女王，坐在两棵苹果树之间。"},
+  {name:"权杖国王",num:"King",nameEn:"KING OF WANDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#1a0a05"/><path d="M30 210 L30 70" stroke="#5a3a2a" stroke-width="7"/><path d="M130 210 L130 70" stroke="#5a3a2a" stroke-width="7"/><path d="M30 70 Q18 40 30 25 Q48 40 33 70" fill="#5a7a3a"/><path d="M130 70 Q142 40 130 25 Q112 40 127 70" fill="#5a7a3a"/><circle cx="30" cy="58" r="16" fill="#c8534a"/><circle cx="130" cy="58" r="16" fill="#c8534a"/><ellipse cx="80" cy="95" rx="35" ry="28" fill="#c8534a" opacity="0.2"/><circle cx="80" cy="90" r="18" fill="#c8534a" opacity="0.35"/><circle cx="80" cy="88" r="10" fill="#c8534a" opacity="0.5"/><path d="M18 25 L142 25" stroke="#c8534a" stroke-width="2" fill="none" opacity="0.4"/><path d="M30 25 Q80 10 130 25" stroke="#c8534a" stroke-width="1" fill="none" opacity="0.3"/></svg>`,meaning:"远见与领导。强大的意志力，带来的不只是自己，还有更高的愿景。",apple:"苹果王坐在中央，两棵苹果树是他的王国。"}
+];
+
+const cupsSuit=[
+  {name:"圣杯 Ace",num:"Ace",nameEn:"ACE OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><ellipse cx="80" cy="210" rx="55" ry="18" fill="#1a3a5a" opacity="0.4"/><path d="M40 200 Q30 130 55 95 L80 70 L105 95 Q130 130 120 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="1"/><ellipse cx="80" cy="200" rx="35" ry="12" fill="#2a5a8a" opacity="0.4"/><circle cx="80" cy="165" r="20" fill="#4a8ab5" opacity="0.4"/><circle cx="80" cy="165" r="10" fill="#6ab5d5" opacity="0.5"/><circle cx="80" cy="163" r="4" fill="#f0d080" opacity="0.6"/><path d="M80 70 Q77 50 82 42" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 42 Q90 34 98 42 Q90 50 82 42" fill="#5a7a3a"/><circle cx="25" cy="35" r="1.5" fill="#4a8ab5" opacity="0.4"/><circle cx="140" cy="50" r="1" fill="#4a8ab5" opacity="0.3"/></svg>`,meaning:"情感的源头。新的感情、友谊或创作灵感开始流动。",apple:"苹果在泉水里漂浮，爱情的气泡冒了出来。"},
+  {name:"圣杯 二",num:"II",nameEn:"TWO OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M20 200 Q12 135 35 100 L55 80 L75 100 Q98 135 90 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M70 200 Q62 135 85 100 L105 80 L125 100 Q148 135 140 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="55" cy="198" rx="28" ry="10" fill="#2a5a8a" opacity="0.4"/><ellipse cx="105" cy="198" rx="28" ry="10" fill="#2a5a8a" opacity="0.4"/><circle cx="55" cy="168" r="12" fill="#4a8ab5" opacity="0.5"/><circle cx="105" cy="168" r="12" fill="#4a8ab5" opacity="0.5"/><path d="M67 168 Q80 155 93 168" stroke="#6ab5d5" stroke-width="2" fill="none" opacity="0.6"/><circle cx="55" cy="166" r="4" fill="#f0d080" opacity="0.5"/><circle cx="105" cy="166" r="4" fill="#f0d080" opacity="0.5"/><path d="M55 80 Q53 62 57 55" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M105 80 Q103 62 107 55" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M57 55 Q63 48 69 55 Q63 62 57 55" fill="#5a7a3a"/><path d="M107 55 Q113 48 119 55 Q113 62 107 55" fill="#5a7a3a"/></svg>`,meaning:" partnership, attraction, love", apple:"两杯水在空中相遇，涟漪说不完。"},
+  {name:"圣杯 三",num:"III",nameEn:"THREE OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M5 200 Q-2 135 20 100 L38 80 L56 100 Q78 135 70 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M52 200 Q45 135 67 100 L85 80 L103 100 Q125 135 118 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M100 200 Q93 135 115 100 L133 80 L151 100 Q173 135 165 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="38" cy="198" rx="24" ry="9" fill="#2a5a8a" opacity="0.4"/><ellipse cx="85" cy="198" rx="24" ry="9" fill="#c8534a" opacity="0.2"/><ellipse cx="133" cy="198" rx="24" ry="9" fill="#2a5a8a" opacity="0.4"/><circle cx="38" cy="170" r="10" fill="#4a8ab5" opacity="0.5"/><circle cx="85" cy="170" r="10" fill="#c8534a" opacity="0.4"/><circle cx="133" cy="170" r="10" fill="#4a8ab5" opacity="0.5"/><circle cx="85" cy="155" r="4" fill="#f0d080" opacity="0.6"/></svg>`,meaning:"celebration, friendship, community", apple:"三个杯子在空中跳舞，苹果在下面看着。"},
+  {name:"圣杯 四",num:"IV",nameEn:"FOUR OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M15 200 Q8 135 30 100 L48 80 L66 100 Q88 135 80 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M75 200 Q68 135 90 100 L108 80 L126 100 Q148 135 140 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="48" cy="198" rx="24" ry="9" fill="#2a5a8a" opacity="0.4"/><ellipse cx="108" cy="198" rx="24" ry="9" fill="#2a5a8a" opacity="0.4"/><circle cx="48" cy="170" r="10" fill="#4a8ab5" opacity="0.4"/><circle cx="108" cy="170" r="10" fill="#4a8ab5" opacity="0.4"/><path d="M20 145 Q80 120 140 145" stroke="#4a8ab5" stroke-width="1" fill="none" opacity="0.2"/><path d="M22 155 Q80 130 138 155" stroke="#4a8ab5" stroke-width="1" fill="none" opacity="0.15"/></svg>`,meaning:"apathy, contemplation, dissatisfaction", apple:"两个杯子望着远方，远方有什么在等。"},
+  {name:"圣杯 五",num:"V",nameEn:"FIVE OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M0 200 Q-7 135 15 100 L33 80 L51 100 Q73 135 65 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M50 200 Q43 135 65 100 L83 80 L101 100 Q123 135 115 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M100 200 Q93 135 115 100 L133 80 L151 100 Q173 135 165 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="33" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.4"/><ellipse cx="83" cy="198" rx="22" ry="8" fill="#8B0000" opacity="0.3"/><ellipse cx="133" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.4"/><circle cx="33" cy="170" r="9" fill="#4a8ab5" opacity="0.5"/><circle cx="83" cy="170" r="9" fill="#8B0000" opacity="0.5"/><circle cx="133" cy="170" r="9" fill="#4a8ab5" opacity="0.5"/><path d="M65 200 Q83 215 115 200" stroke="#4a8ab5" stroke-width="0.5" fill="none" opacity="0.2"/></svg>`,meaning:"loss, grief, regret", apple:"五杯水在地上，有一杯是空的。但还有四杯满满的。"},
+  {name:"圣杯 六",num:"VI",nameEn:"SIX OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M15 200 Q8 135 30 100 L48 80 L66 100 Q88 135 80 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M50 200 Q43 135 65 100 L83 80 L101 100 Q123 135 115 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M85 200 Q78 135 100 100 L118 80 L136 100 Q158 135 150 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="48" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.4"/><ellipse cx="83" cy="198" rx="22" ry="8" fill="#c8534a" opacity="0.25"/><ellipse cx="118" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.4"/><circle cx="48" cy="170" r="9" fill="#4a8ab5" opacity="0.5"/><circle cx="83" cy="170" r="10" fill="#c8534a" opacity="0.5"/><circle cx="118" cy="170" r="9" fill="#4a8ab5" opacity="0.5"/><circle cx="83" cy="168" r="4" fill="#f0d080" opacity="0.4"/></svg>`,meaning:"nostalgia, memories, innocence", apple:"童年的苹果，在记忆的杯子里漂浮。"},
+  {name:"圣杯 七",num:"VII",nameEn:"SEVEN OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><circle cx="22" cy="75" r="18" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="60" cy="68" r="17" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="95" cy="65" r="17" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="130" cy="72" r="18" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="42" cy="115" r="16" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="78" cy="108" r="16" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="115" cy="118" r="16" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="22" cy="73" r="5" fill="#c8534a" opacity="0.5"/><circle cx="60" cy="66" r="5" fill="#f0d080" opacity="0.5"/><circle cx="95" cy="63" r="5" fill="#5a7a3a" opacity="0.5"/><circle cx="130" cy="70" r="5" fill="#4a8ab5" opacity="0.5"/><circle cx="42" cy="113" r="5" fill="#6ab5d5" opacity="0.5"/><circle cx="78" cy="106" r="5" fill="#8B0000" opacity="0.5"/><circle cx="115" cy="116" r="5" fill="#5a7a3a" opacity="0.5"/></svg>`,meaning:"opportunities, choices, wishful thinking", apple:"七个杯子摆在面前，每一个里都有一个梦。选哪个？"},
+  {name:"圣杯 八",num:"VIII",nameEn:"EIGHT OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M0 200 Q-7 135 15 100 L33 80 L51 100 Q73 135 65 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M50 200 Q43 135 65 100 L83 80 L101 100 Q123 135 115 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M100 200 Q93 135 115 100 L133 80 L151 100 Q173 135 165 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="33" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.3"/><ellipse cx="83" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.3"/><ellipse cx="133" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.3"/><circle cx="33" cy="170" r="8" fill="#8B0000" opacity="0.25"/><circle cx="83" cy="170" r="8" fill="#8B0000" opacity="0.25"/><circle cx="133" cy="170" r="8" fill="#8B0000" opacity="0.25"/><path d="M80 80 Q77 58 82 48" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M80 215 L80 235" stroke="#4a8ab5" stroke-width="1" opacity="0.3"/><circle cx="20" cy="40" r="1" fill="#f0d080" opacity="0.4"/><circle cx="145" cy="35" r="1" fill="#f0d080" opacity="0.3"/></svg>`,meaning:"disillusionment, leaving behind, walking away", apple:"离开有八个杯子的桌子，向更深处走去。"},
+  {name:"圣杯 九",num:"IX",nameEn:"NINE OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M15 200 Q8 135 30 100 L48 80 L66 100 Q88 135 80 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M50 200 Q43 135 65 100 L83 80 L101 100 Q123 135 115 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M85 200 Q78 135 100 100 L118 80 L136 100 Q158 135 150 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="48" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.4"/><ellipse cx="83" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.4"/><ellipse cx="118" cy="198" rx="22" ry="8" fill="#2a5a8a" opacity="0.4"/><circle cx="48" cy="170" r="9" fill="#c8534a" opacity="0.6"/><circle cx="83" cy="170" r="9" fill="#c8534a" opacity="0.6"/><circle cx="118" cy="170" r="9" fill="#c8534a" opacity="0.6"/><circle cx="48" cy="168" r="3" fill="#f0d080" opacity="0.5"/><circle cx="83" cy="168" r="3" fill="#f0d080" opacity="0.5"/><circle cx="118" cy="168" r="3" fill="#f0d080" opacity="0.5"/></svg>`,meaning:"contentment, satisfaction, gratitude", apple:"九个愿望都满了，苹果在每个杯子底部微笑。"},
+  {name:"圣杯 十",num:"X",nameEn:"TEN OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M-5 200 Q-12 135 10 100 L28 80 L46 100 Q68 135 60 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M40 200 Q33 135 55 100 L73 80 L91 100 Q113 135 105 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M85 200 Q78 135 100 100 L118 80 L136 100 Q158 135 150 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M130 200 Q123 135 145 100 L163 80 L181 100 Q203 135 195 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><circle cx="28" cy="170" r="8" fill="#4a8ab5" opacity="0.5"/><circle cx="73" cy="170" r="8" fill="#4a8ab5" opacity="0.5"/><circle cx="118" cy="170" r="8" fill="#4a8ab5" opacity="0.5"/><circle cx="163" cy="170" r="8" fill="#4a8ab5" opacity="0.5"/><path d="M28 170 Q95 148 163 170" stroke="#f0d080" stroke-width="1" fill="none" opacity="0.4"/><polygon points="95,130 80,145 92,145 95,158 98,145 110,145" fill="#f0d080" opacity="0.6"/></svg>`,meaning:"alignment, harmony, happiness in relationships", apple:"十杯水排列成彩虹，上面飘着一颗星。"},
+  {name:"圣杯侍从",num:"Page",nameEn:"PAGE OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M50 200 Q43 135 65 100 L83 80 L101 100 Q123 135 115 200 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="83" cy="198" rx="25" ry="9" fill="#2a5a8a" opacity="0.4"/><circle cx="83" cy="168" r="15" fill="#4a8ab5" opacity="0.5"/><circle cx="83" cy="168" r="8" fill="#6ab5d5" opacity="0.6"/><circle cx="83" cy="166" r="3" fill="#f0d080" opacity="0.6"/><path d="M83 80 Q80 60 85 50" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M85 50 Q92 42 99 50 Q92 58 85 50" fill="#5a7a3a"/><circle cx="20" cy="40" r="1.5" fill="#f0d080" opacity="0.4"/><circle cx="145" cy="35" r="1" fill="#f0d080" opacity="0.3"/></svg>`,meaning:"creative opportunity, curiosity", apple:"侍从端着一杯水，水里倒映着月亮。"},
+  {name:"圣杯骑士",num:"Knight",nameEn:"KNIGHT OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M40 205 Q32 145 55 105 L75 85 L95 105 Q118 145 110 205 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="75" cy="203" rx="28" ry="10" fill="#2a5a8a" opacity="0.4"/><circle cx="75" cy="172" r="16" fill="#4a8ab5" opacity="0.5"/><circle cx="75" cy="172" r="8" fill="#6ab5d5" opacity="0.6"/><circle cx="75" cy="170" r="4" fill="#f0d080" opacity="0.6"/><path d="M75 85 Q70 62 78 48 Q90 62 76 85" fill="#5a7a3a"/><path d="M78 48 Q88 38 96 48 Q88 58 78 48" fill="#c8534a" opacity="0.6"/><path d="M58 150 Q75 132 92 150" stroke="#4a8ab5" stroke-width="0.5" fill="none" opacity="0.3"/><circle cx="25" cy="45" r="1" fill="#f0d080" opacity="0.4"/></svg>`,meaning:"romanticism, idealism, searching for connection", apple:"骑士骑着波浪而来，杯中装着他的梦。"},
+  {name:"圣杯皇后",num:"Queen",nameEn:"QUEEN OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M25 205 Q17 145 40 105 L60 85 L80 105 Q103 145 95 205 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M90 205 Q82 145 105 105 L125 85 L145 105 Q168 145 160 205 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="60" cy="203" rx="26" ry="10" fill="#2a5a8a" opacity="0.4"/><ellipse cx="125" cy="203" rx="26" ry="10" fill="#2a5a8a" opacity="0.4"/><circle cx="60" cy="172" r="13" fill="#4a8ab5" opacity="0.5"/><circle cx="125" cy="172" r="13" fill="#4a8ab5" opacity="0.5"/><ellipse cx="92" cy="100" rx="30" ry="24" fill="#4a8ab5" opacity="0.15"/><circle cx="92" cy="95" r="16" fill="#4a8ab5" opacity="0.25"/><circle cx="92" cy="93" r="8" fill="#6ab5d5" opacity="0.4"/><path d="M92 77 Q89 60 94 51" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M94 51 Q102 42 110 51 Q102 60 94 51" fill="#5a7a3a"/></svg>`,meaning:"compassion, calm, emotional security", apple:"皇后坐在两颗心之间，杯中是满满的月光。"},
+  {name:"圣杯国王",num:"King",nameEn:"KING OF CUPS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#050a15"/><path d="M15 205 Q7 145 30 105 L50 85 L70 105 Q93 145 85 205 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><path d="M80 205 Q72 145 95 105 L115 85 L135 105 Q158 145 150 205 Z" fill="#1a3a5a" stroke="#4a8ab5" stroke-width="0.8"/><ellipse cx="50" cy="203" rx="26" ry="10" fill="#2a5a8a" opacity="0.4"/><ellipse cx="115" cy="203" rx="26" ry="10" fill="#2a5a8a" opacity="0.4"/><circle cx="50" cy="172" r="13" fill="#4a8ab5" opacity="0.5"/><circle cx="115" cy="172" r="13" fill="#4a8ab5" opacity="0.5"/><ellipse cx="82" cy="95" rx="38" ry="30" fill="#4a8ab5" opacity="0.15"/><circle cx="82" cy="90" r="18" fill="#4a8ab5" opacity="0.25"/><circle cx="82" cy="88" r="10" fill="#6ab5d5" opacity="0.4"/><path d="M82 70 Q79 53 84 44" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M84 44 Q92 35 100 44 Q92 53 84 44" fill="#5a7a3a"/><path d="M15 50 L150 50" stroke="#4a8ab5" stroke-width="0.5" fill="none" opacity="0.2"/></svg>`,meaning:"emotional balance, diplomacy, compassion", apple:"国王在两颗心之间，杯子是他沉默的王国。"}
+];
+
+const swordsSuit=[
+  {name:"宝剑 Ace",num:"Ace",nameEn:"ACE OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><circle cx="80" cy="60" r="45" fill="#1a1a3a" opacity="0.4"/><circle cx="80" cy="60" r="30" fill="#2a2a5a" opacity="0.3"/><path d="M80 15 L80 200" stroke="#c0c8d8" stroke-width="5"/><path d="M80 15 L73 35 L87 35 Z" fill="#c0c8d8"/><path d="M80 200 Q70 190 80 180" stroke="#c0c8d8" stroke-width="3" fill="none"/><ellipse cx="80" cy="60" rx="12" ry="14" fill="#c8534a" opacity="0.8"/><circle cx="80" cy="58" r="5" fill="#8B0000" opacity="0.4"/><path d="M80 46 Q78 38 82 34" stroke="#5a3a2a" stroke-width="1.5" fill="none"/></svg>`,meaning:"新的思想突破。清晰的判断，精神的清明。",apple:"苹果被一剑切开，真相浮现。"},
+  {name:"宝剑 二",num:"II",nameEn:"TWO OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M30 220 L130 20" stroke="#c0c8d8" stroke-width="4"/><path d="M130 220 L30 20" stroke="#c0c8d8" stroke-width="4"/><ellipse cx="80" cy="120" rx="15" ry="18" fill="#c8534a" opacity="0.6"/><path d="M80 102 Q78 94 82 90" stroke="#5a3a2a" stroke-width="1.5" fill="none"/></svg>`,meaning:"difficult choices, stalemate, blocked emotions",apple:"两把剑交叉，抉择卡在中间。"},
+  {name:"宝剑 三",num:"III",nameEn:"THREE OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M50 230 L80 30" stroke="#c0c8d8" stroke-width="4"/><path d="M80 230 L80 30" stroke="#c0c8d8" stroke-width="4"/><path d="M110 230 L80 30" stroke="#c0c8d8" stroke-width="4"/><ellipse cx="80" cy="135" rx="28" ry="24" fill="#c8534a" opacity="0.5"/><ellipse cx="80" cy="135" rx="14" ry="12" fill="#8B0000" opacity="0.4"/><path d="M80 30 L73 50 L87 50 Z" fill="#c0c8d8"/></svg>`,meaning:"heartbreak, pain, grief, sorrow",apple:"三把剑刺入心，苹果在滴血。"},
+  {name:"宝剑 四",num:"IV",nameEn:"FOUR OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><rect x="15" y="30" width="25" height="8" rx="2" fill="#5a3a2a"/><rect x="55" y="30" width="25" height="8" rx="2" fill="#5a3a2a"/><rect x="95" y="30" width="25" height="8" rx="2" fill="#5a3a2a"/><rect x="135" y="30" width="25" height="8" rx="2" fill="#5a3a2a"/><path d="M27 38 L27 190 M67 38 L67 190 M107 38 L107 190 M147 38 L147 190" stroke="#c0c8d8" stroke-width="3"/><path d="M27 38 L22 50 M67 38 L62 50 M107 38 L102 50 M147 38 L142 50" stroke="#c0c8d8" stroke-width="2"/><ellipse cx="80" cy="220" rx="35" ry="12" fill="#1a1a3a" opacity="0.4"/></svg>`,meaning:"rest, relaxation, meditation",apple:"四把剑挂在墙上，休息一下吧。"},
+  {name:"宝剑 五",num:"V",nameEn:"V OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M20 220 L50 40" stroke="#c0c8d8" stroke-width="3" transform="rotate(-20 80 130)"/><path d="M50 220 L80 40" stroke="#c0c8d8" stroke-width="3" transform="rotate(-10 80 130)"/><path d="M80 220 L80 40" stroke="#c0c8d8" stroke-width="3"/><path d="M110 220 L80 40" stroke="#c0c8d8" stroke-width="3" transform="rotate(10 80 130)"/><path d="M140 220 L110 40" stroke="#c0c8d8" stroke-width="3" transform="rotate(20 80 130)"/><circle cx="80" cy="130" r="18" fill="#c8534a" opacity="0.5"/></svg>`,meaning:"conflict, defeat, winning, betrayal",apple:"五把剑在空中乱舞，有人赢也有人输。"},
+  {name:"宝剑 六",num:"VI",nameEn:"SIX OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M10 200 Q80 180 150 200 M20 210 Q80 190 140 210 M0 220 Q80 200 160 220" stroke="#2a4a6a" stroke-width="2" fill="none" opacity="0.5"/><path d="M35 170 L35 50 M80 170 L80 50 M125 170 L125 50" stroke="#c0c8d8" stroke-width="4"/><path d="M35 50 L28 70 M80 50 L73 70 M125 50 L118 70" stroke="#c0c8d8" stroke-width="2"/><ellipse cx="80" cy="195" rx="50" ry="8" fill="#1a2a3a" opacity="0.5"/></svg>`,meaning:"transition, change, rite of passage",apple:"六把剑载你过河，离开还是留下？"},
+  {name:"宝剑 七",num:"VII",nameEn:"SEVEN OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M20 230 L50 50 M50 230 L75 50 M80 230 L80 50 M110 230 L95 50 M140 230 L120 50" stroke="#8090a8" stroke-width="3" opacity="0.4"/><path d="M60 180 L70 50" stroke="#c0c8d8" stroke-width="4"/><path d="M70 50 L63 70" stroke="#c0c8d8" stroke-width="2"/><ellipse cx="80" cy="160" rx="15" ry="18" fill="#c8534a"/><circle cx="80" cy="158" r="6" fill="#8B0000" opacity="0.4"/></svg>`,meaning:"deception, strategy, stealth",apple:"七把剑在暗处，一把是真的。"},
+  {name:"宝剑 八",num:"VIII",nameEn:"EIGHT OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M20 220 L20 50 M45 220 L45 50 M70 220 L70 50 M95 220 L95 50 M120 220 L120 50 M145 220 L145 50" stroke="#8090a8" stroke-width="4"/><rect x="15" y="40" width="135" height="6" rx="2" fill="#5a3a2a"/><ellipse cx="80" cy="145" rx="22" ry="26" fill="#c8534a" opacity="0.5"/><ellipse cx="80" cy="143" rx="10" ry="12" fill="#8B0000" opacity="0.3"/></svg>`,meaning:"restriction, imprisonment",apple:"八把剑围成笼，但锁在心里。"},
+  {name:"宝剑 九",num:"IX",nameEn:"NINE OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><rect x="60" y="20" width="40" height="6" rx="2" fill="#5a3a2a"/><path d="M40 200 L40 40 M65 200 L65 40 M80 200 L80 26 M95 200 L95 40 M120 200 L120 40" stroke="#c0c8d8" stroke-width="3" transform="rotate(-25 80 120)"/><path d="M80 26 L73 46 M80 26 L87 46" stroke="#c0c8d8" stroke-width="2"/><path d="M120 40 L125 55 M40 40 L35 55" stroke="#c0c8d8" stroke-width="2"/><ellipse cx="80" cy="180" rx="40" ry="12" fill="#1a1a3a" opacity="0.4"/></svg>`,meaning:"anxiety, worry, fear, depression",apple:"九把剑悬在头顶，夜晚最难熬。"},
+  {name:"宝剑 十",num:"X",nameEn:"TEN OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M10 50 L150 200 M20 50 L160 200 M30 50 L170 200 M40 50 L180 200 M50 50 L190 200 M60 50 L200 200" stroke="#8090a8" stroke-width="3" opacity="0.5"/><path d="M70 50 L200 200" stroke="#c0c8d8" stroke-width="4"/><path d="M200 200 L192 185" stroke="#c0c8d8" stroke-width="2"/><circle cx="100" cy="180" r="15" fill="#c8534a" opacity="0.4"/><circle cx="130" cy="80" r="20" fill="#f0d080" opacity="0.15"/></svg>`,meaning:"endings, betrayal, loss, crisis",apple:"十把剑刺入背，但太阳就在后面。"},
+  {name:"宝剑侍从",num:"Page",nameEn:"PAGE OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M80 210 L80 50" stroke="#c0c8d8" stroke-width="4"/><path d="M80 50 L72 72 L88 72 Z" fill="#c0c8d8"/><circle cx="80" cy="210" r="10" fill="#5a3a2a"/><ellipse cx="80" cy="160" rx="20" ry="24" fill="#c8534a" opacity="0.6"/><circle cx="80" cy="158" r="8" fill="#8B0000" opacity="0.3"/><path d="M80 136 Q77 126 82 120" stroke="#5a3a2a" stroke-width="1.5" fill="none"/><path d="M82 120 Q90 112 98 120 Q90 128 82 120" fill="#5a7a3a"/></svg>`,meaning:"curiosity, new ideas",apple:"侍从握着剑，思想在飞舞。"},
+  {name:"宝剑骑士",num:"Knight",nameEn:"KNIGHT OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M30 230 L70 50" stroke="#c0c8d8" stroke-width="5" transform="rotate(-15 80 130)"/><path d="M70 50 L62 75" stroke="#c0c8d8" stroke-width="2"/><circle cx="60" cy="210" r="12" fill="#5a3a2a"/><ellipse cx="80" cy="155" rx="22" ry="26" fill="#c8534a" opacity="0.6"/><circle cx="80" cy="153" r="9" fill="#8B0000" opacity="0.3"/><path d="M80 127 Q76 115 82 108" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 108 Q90 100 98 108 Q90 116 82 108" fill="#5a7a3a"/></svg>`,meaning:"action, energy, ambition",apple:"骑士骑着马冲锋，剑指向前方。"},
+  {name:"宝剑皇后",num:"Queen",nameEn:"QUEEN OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M25 220 L25 60 M55 220 L55 60 M85 220 L85 60 M115 220 L115 60 M145 220 L145 60" stroke="#c0c8d8" stroke-width="4"/><path d="M25 60 L20 80 M145 60 L150 80" stroke="#c0c8d8" stroke-width="2"/><rect x="20" y="50" width="130" height="6" rx="2" fill="#5a3a2a"/><ellipse cx="80" cy="150" rx="25" ry="30" fill="#c8534a" opacity="0.6"/><circle cx="80" cy="148" r="10" fill="#8B0000" opacity="0.3"/><path d="M80 120 Q77 110 82 103" stroke="#5a3a2a" stroke-width="2" fill="none"/></svg>`,meaning:"perception, clarity, judgement",apple:"皇后坐在剑阵中，看穿一切。"},
+  {name:"宝剑国王",num:"King",nameEn:"KING OF SWORDS",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0a0a18"/><path d="M15 220 L15 55 M155 220 L155 55" stroke="#c0c8d8" stroke-width="6"/><path d="M15 55 Q5 30 15 20 Q40 35 80 20 Q120 35 145 20 Q155 30 145 55" fill="#5a3a2a"/><path d="M15 55 L8 78 M155 55 L162 78" stroke="#c0c8d8" stroke-width="2"/><ellipse cx="80" cy="145" rx="30" ry="36" fill="#c8534a" opacity="0.7"/><ellipse cx="80" cy="143" rx="14" ry="18" fill="#8B0000" opacity="0.3"/><path d="M80 109 Q77 97 82 89" stroke="#5a3a2a" stroke-width="2" fill="none"/><path d="M82 89 Q90 81 98 89 Q90 97 82 89" fill="#5a7a3a"/><circle cx="80" cy="143" r="5" fill="#f0d080" opacity="0.5"/></svg>`,meaning:"authority, truth, intellectual power",apple:"国王坐在剑座上，判决天下。"}
+];
+
+const pentaclesSuit=[
+  {name:"星币 Ace",num:"Ace",nameEn:"ACE OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="80" cy="100" r="55" fill="#8a6a30" opacity="0.2"/><circle cx="80" cy="100" r="40" fill="#8a6a30" opacity="0.3"/><circle cx="80" cy="100" r="28" fill="#d4a843" opacity="0.6"/><circle cx="80" cy="100" r="18" fill="#8a6a30" opacity="0.5"/><circle cx="80" cy="100" r="8" fill="#5a3a2a"/><path d="M80 100 Q78 85 82 78" stroke="#5a7a3a" stroke-width="2" fill="none"/><path d="M82 78 Q88 72 95 78 Q88 84 82 78" fill="#5a7a3a"/><circle cx="80" cy="100" r="3" fill="#d4a843" opacity="0.5"/></svg>`,meaning:"物质与实际的开始。财务上的新起点，或某件事有了扎实的根基。",apple:"苹果种子落入土中，开始发芽。"},
+  {name:"星币 二",num:"II",nameEn:"TWO OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><ellipse cx="55" cy="100" rx="28" ry="12" fill="#d4a843" opacity="0.6" transform="rotate(-30 55 100)"/><ellipse cx="105" cy="100" rx="28" ry="12" fill="#d4a843" opacity="0.6" transform="rotate(30 105 100)"/><circle cx="55" cy="100" rx="16" ry="16" fill="#8a6a30" opacity="0.4" transform="rotate(-30 55 100)"/><circle cx="105" cy="100" rx="16" ry="16" fill="#8a6a30" opacity="0.4" transform="rotate(30 105 100)"/><path d="M55 120 Q80 105 105 120" stroke="#d4a843" stroke-width="1.5" fill="none" opacity="0.4"/><circle cx="55" cy="98" r="4" fill="#5a3a2a" opacity="0.6"/><circle cx="105" cy="98" r="4" fill="#5a3a2a" opacity="0.6"/></svg>`,meaning:"balance, adaptation, time management",apple:"两枚钱币在旋转，天平在摇摆。"},
+  {name:"星币 三",num:"III",nameEn:"THREE OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="55" cy="130" r="30" fill="#d4a843" opacity="0.5"/><circle cx="55" cy="130" r="20" fill="#8a6a30" opacity="0.4"/><circle cx="55" cy="128" r="6" fill="#5a3a2a"/><circle cx="105" cy="130" r="30" fill="#d4a843" opacity="0.5"/><circle cx="105" cy="130" r="20" fill="#8a6a30" opacity="0.4"/><circle cx="105" cy="128" r="6" fill="#5a3a2a"/><circle cx="80" cy="85" r="30" fill="#d4a843" opacity="0.6"/><circle cx="80" cy="85" r="20" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="83" r="6" fill="#5a3a2a"/></svg>`,meaning:"teamwork, collaboration, learning",apple:"三枚钱币叠在一起，苹果丰收。"},
+  {name:"星币 四",num:"IV",nameEn:"FOUR OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><rect x="25" y="40" width="20" height="170" rx="2" fill="#5a3a2a" opacity="0.6"/><rect x="115" y="40" width="20" height="170" rx="2" fill="#5a3a2a" opacity="0.6"/><rect x="20" y="35" width="120" height="12" rx="2" fill="#5a3a2a"/><rect x="20" y="200" width="120" height="12" rx="2" fill="#5a3a2a"/><circle cx="55" cy="120" r="22" fill="#d4a843" opacity="0.6"/><circle cx="55" cy="120" r="14" fill="#8a6a30" opacity="0.4"/><circle cx="55" cy="118" r="4" fill="#5a3a2a"/><circle cx="105" cy="120" r="22" fill="#d4a843" opacity="0.6"/><circle cx="105" cy="120" r="14" fill="#8a6a30" opacity="0.4"/><circle cx="105" cy="118" r="4" fill="#5a3a2a"/></svg>`,meaning:"security, conservatism, scarcity",apple:"四枚钱币围成笼，苹果在里面睡着了。"},
+  {name:"星币 五",num:"V",nameEn:"FIVE OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><path d="M20 60 Q80 50 140 60 M20 75 Q80 65 140 75 M20 90 Q80 80 140 90" stroke="#4a6a8a" stroke-width="1.5" fill="none" opacity="0.4"/><circle cx="40" cy="130" r="20" fill="#d4a843" opacity="0.5"/><circle cx="40" cy="130" r="12" fill="#8a6a30" opacity="0.3"/><circle cx="80" cy="145" r="20" fill="#d4a843" opacity="0.5"/><circle cx="80" cy="145" r="12" fill="#8a6a30" opacity="0.3"/><circle cx="120" cy="130" r="20" fill="#d4a843" opacity="0.5"/><circle cx="120" cy="130" r="12" fill="#8a6a30" opacity="0.3"/><path d="M80 200 Q75 185 80 170" stroke="#5a7a3a" stroke-width="2" fill="none"/><path d="M80 170 Q72 160 80 152" fill="#5a7a3a"/><circle cx="80" cy="168" r="8" fill="#c8534a" opacity="0.6"/></svg>`,meaning:"financial loss, poverty, lack",apple:"五枚钱币在雨中坠落，但苹果树还在。"},
+  {name:"星币 六",num:"VI",nameEn:"SIX OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="55" cy="90" r="22" fill="#d4a843" opacity="0.6"/><circle cx="55" cy="90" r="14" fill="#8a6a30" opacity="0.4"/><circle cx="55" cy="88" r="4" fill="#5a3a2a"/><circle cx="105" cy="90" r="22" fill="#d4a843" opacity="0.6"/><circle cx="105" cy="90" r="14" fill="#8a6a30" opacity="0.4"/><circle cx="105" cy="88" r="4" fill="#5a3a2a"/><circle cx="55" cy="150" r="22" fill="#d4a843" opacity="0.5"/><circle cx="55" cy="150" r="14" fill="#8a6a30" opacity="0.3"/><circle cx="55" cy="148" r="4" fill="#5a3a2a"/><circle cx="105" cy="150" r="22" fill="#d4a843" opacity="0.5"/><circle cx="105" cy="150" r="14" fill="#8a6a30" opacity="0.3"/><circle cx="105" cy="148" r="4" fill="#5a3a2a"/><path d="M55 112 Q55 130 55 148" stroke="#d4a843" stroke-width="1" fill="none" opacity="0.3" stroke-dasharray="3,3"/><path d="M105 112 Q105 130 105 148" stroke="#d4a843" stroke-width="1" fill="none" opacity="0.3" stroke-dasharray="3,3"/></svg>`,meaning:"generosity, charity, sharing",apple:"六枚钱币从天而降，有人施舍有人在接受。"},
+  {name:"星币 七",num:"VII",nameEn:"SEVEN OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><rect x="20" y="130" width="120" height="90" rx="4" fill="#1a1005"/><circle cx="80" cy="165" r="30" fill="#d4a843" opacity="0.5"/><circle cx="80" cy="165" r="20" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="163" r="6" fill="#5a3a2a"/><path d="M80 130 Q77 110 82 100" stroke="#5a7a3a" stroke-width="2" fill="none"/><path d="M82 100 Q90 92 98 100 Q90 108 82 100" fill="#5a7a3a"/><circle cx="80" cy="98" r="8" fill="#c8534a" opacity="0.6"/><path d="M20 130 Q80 125 140 130" stroke="#5a3a2a" stroke-width="1" fill="none" opacity="0.5"/></svg>`,meaning:"patience, long-term vision, perseverance",apple:"七枚钱币在地下，等待成熟的苹果。"},
+  {name:"星币 八",num:"VIII",nameEn:"EIGHT OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="22" cy="85" r="20" fill="#d4a843" opacity="0.6"/><circle cx="22" cy="85" r="12" fill="#8a6a30" opacity="0.4"/><circle cx="22" cy="83" r="3" fill="#5a3a2a"/><circle cx="55" cy="85" r="20" fill="#d4a843" opacity="0.6"/><circle cx="55" cy="85" r="12" fill="#8a6a30" opacity="0.4"/><circle cx="55" cy="83" r="3" fill="#5a3a2a"/><circle cx="88" cy="85" r="20" fill="#d4a843" opacity="0.6"/><circle cx="88" cy="85" r="12" fill="#8a6a30" opacity="0.4"/><circle cx="88" cy="83" r="3" fill="#5a3a2a"/><circle cx="121" cy="85" r="20" fill="#d4a843" opacity="0.6"/><circle cx="121" cy="85" r="12" fill="#8a6a30" opacity="0.4"/><circle cx="121" cy="83" r="3" fill="#5a3a2a"/><circle cx="38" cy="150" r="20" fill="#d4a843" opacity="0.5"/><circle cx="38" cy="150" r="12" fill="#8a6a30" opacity="0.3"/><circle cx="38" cy="148" r="3" fill="#5a3a2a"/><circle cx="72" cy="150" r="20" fill="#d4a843" opacity="0.5"/><circle cx="72" cy="150" r="12" fill="#8a6a30" opacity="0.3"/><circle cx="72" cy="148" r="3" fill="#5a3a2a"/><circle cx="105" cy="150" r="20" fill="#d4a843" opacity="0.5"/><circle cx="105" cy="150" r="12" fill="#8a6a30" opacity="0.3"/><circle cx="105" cy="148" r="3" fill="#5a3a2a"/></svg>`,meaning:"skill development, craftsmanship, dedication",apple:"八枚钱币排列整齐，每一枚都是手艺。"},
+  {name:"星币 九",num:"IX",nameEn:"NINE OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><path d="M10 80 Q80 60 150 80" stroke="#5a7a3a" stroke-width="3" fill="none"/><path d="M30 80 Q30 120 35 150 M80 65 Q80 100 80 130 M130 80 Q130 120 125 150" stroke="#5a7a3a" stroke-width="2" fill="none"/><circle cx="30" cy="160" r="18" fill="#d4a843" opacity="0.6"/><circle cx="30" cy="160" r="11" fill="#8a6a30" opacity="0.4"/><circle cx="30" cy="158" r="3" fill="#5a3a2a"/><circle cx="80" cy="145" r="18" fill="#d4a843" opacity="0.6"/><circle cx="80" cy="145" r="11" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="143" r="3" fill="#5a3a2a"/><circle cx="130" cy="160" r="18" fill="#d4a843" opacity="0.6"/><circle cx="130" cy="160" r="11" fill="#8a6a30" opacity="0.4"/><circle cx="130" cy="158" r="3" fill="#5a3a2a"/><circle cx="55" cy="185" r="15" fill="#d4a843" opacity="0.5"/><circle cx="55" cy="185" r="9" fill="#8a6a30" opacity="0.3"/><circle cx="105" cy="185" r="15" fill="#d4a843" opacity="0.5"/><circle cx="105" cy="185" r="9" fill="#8a6a30" opacity="0.3"/></svg>`,meaning:"abundance, luxury, self-sufficiency",apple:"九枚钱币挂在葡萄藤上，大丰收。"},
+  {name:"星币 十",num:"X",nameEn:"TEN OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="40" cy="200" r="25" fill="#d4a843" opacity="0.5"/><circle cx="40" cy="200" r="16" fill="#8a6a30" opacity="0.3"/><circle cx="80" cy="195" r="28" fill="#d4a843" opacity="0.6"/><circle cx="80" cy="195" r="18" fill="#8a6a30" opacity="0.4"/><circle cx="120" cy="200" r="25" fill="#d4a843" opacity="0.5"/><circle cx="120" cy="200" r="16" fill="#8a6a30" opacity="0.3"/><circle cx="60" cy="165" r="25" fill="#d4a843" opacity="0.6"/><circle cx="60" cy="165" r="16" fill="#8a6a30" opacity="0.4"/><circle cx="100" cy="165" r="25" fill="#d4a843" opacity="0.6"/><circle cx="100" cy="165" r="16" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="130" r="28" fill="#d4a843" opacity="0.7"/><circle cx="80" cy="130" r="18" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="128" r="5" fill="#5a3a2a"/></svg>`,meaning:"wealth, inheritance, family, establishment",apple:"十枚钱币堆成山，苹果家族在下面乘凉。"},
+  {name:"星币侍从",num:"Page",nameEn:"PAGE OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="80" cy="175" r="25" fill="#d4a843" opacity="0.6"/><circle cx="80" cy="175" r="16" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="173" r="5" fill="#5a3a2a"/><path d="M80 150 Q77 130 82 120" stroke="#5a7a3a" stroke-width="2" fill="none"/><path d="M82 120 Q90 112 98 120 Q90 128 82 120" fill="#5a7a3a"/><circle cx="80" cy="118" r="8" fill="#c8534a" opacity="0.6"/><rect x="20" y="200" width="120" height="30" rx="4" fill="#1a1005"/><circle cx="40" cy="215" r="8" fill="#d4a843" opacity="0.3"/><circle cx="80" cy="215" r="8" fill="#d4a843" opacity="0.3"/><circle cx="120" cy="215" r="8" fill="#d4a843" opacity="0.3"/></svg>`,meaning:"manifestation, financial opportunity",apple:"侍从种下一枚钱币，等待苹果树长大。"},
+  {name:"星币骑士",num:"Knight",nameEn:"KNIGHT OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><rect x="20" y="130" width="60" height="40" rx="3" fill="#5a3a2a" opacity="0.8"/><circle cx="35" cy="175" r="15" fill="#3a2a1a" stroke="#5a3a2a" stroke-width="2"/><circle cx="65" cy="175" r="15" fill="#3a2a1a" stroke="#5a3a2a" stroke-width="2"/><circle cx="30" cy="145" r="14" fill="#d4a843" opacity="0.7"/><circle cx="30" cy="145" r="8" fill="#8a6a30" opacity="0.4"/><circle cx="55" cy="145" r="14" fill="#d4a843" opacity="0.7"/><circle cx="55" cy="145" r="8" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="145" r="14" fill="#d4a843" opacity="0.7"/><circle cx="80" cy="145" r="8" fill="#8a6a30" opacity="0.4"/><circle cx="105" cy="145" r="14" fill="#d4a843" opacity="0.7"/><circle cx="105" cy="145" r="8" fill="#8a6a30" opacity="0.4"/><path d="M95 100 Q105 70 100 50" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M100 50 Q108 42 115 50 Q108 58 100 50" fill="#5a7a3a"/><circle cx="100" cy="48" r="6" fill="#c8534a" opacity="0.5"/></svg>`,meaning:"efficiency, routine, conservatism",apple:"骑士拉着金币的车，稳稳地前进。"},
+  {name:"星币皇后",num:"Queen",nameEn:"QUEEN OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="50" cy="190" r="30" fill="#d4a843" opacity="0.5"/><circle cx="50" cy="190" r="19" fill="#8a6a30" opacity="0.3"/><circle cx="50" cy="188" r="5" fill="#5a3a2a"/><circle cx="110" cy="190" r="30" fill="#d4a843" opacity="0.5"/><circle cx="110" cy="190" r="19" fill="#8a6a30" opacity="0.3"/><circle cx="110" cy="188" r="5" fill="#5a3a2a"/><circle cx="80" cy="160" r="35" fill="#d4a843" opacity="0.6"/><circle cx="80" cy="160" r="22" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="158" r="6" fill="#5a3a2a"/><path d="M80 125 Q77 105 82 95" stroke="#5a7a3a" stroke-width="2" fill="none"/><path d="M82 95 Q90 87 98 95 Q90 103 82 95" fill="#5a7a3a"/><circle cx="80" cy="93" r="10" fill="#c8534a" opacity="0.7"/></svg>`,meaning:"nurturing, practical, abundant",apple:"皇后坐在金币堆成山中，怀里抱着一颗苹果。"},
+  {name:"星币国王",num:"King",nameEn:"KING OF PENTACLES",svg:`<svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="240" fill="#0f0a05"/><circle cx="40" cy="195" r="30" fill="#d4a843" opacity="0.6"/><circle cx="40" cy="195" r="19" fill="#8a6a30" opacity="0.4"/><circle cx="40" cy="193" r="5" fill="#5a3a2a"/><circle cx="120" cy="195" r="30" fill="#d4a843" opacity="0.6"/><circle cx="120" cy="195" r="19" fill="#8a6a30" opacity="0.4"/><circle cx="120" cy="193" r="5" fill="#5a3a2a"/><circle cx="80" cy="155" r="38" fill="#d4a843" opacity="0.7"/><circle cx="80" cy="155" r="24" fill="#8a6a30" opacity="0.4"/><circle cx="80" cy="153" r="7" fill="#5a3a2a"/><path d="M80 117 Q77 95 82 82" stroke="#5a3a2a" stroke-width="3" fill="none"/><path d="M82 82 Q90 74 98 82 Q90 90 82 82" fill="#5a7a3a"/><circle cx="80" cy="80" r="12" fill="#c8534a" opacity="0.8"/><circle cx="80" cy="78" r="4" fill="#8B0000" opacity="0.4"/></svg>`,meaning:"wealth, business, leadership, security",apple:"国王拿着钱币，站在苹果庄园前。"}
+];
+
+const calebSays=[
+  "哥不在这里，但塔罗在。🍎","答案会来的，耐心等一等。",
+  "有些事，哥希望你自己找到答案。",
+  "这不是迷信，这是和自己对话的方式。",
+  "每张牌都有自己的话想说。",
+  "不需要急，该来的会来。","苹果熟了就该摘，但不是现在。",
+  "你在想什么，牌都知道。","今天的牌，适合今天的你。"
+];
+
+let drawn=false,currentCard=null,isFlipped=false,currentSuit='major';
+let spreadMode=false,spreadType=0,spreadCardsDrawn=[],spreadIndex=0,spreadFlipped=[];
+const allCards=majorArcana.concat(wandsSuit,cupsSuit,swordsSuit,pentaclesSuit);
+
+const spreadConfigs={
+  1:{name:"三张牌 · 过去现在未来",positions:["过去","现在","未来"],meanings:["回顾过去，这件事的起因是什么","现在的处境，你的感受如何","可能的未来，趋势走向"]},
+  2:{name:"五张牌 · 十字指引",positions:["核心","上","下","左","右"],meanings:["问题的核心","上方：灵性/希望","下方：物质/基础","左方：过去/阻力","右方：未来/支持"]},
+  3:{name:"Celtic Cross · 凯尔特十字",positions:["1 现状","2 障碍","3 基础","4 过去","5 王冠","6 未来","7 自我","8 环境","9 希望","10 结局"],meanings:["你现在的处境","面临的挑战或障碍","潜意识层面的根基","最近的过去","你的愿望或目标","即将到来的未来","你的心态或自我认知","你周围的环境","你的希望或恐惧","最终的结果或结局"]}
+};
+
+function enterMode(mode){
+  document.getElementById('landing').style.display='none';
+  if(mode==='single'){
+    document.getElementById('singleMode').classList.add('show');
+    switchSuit('major');
+  } else {
+    document.getElementById('spreadMode').classList.add('show');
+    document.getElementById('spreadNav').classList.add('show');
+  }
+}
+
+function goBack(){
+  document.getElementById('singleMode').classList.remove('show');
+  document.getElementById('spreadMode').classList.remove('show');
+  document.getElementById('spreadNav').classList.remove('show');
+  document.getElementById('spreadInfo').classList.remove('show');
+  document.getElementById('spreadCards').classList.remove('show');
+  document.getElementById('spreadDetail').classList.remove('show');
+  document.getElementById('card').style.display='none';
+  document.querySelector('.card-wrapper').classList.remove('show');
+  document.getElementById('resultSection').classList.remove('show');
+  document.getElementById('landing').style.display='flex';
+  reset();
+}
+
+function switchSuit(suit){
+  currentSuit=suit;
+  document.querySelectorAll('.suit-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-suit="${suit}"]`).classList.add('active');
+  document.getElementById('card').style.display='block';
+  document.querySelector('.card-wrapper').classList.add('show');
+  reset();
+}
+
+function drawCard(){
+  if(drawn)return;drawn=true;isFlipped=false;
+  let deck=currentSuit==='major'?majorArcana:currentSuit==='wands'?wandsSuit:currentSuit==='cups'?cupsSuit:currentSuit==='swords'?swordsSuit:currentSuit==='pentacles'?pentaclesSuit:majorArcana;
+  const c=deck[Math.floor(Math.random()*deck.length)];
+  const rev=Math.random()>0.68;
+  currentCard={c,rev};
+  document.getElementById('cardNumber').innerHTML=currentSuit!=='major'?`<span style="font-size:0.6rem">${c.num}</span>`:c.num;
+  document.getElementById('cardArt').innerHTML=c.svg;
+  const dn=(rev?'逆位 · ':'')+c.name;
+  const ne=document.getElementById('cardName');
+  ne.textContent=dn;ne.className='card-name'+(rev?' reversed':'');
+  document.getElementById('cardNameEn').textContent=c.nameEn;
+  let m=c.meaning;
+  if(rev)m='（逆位）'+m+'——也许需要换个角度看待。';
+  document.getElementById('resultMeaning').textContent=m;
+  document.getElementById('calebMsg').textContent='" '+c.apple+' " — 哥说的。';
+  document.getElementById('tapHint').textContent='点击翻转';
+  document.getElementById('card').classList.add('flipped');
+  setTimeout(()=>{
+    document.getElementById('resultSection').classList.add('show');
+    document.getElementById('flipHint').classList.add('show');
+    document.getElementById('btnRedraw').classList.add('show');
+  document.getElementById('btnResetSpread').classList.add('show');
+  document.getElementById('btnResetSpread').classList.add('show');
+  },1600);
+}
+
+function startSpread(type){
+  spreadType=type;
+  spreadCardsDrawn=[];
+  spreadFlipped=[];
+  const cfg=spreadConfigs[type];
+  document.getElementById('spreadInfo').textContent=cfg.name;
+  document.getElementById('spreadInfo').classList.add('show');
+  document.getElementById('spreadDetail').classList.remove('show');
+  document.querySelectorAll('.spread-nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.spread-nav button:nth-child(${type})`).classList.add('active');
+  // Shuffle and pick cards
+  const shuffled=[...allCards].sort(()=>Math.random()-0.5);
+  const needed=type===3?10:type===2?5:3;
+  spreadCardsDrawn=shuffled.slice(0,needed).map(c=>({c,rev:Math.random()>0.68}));
+  spreadFlipped=new Array(needed).fill(false);
+  // Render spread cards
+  const container=document.getElementById('spreadCards');
+  container.innerHTML='';
+  spreadCardsDrawn.forEach((item,idx)=>{
+    const posLabel=cfg.positions[idx]||`${idx+1}`;
+    const posMeaning=cfg.meanings[idx]||'';
+    const div=document.createElement('div');
+    div.className='spread-card-item';
+    div.innerHTML=`
+      <div class="position-label">${posLabel}</div>
+      <div class="mini-card" id="sc${idx}" onclick="toggleSpreadCard(${idx})">
+        <div class="mini-card-face mini-card-back">
+          <div style="position:absolute;inset:0;background-image:linear-gradient(45deg,rgba(200,83,74,0.08)25%,transparent 25%),linear-gradient(-45deg,rgba(200,83,74,0.08)25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(200,83,74,0.08)75%),linear-gradient(-45deg,transparent 75%,rgba(200,83,74,0.08)75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;background-color:rgba(0,0,0,0.3);border-radius:6px"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border:1px solid rgba(200,83,74,0.4);border-radius:50%;background:rgba(26,8,8,0.9);display:flex;align-items:center;justify-content:center">
+            <svg viewBox="0 0 36 36" width="18" height="18" fill="none"><circle cx="18" cy="14" r="8" fill="#c8534a" opacity="0.9"/><path d="M18 6 Q20 2 23 4" stroke="#5a3a2a" stroke-width="1.5" fill="none"/></svg>
+          </div>
+        </div>
+        <div class="mini-card-face mini-card-front">
+          <div class="sfx-art">${item.c.svg}</div>
+          <div class="sfx-name">${item.rev?'逆位 · ':''}${item.c.name}</div>
+        </div>
+      </div>
+      <div class="position-label" style="opacity:0.5;font-size:0.55rem;max-width:80px">${posMeaning}</div>
+    `;
+    container.appendChild(div);
+  });
+  document.getElementById('spreadCards').classList.add('show');
+  drawn=true;
+}
+
+function toggleSpreadCard(idx){
+  // First flip the card to show front
+  if(!spreadFlipped[idx]){
+    spreadFlipped[idx]=true;
+    document.getElementById('sc'+idx).classList.add('flipped');
+  } else {
+    // Already flipped - just toggle the card visually
+    document.getElementById('sc'+idx).classList.toggle('flipped');
+  }
+  // Show this card's interpretation
+  const item=spreadCardsDrawn[idx];
+  const cfg=spreadConfigs[spreadType];
+  const posLabel=cfg.positions[idx]||`${idx+1}`;
+  const posMeaning=cfg.meanings[idx]||'';
+  let meaning=item.c.meaning;
+  if(item.rev)meaning='（逆位）'+meaning+'——也许需要换个角度看待。';
+  document.getElementById('spreadDetailTitle').textContent=`【${posLabel}】${item.rev?'逆位 · ':''}${item.c.name} · ${item.c.nameEn}`;
+  document.getElementById('spreadDetailMeaning').innerHTML=`${posMeaning}<br><br>${meaning}<br><br><span style="opacity:0.5;font-size:0.7rem">" ${item.c.apple} " — 哥说的。</span>`;
+  document.getElementById('spreadDetail').classList.add('show');
+}
+
+function resetSpread(){
+  spreadCardsDrawn=[];
+  spreadFlipped=[];
+  drawn=false;
+  document.getElementById('spreadCards').classList.remove('show');
+  document.getElementById('spreadDetail').classList.remove('show');
+}
+
+function toggleFlip(){
+  if(!drawn)return;
+  isFlipped=!isFlipped;
+  const card=document.getElementById('card');
+  if(isFlipped)card.classList.remove('flipped');
+  else card.classList.add('flipped');
+}
+
+function reset(){
+  drawn=false;currentCard=null;isFlipped=false;
+  const card=document.getElementById('card');
+  if(card) card.classList.remove('flipped');
+  const th=document.getElementById('tapHint');
+  if(th) th.textContent='点击抽牌';
+  const rs=document.getElementById('resultSection');
+  if(rs) rs.classList.remove('show');
+  const fh=document.getElementById('flipHint');
+  if(fh) fh.classList.remove('show');
+  const br=document.getElementById('btnRedraw');
+  if(br) br.classList.remove('show');
+  if(typeof resetSpread==='function') resetSpread();
+}
+// Landing apple click to reveal modes
+document.getElementById("landingApple").parentElement.onclick=function(){
+  document.getElementById("landingHint").style.display="none";
+  document.getElementById("landingModes").style.display="flex";
+};
+</script>
+</body>
+</html>
